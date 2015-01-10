@@ -1,0 +1,2 @@
+#W/RenderThread( 3202): type=1400 audit(0.0:167): avc: denied { search } for name="tmp" dev="mmcblk0p26" ino=261176 scontext=u:r:system_app:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir
+allow system_app shell_data_file:dir { search };

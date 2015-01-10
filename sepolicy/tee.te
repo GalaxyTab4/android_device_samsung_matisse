@@ -1,0 +1,48 @@
+allow tee self:process execmem;
+
+# /data/misc/playready labeling
+type_transition tee system_data_file:dir drm_data_file;
+
+# Access /data/misc/playready
+allow tee system_data_file:dir ra_dir_perms;
+allow tee drm_data_file:dir create_dir_perms;
+allow tee drm_data_file:file create_file_perms;
+
+# Read from persist partition
+allow tee persist_file:dir r_dir_perms;
+r_dir_file(tee, persist_data_file)
+r_dir_file(tee, persist_drm_file)
+# Write to drm related pieces of persist partition
+allow tee persist_drm_file:dir create_dir_perms;
+allow tee persist_drm_file:file create_file_perms;
+
+# b/15777869 - update for Nexus 5 modular DRM
+
+# tee starts as root, and drops privileges
+allow tee self:capability { setuid setgid };
+
+# Need to directly minipulate certain block devices
+# for anti-rollback protection
+allow tee block_device:dir search;
+allow tee self:capability sys_rawio;
+allow tee drm_block_device:blk_file rw_file_perms;
+allow tee ssd_block_device:blk_file rw_file_perms;
+
+
+allow tee property_socket:sock_file { write };
+
+#W/qseecomd(  434): type=1400 audit(0.0:14): avc: denied { connectto } for path="/dev/socket/property_service" scontext=u:r:tee:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+allow tee init:unix_stream_socket { connectto };
+
+#W/qseecomd(  439): type=1400 audit(0.0:167): avc: denied { getattr } for path="/efs/drm/widevine/5dsokxEEDXgQhkN50bp-Z2K5InM_/RXFABDUxyT6Q+Zwx9ZhPGOq2Bq8_" dev="mmcblk0p11" ino=68 scontext=u:r:tee:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+#W/qseecomd(  439): type=1400 audit(0.0:168): avc: denied { read } for name="RXFABDUxyT6Q+Zwx9ZhPGOq2Bq8_" dev="mmcblk0p11" ino=68 scontext=u:r:tee:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+#W/qseecomd(  439): type=1400 audit(0.0:168): avc: denied { open } for name="RXFABDUxyT6Q+Zwx9ZhPGOq2Bq8_" dev="mmcblk0p11" ino=68 scontext=u:r:tee:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+allow tee efs_file:file { open read getattr };
+
+#W/qseecomd(  494): type=1400 audit(0.0:216): avc: denied { search } for name="/" dev="mmcblk0p11" ino=2 scontext=u:r:tee:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+allow tee efs_file:dir { search };
+
+#<4>[    6.180619] avc:  denied  { set } for property=sys.qseecomd.enable scontext=u:r:tee:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+allow tee system_prop:property_service { set };
+
+

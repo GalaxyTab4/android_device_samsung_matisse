@@ -1,0 +1,6 @@
+#W/BluetoothAdapte( 2416): type=1400 audit(0.0:170): avc: denied { write } for name="state" dev="sysfs" ino=10371 scontext=u:r:bluetooth:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+#W/BluetoothAdapte( 2301): type=1400 audit(0.0:170): avc: denied { write } for name="state" dev="sysfs" ino=10371 scontext=u:r:bluetooth:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+allow bluetooth sysfs:file { rename create write };
+
+#W/bt_hc_worker( 2452): type=1400 audit(0.0:172): avc: denied { read write } for name="ttyHS0" dev="tmpfs" ino=9232 scontext=u:r:bluetooth:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+allow bluetooth hci_attach_dev:chr_file { read write };

@@ -1,0 +1,33 @@
+# Grant access to Qualcomm MSM Interface (QMI) audio sockets to mediaserver
+qmux_socket(mediaserver)
+
+unix_socket_send(mediaserver, camera, camera)
+unix_socket_send(mediaserver, mpdecision, mpdecision)
+
+# Permit mediaserver to create sockets with no specific SELinux class.
+# TODO: Investigate the specific type of socket.
+allow mediaserver self:socket create_socket_perms;
+
+allow mediaserver persist_drm_file:dir create_dir_perms;
+allow mediaserver persist_drm_file:file create_file_perms;
+
+#W/mediaserver(  400): type=1400 audit(0.0:166): avc: denied { write } for name="mpctl" dev="tmpfs" ino=7004 scontext=u:r:mediaserver:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file
+#allow mediaserver socket_device:dir w_dir_perms;
+allow mediaserver socket_device:sock_file { write };
+
+#W/mediaserver(  400): type=1400 audit(0.0:166): avc: denied { connectto } for path="/dev/socket/mpctl" scontext=u:r:mediaserver:s0 tcontext=u:r:mpdecision:s0 tclass=unix_stream_socket
+allow mediaserver mpdecision:unix_stream_socket { connectto };
+
+#W/Binder_2( 2354): type=1400 audit(0.0:171): avc: denied { connectto } for path="/dev/socket/thermal-send-client" scontext=u:r:mediaserver:s0 tcontext=u:r:thermald:s0 tclass=unix_stream_socket
+allow mediaserver thermald:unix_stream_socket { connectto };
+
+#W/mediaserver(  397): type=1400 audit(0.0:165): avc: denied { search } for name="/" dev="mmcblk0p1" ino=1 scontext=u:r:mediaserver:s0 tcontext=u:object_r:firmware_file:s0 tclass=dir
+allow mediaserver firmware_file:dir { search };
+
+#W/mediaserver(  397): type=1400 audit(0.0:165): avc: denied { read } for name="widevine.mdt" dev="mmcblk0p1" ino=580 scontext=u:r:mediaserver:s0 tcontext=u:object_r:firmware_file:s0 tclass=file
+#W/mediaserver(  397): type=1400 audit(0.0:165): avc: denied { open } for name="widevine.mdt" dev="mmcblk0p1" ino=580 scontext=u:r:mediaserver:s0 tcontext=u:object_r:firmware_file:s0 tclass=file
+#/mediaserver(  397): type=1400 audit(0.0:166): avc: denied { getattr } for path="/firmware/image/widevine.mdt" dev="mmcblk0p1" ino=580 scontext=u:r:mediaserver:s0 tcontext=u:object_r:firmware_file:s0 tclass=file
+allow mediaserver firmware_file:file { open read getattr };
+
+#W/Binder_3( 1492): type=1400 audit(0.0:206): avc: denied { write } for name="thermal-send-client" dev="tmpfs" ino=6989 scontext=u:r:mediaserver:s0 tcontext=u:object_r:thermald_socket:s0 tclass=sock_file
+allow mediaserver thermald_socket:sock_file { write };

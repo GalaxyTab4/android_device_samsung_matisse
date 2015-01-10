@@ -1,0 +1,8 @@
+# Reading from /persist/wifi/.macaddr
+allow wpa persist_file:dir r_dir_perms;
+r_dir_file(wpa, persist_wifi_file)
+
+#W/wpa_supplicant(  944): type=1400 audit(0.0:204): avc: denied { search } for name="/" dev="mmcblk0p11" ino=2 scontext=u:r:wpa:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+allow wpa efs_file:dir { search };
+
+allow wpa efs_file:file { read open };

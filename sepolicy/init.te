@@ -1,0 +1,7 @@
+#W/init    (    1): type=1400 audit(0.0:13): avc: denied { read } for name="data" dev="mmcblk0p26" ino=261177 scontext=u:r:init:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir
+#W/init    (    1): type=1400 audit(0.0:13): avc: denied { getattr } for path="/data/data" dev="mmcblk0p26" ino=261177 scontext=u:r:init:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir
+#W/init    (    1): type=1400 audit(0.0:13): avc: denied { relabelfrom } for name="data" dev="mmcblk0p26" ino=261177 scontext=u:r:init:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir
+allow init app_data_file:dir { open read search getattr setattr relabelfrom };
+
+#W/init    (    1): type=1400 audit(0.0:14): avc: denied { relabelfrom } for name="local" dev="mmcblk0p26" ino=261175 scontext=u:r:init:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir
+allow init shell_data_file:dir { relabelfrom };

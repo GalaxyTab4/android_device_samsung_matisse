@@ -1,0 +1,23 @@
+# Grant access to Qualcomm MSM Interface (QMI) radio sockets to RILD
+qmux_socket(rild)
+
+#W/rild    (  442): type=1400 audit(0.0:92): avc: denied { write } for name="radio" dev="mmcblk0p26" ino=261134 scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+#W/rild    (  442): type=1400 audit(0.0:92): avc: denied { remove_name } for name="ahrh" dev="mmcblk0p26" ino=284086 scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+#W/rild    (  442): type=1400 audit(0.0:93): avc: denied { add_name } for name="mgzc" scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+allow rild system_data_file:dir { write remove_name add_name };
+
+
+#W/rild    (  442): type=1400 audit(0.0:92): avc: denied { unlink } for name="ahrh" dev="mmcblk0p26" ino=284086 scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#W/rild    (  442): type=1400 audit(0.0:93): avc: denied { create } for name="mgzc" scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#W/rild    (  442): type=1400 audit(0.0:93): avc: denied { write } for name="mgzc" dev="mmcblk0p26" ino=282910 scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#W/rild    (  442): type=1400 audit(0.0:95): avc: denied { setattr } for name="mgzc" dev="mmcblk0p26" ino=282910 scontext=u:r:rild:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+allow rild system_data_file:file { unlink create write setattr };
+
+#W/rild    (  442): type=1400 audit(0.0:96): avc: denied { write } for name="accept_ra_defrtr" dev="proc" ino=10785 scontext=u:r:rild:s0 tcontext=u:object_r:proc_net:s0 tclass=file
+allow rild proc_net:file { write };
+
+#W/rild    (  398): type=1400 audit(0.0:32): avc: denied { read write } for name="diag" dev="tmpfs" ino=9879 scontext=u:r:rild:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file
+allow rild diag_device:chr_file { read write open };
+
+#W/rild    (  496): type=1400 audit(0.0:104): avc: denied { search } for name="data" dev="mmcblk0p26" ino=261177 scontext=u:r:rild:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir
+allow rild app_data_file:dir { search };

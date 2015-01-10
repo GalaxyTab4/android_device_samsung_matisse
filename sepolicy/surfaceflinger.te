@@ -1,0 +1,4 @@
+allow surfaceflinger sysfs_surfaceflinger:file rw_file_perms;
+
+#W/surfaceflinger(  341): type=1400 audit(0.0:28): avc: denied { search } for name="local" dev="mmcblk0p26" ino=261175 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir
+allow surfaceflinger shell_data_file:dir { search };

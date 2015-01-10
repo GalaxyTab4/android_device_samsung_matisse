@@ -1,0 +1,41 @@
+# Grant access to Qualcomm MSM Interface (QMI) radio sockets to system services
+# (e.g., LocationManager)
+qmux_socket(system_server)
+
+# PowerManagerService access to sensors socket
+unix_socket_connect(system_server, sensors, sensors)
+unix_socket_send(system_server, sensors, sensors)
+allow system_server sensors:unix_stream_socket sendto;
+allow system_server sensors_socket:sock_file r_file_perms;
+
+# mpdecision socket access
+unix_socket_connect(system_server, mpdecision, mpdecision)
+unix_socket_send(system_server, mpdecision, mpdecision)
+allow system_server mpdecision:unix_stream_socket sendto;
+allow system_server mpdecision_socket:dir search;
+
+# Read /data/tombstones/ramdump files.
+allow system_server ramdump_data_file:dir r_dir_perms;
+allow system_server ramdump_data_file:file r_file_perms;
+
+allow system_server self:netlink_socket create_socket_perms;
+
+allow system_server rtc:chr_file rw_file_perms;
+
+#W/system_server(  721): type=1400 audit(0.0:120): avc: denied { read } for name="gyro_calibration_data" dev="mmcblk0p11" ino=56 scontext=u:r:system_server:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+#W/system_server(  721): type=1400 audit(0.0:120): avc: denied { open } for name="gyro_calibration_data" dev="mmcblk0p11" ino=56 scontext=u:r:system_server:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+allow system_server efs_file:file { read open };
+
+#W/system_server(  762): type=1400 audit(0.0:156): avc: denied { search } for name="/" dev="mmcblk0p11" ino=2 scontext=u:r:system_server:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+allow system_server efs_file:dir { search };
+
+#W/system_server(  766): type=1400 audit(0.0:236): avc: denied { search } for name="0" dev="mmcblk0p26" ino=56 scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=dir
+#W/system_server(  766): type=1400 audit(0.0:233): avc: denied { getattr } for path="/data/system/users/0" dev="mmcblk0p26" ino=56 scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=dir
+#W/system_server(  761): type=1400 audit(0.0:126): avc: denied { remove_name } for name="package-restrictions.xml" dev="mmcblk0p26" ino=149 scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=dir
+#W/system_server(  761): type=1400 audit(0.0:170): avc: denied { add_name } for name="wallpaper_info.xml.tmp" scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=dir
+#W/Binder_8( 1283): type=1400 audit(0.0:177): avc: denied { open } for name="0" dev="mmcblk0p26" ino=56 scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=dir
+allow system_server wallpaper_file:dir { open search getattr write read add_name remove_name };
+
+#W/system_server(  767): type=1400 audit(0.0:123): avc: denied { rename } for name="package-restrictions.xml" dev="mmcblk0p26" ino=149 scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=file
+#W/system_server(  763): type=1400 audit(0.0:166): avc: denied { create } for name="wallpaper_info.xml.tmp" scontext=u:r:system_server:s0 tcontext=u:object_r:wallpaper_file:s0 tclass=file
+allow system_server wallpaper_file:file { rename create };
