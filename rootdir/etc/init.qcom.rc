@@ -291,11 +291,13 @@ on post-fs-data
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
     mkdir /data/media 0770 media_rw media_rw
     chown media_rw media_rw /data/media
-    
+
     mkdir /data/media/0 0775 media_rw media_rw
     chown media_rw media_rw /data/media/0
 
-# we will remap this as /storage/container with the sdcard fuse tool
+    restorecon_recursive /data/media/0
+
+    # we will remap this as /storage/container with the sdcard fuse tool
     mkdir /data/container 0770 system system
     chown system system /data/container
 
