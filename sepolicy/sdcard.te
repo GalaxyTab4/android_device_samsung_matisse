@@ -1,0 +1,28 @@
+#W/sdcard  (  433): type=1400 audit(0.0:237): avc: denied { read } for name="Download" dev="mmcblk0p26" ino=391725 scontext=u:r:sdcardd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+#W/sdcard  (  430): type=1400 audit(0.0:204): avc: denied { open } for name="Download" dev="mmcblk0p26" ino=391725 scontext=u:r:sdcardd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+#W/sdcard  (  431): type=1400 audit(0.0:170): avc: denied { getattr } for path="/data/media/0/TWRP/BACKUPS" dev="mmcblk0p26" ino=391762 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  428): type=1400 audit(0.0:173): avc: denied { write } for name="Download" dev="mmcblk0p26" ino=391725 scontext=u:r:sdcardd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+#W/sdcard  (  433): type=1400 audit(0.0:170): avc: denied { add_name } for name="com.google.android.projection.gearhead-1.1.069670_(1891547-release)-11069670-minAPI21.apk" scontext=u:r:sdcardd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+#W/sdcard  (  424): type=1400 audit(0.0:182): avc: denied { remove_name } for name="imgcache.idx" dev="mmcblk0p26" ino=958 scontext=u:r:sdcardd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+allow sdcardd system_data_file:dir { read write open getattr setattr add_name remove_name };
+
+#W/sdcard  (  441): type=1400 audit(0.0:1406): avc: denied { write } for name="imgcache.idx" dev="mmcblk0p26" ino=958 scontext=u:r:sdcardd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+allow sdcardd system_data_file:file { read write open };
+
+
+#W/sdcard  (  427): type=1400 audit(0.0:173): avc: denied { getattr } for path="/data/media/0/0/pa_gapps_log.txt" dev="mmcblk0p26" ino=391693 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+#W/sdcard  (  428): type=1400 audit(0.0:174): avc: denied { create } for name="temp.main.1415.com.supercell.hayday.obb" scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+#W/sdcard  (  429): type=1400 audit(0.0:171): avc: denied { unlink } for name="temp.main.1415.com.supercell.hayday.obb" dev="mmcblk0p26" ino=1462 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+#W/sdcard  (  429): type=1400 audit(0.0:172): avc: denied { open } for name="temp.main.1415.com.supercell.hayday-1.obb" dev="mmcblk0p26" ino=1463 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+#W/sdcard  (  422): type=1400 audit(0.0:186): avc: denied { rename } for name="temp.main.1415.com.supercell.hayday.obb" dev="mmcblk0p26" ino=1470 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+allow sdcardd unlabeled:file { read write create unlink open getattr setattr rename };
+
+#W/sdcard  (  442): type=1400 audit(0.0:1637): avc: denied { search } for name="obb" dev="mmcblk0p26" ino=8163 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  442): type=1400 audit(0.0:1638): avc: denied { read } for name="obb" dev="mmcblk0p26" ino=8163 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  428): type=1400 audit(0.0:183): avc: denied { open } for name="obb" dev="mmcblk0p26" ino=8163 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  420): type=1400 audit(0.0:16): avc: denied { setattr } for name="obb" dev="mmcblk0p26" ino=8163 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  424): type=1400 audit(0.0:191): avc: denied { write } for name="obb" dev="mmcblk0p26" ino=8163 scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  426): type=1400 audit(0.0:174): avc: denied { add_name } for name="com.supercell.hayday" scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+#W/sdcard  (  426): type=1400 audit(0.0:174): avc: denied { create } for name="com.supercell.hayday" scontext=u:r:sdcardd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+allow sdcardd unlabeled:dir { search read write create unlink open getattr setattr add_name remove_name };
+

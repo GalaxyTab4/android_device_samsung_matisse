@@ -15,9 +15,9 @@
 -->
 
 <resources>
-    <!-- Display additional System Update menu if true -->
-    <bool name="config_additional_system_update_setting_enable">true</bool>
-    
     <!-- Whether to show a preference item for mobile plan -->
     <bool name="config_show_mobile_plan">false</bool>
+
+    <!-- PowerControl is deprecated, but it was shipped with this device -->
+    <bool name="has_powercontrol_widget">true</bool>
 </resources>

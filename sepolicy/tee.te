@@ -42,6 +42,12 @@ allow tee efs_file:file { open read getattr };
 #W/qseecomd(  494): type=1400 audit(0.0:216): avc: denied { search } for name="/" dev="mmcblk0p11" ino=2 scontext=u:r:tee:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
 allow tee efs_file:dir { search };
 
+#W/qseecomd(  357): type=1400 audit(0.0:176): avc: denied { search } for name="drm" dev="mmcblk0p11" ino=12 scontext=u:r:tee:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+allow tee unlabeled:dir { search };
+
+#W/qseecomd(  361): type=1400 audit(0.0:183): avc: denied { getattr } for path="/efs/drm/widevine/5dsokxEEDXgQhkN50bp-Z2K5InM_/RXFABDUxyT6Q+Zwx9ZhPGOq2Bq8_" dev="mmcblk0p11" ino=68 scontext=u:r:tee:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+allow tee unlabeled:file { getattr };
+
 #<4>[    6.180619] avc:  denied  { set } for property=sys.qseecomd.enable scontext=u:r:tee:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
 allow tee system_prop:property_service { set };
 

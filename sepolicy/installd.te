@@ -1,0 +1,2 @@
+#W/installd(  717): type=1400 audit(0.0:125): avc: denied { setattr } for name="obb" dev="mmcblk0p26" ino=8163 scontext=u:r:installd:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+allow installd unlabeled:dir { setattr };

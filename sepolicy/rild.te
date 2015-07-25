@@ -21,3 +21,10 @@ allow rild diag_device:chr_file { read write open };
 
 #W/rild    (  496): type=1400 audit(0.0:104): avc: denied { search } for name="data" dev="mmcblk0p26" ino=261177 scontext=u:r:rild:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir
 allow rild app_data_file:dir { search };
+
+#W/rild    (  724): type=1400 audit(0.0:174): avc: denied { search } for name="imei" dev="mmcblk0p11" ino=61 scontext=u:r:rild:s0 tcontext=u:object_r:unlabeled:s0 tclass=dir
+allow rild unlabeled:dir { search };
+
+#W/rild    (  723): type=1400 audit(0.0:167): avc: denied { read } for name="mps_code.dat" dev="mmcblk0p11" ino=62 scontext=u:r:rild:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+#W/rild    (  741): type=1400 audit(0.0:169): avc: denied { open } for name="mps_code.dat" dev="mmcblk0p11" ino=62 scontext=u:r:rild:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+allow rild unlabeled:file { open read getattr };

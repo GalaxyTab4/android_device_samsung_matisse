@@ -1,0 +1,2 @@
+#W/app_process32_o( 5503): type=1400 audit(0.0:1410): avc: denied { write } for name="system@framework@boot.art" dev="mmcblk0p26" ino=261149 scontext=u:r:shell:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file
+allow shell dalvikcache_data_file:file { write };

@@ -37,5 +37,7 @@ PRODUCT_NAME := aosp_lt03lte
 
 PRODUCT_PACKAGES += \
     Launcher3 \
-    OneTimeInitializer
+    OneTimeInitializer \
+    Gallery2 \
+    OpenDelta
 

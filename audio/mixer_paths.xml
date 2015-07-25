@@ -641,7 +641,8 @@ ctl	type	num	name                                     value
 	<!-- SM-P605 EUR (LT03 LTE EUR) ======================================= -->
 	<!-- These are the initial mixer settings -->
 	<!-- reset RX part -->
-    <ctl name="TTY Mode" value="Off" />
+	<ctl name="TTY Mode" value="Off" />
+	<ctl name="Get RMS" value="-1" />
 	<ctl name="LINEOUT1 Volume" value="0" />
 	<ctl name="LINEOUT2 Volume" value="0" />
 	<ctl name="LINEOUT3 Volume" value="0" />
