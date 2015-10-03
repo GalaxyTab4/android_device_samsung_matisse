@@ -1,0 +1,38 @@
+From 51c1297089aa2fced80f36ba999f9245cd1d97a0 Mon Sep 17 00:00:00 2001
+From: sub77-bkp <sub77@ymail.com>
+Date: Thu, 4 Jun 2015 03:53:17 +0200
+Subject: [PATCH 3/3] matissewifi: Fix Build Error Leds Boost Control
+
+Change-Id: I30b8d7a8520f78cef6619689dafee79b54240a87
+---
+ drivers/leds/leds-qpnp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+ mode change 100644 => 100755 drivers/leds/leds-qpnp.c
+
+diff --git a/drivers/leds/leds-qpnp.c b/drivers/leds/leds-qpnp.c
+old mode 100644
+new mode 100755
+index 235f3aa..1bed737
+--- a/drivers/leds/leds-qpnp.c
++++ b/drivers/leds/leds-qpnp.c
+@@ -1267,7 +1267,7 @@ static int qpnp_flash_set(struct qpnp_led_data *led)
+ 
+ 	/* Set led current */
+ 	if (val > 0) {
+-		change_boost_control(1);
++//		change_boost_control(1);
+ 		if (led->flash_cfg->torch_enable) {
+ 			if (led->flash_cfg->peripheral_subtype ==
+ 							FLASH_SUBTYPE_DUAL) {
+@@ -1445,7 +1445,7 @@ static int qpnp_flash_set(struct qpnp_led_data *led)
+ 			}
+ 		}
+ 	} else {
+-		change_boost_control(0);
++//		change_boost_control(0);
+ 		rc = qpnp_led_masked_write(led,
+ 			FLASH_LED_STROBE_CTRL(led->base),
+ 			led->flash_cfg->trigger_flash,
+-- 
+1.9.1
+

@@ -1,0 +1,34 @@
+From 024c13d4da41ccf81867e4013d5a177707ce9ef8 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 3 Oct 2015 01:33:38 -0400
+Subject: [PATCH] matissewifi: screen density mdpi
+
+---
+ msm8226.mk | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/msm8226.mk b/msm8226.mk
+index 005922c..bca5d84 100644
+--- a/msm8226.mk
++++ b/msm8226.mk
+@@ -20,12 +20,13 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+ 
+ # Screen density
+-PRODUCT_AAPT_CONFIG := normal
+-PRODUCT_AAPT_PREF_CONFIG := xhdpi
++PRODUCT_AAPT_CONFIG := large
++PRODUCT_AAPT_PREF_CONFIG := mdpi
++PRODUCT_LOCALES += mdpi
+ 
+ # Boot animation
+-TARGET_SCREEN_HEIGHT := 1280
+-TARGET_SCREEN_WIDTH := 720
++TARGET_SCREEN_HEIGHT := 800
++TARGET_SCREEN_WIDTH := 1280
+ 
+ # Dalvik VM config for 1536MB (1.5GB) RAM devices
+ PRODUCT_PROPERTY_OVERRIDES += \
+-- 
+1.9.1
+

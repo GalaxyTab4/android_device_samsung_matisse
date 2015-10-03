@@ -1,0 +1,44 @@
+[
+    {
+        "remote": "github",
+        "repository": "MSM8226-Samsung/android_device_samsung_msm8226-common",
+        "target_path": "device/samsung/msm8226-common",
+        "revision": "cm-12.1"
+    },
+    {
+        "remote": "github",
+        "repository": "MSM8226-Samsung/android_kernel_samsung_s3ve3g",
+        "target_path": "kernel/samsung/s3ve3g",
+        "revision": "cm-12.1"
+    },
+    {
+        "remote": "github",
+        "repository": "GalaxyTab4/android_vendor_samsung_matisse",
+        "target_path": "vendor/samsung/matisse",
+        "revision": "pac-5.1"
+    },
+    {
+        "remote":       "ss",
+        "repository":   "android_device_samsung_qcom-common",
+        "target_path":  "device/samsung/qcom-common",
+        "revision":     "pac-5.1"
+    },
+    {
+        "remote":       "ss",
+        "repository":   "android_hardware_samsung",
+        "target_path":  "hardware/samsung",
+        "revision":     "pac-5.1"
+    },
+    {
+        "remote":       "ss",
+        "repository":   "android_device_qcom_common",
+        "target_path":  "device/qcom/common",
+        "revision":     "pac-5.1"
+    },
+    {
+        "remote":       "ss",
+        "repository":   "android_hardware_qcom_fm",
+        "target_path":  "hardware/qcom/fm",
+        "revision":     "pac-5.1"
+    }
+]

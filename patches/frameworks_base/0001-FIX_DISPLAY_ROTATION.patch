@@ -1,0 +1,45 @@
+From 1bc197d327a5a0e1e6f4a5620e3d5318709ec657 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Mon, 27 Jul 2015 22:08:30 +0200
+Subject: [PATCH] FIX DISPLAY ROTATION (LANDSCAPE LOCK)
+
+Change-Id: I654a775cbefe94dbe9ac5a6988925fcf92d15594
+---
+ core/java/com/android/internal/view/RotationPolicy.java            | 6 ++----
+ services/core/java/com/android/server/wm/WindowManagerService.java | 2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/core/java/com/android/internal/view/RotationPolicy.java b/core/java/com/android/internal/view/RotationPolicy.java
+index 5439bd4..a49d490 100644
+--- a/core/java/com/android/internal/view/RotationPolicy.java
++++ b/core/java/com/android/internal/view/RotationPolicy.java
+@@ -174,8 +173,7 @@ public void run() {
+                 try {
+                     IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
+                     if (enabled) {
+-                        wm.freezeRotation(SystemProperties.getInt(
+-                                          "persist.panel.orientation", 0) / 90);
++                        wm.freezeRotation(rotation);
+                     } else {
+                         wm.thawRotation();
+                     }
+@@ -229,4 +227,4 @@ public void onChange(boolean selfChange, Uri uri) {
+ 
+         public abstract void onChange();
+     }
+-}
++}
+\ No newline at end of file
+diff --git a/services/core/java/com/android/server/wm/WindowManagerService.java b/services/core/java/com/android/server/wm/WindowManagerService.java
+index 51e27f6..15d25f6 100644
+--- a/services/core/java/com/android/server/wm/WindowManagerService.java
++++ b/services/core/java/com/android/server/wm/WindowManagerService.java
+@@ -499,7 +499,7 @@ public void onReceive(Context context, Intent intent) {
+     /** All DisplayContents in the world, kept here */
+     SparseArray<DisplayContent> mDisplayContents = new SparseArray<DisplayContent>(2);
+ 
+-    int mRotation = SystemProperties.getInt("persist.panel.orientation", 0) / 90;
++    int mRotation = 0;
+     int mForcedAppOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+     boolean mAltOrientation = false;
+ 
