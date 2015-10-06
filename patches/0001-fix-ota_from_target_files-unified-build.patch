@@ -1,0 +1,39 @@
+From 14778e8663bcfe7ce41ffdb74a791e394264e7d5 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Tue, 6 Oct 2015 18:24:40 -0400
+Subject: [PATCH] fix: ota_from_target_files (unified build)
+
+Change-Id: I9d2073ed6dfbee96e6e0fb015deb0a7bee69d3c8
+---
+ tools/releasetools/ota_from_target_files | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/tools/releasetools/ota_from_target_files b/tools/releasetools/ota_from_target_files
+index cf60584..4119453 100755
+--- a/tools/releasetools/ota_from_target_files
++++ b/tools/releasetools/ota_from_target_files
+@@ -415,8 +415,6 @@ def AppendAssertions(script, info_dict, oem_dict = None):
+   oem_props = info_dict.get("oem_fingerprint_properties")
+   if oem_props is None or len(oem_props) == 0:
+     if OPTIONS.override_device == "auto":
+-      device = GetBuildProp("ro.product.device", info_dict)
+-    else:
+       device = OPTIONS.override_device
+     script.AssertDevice(device)
+   else:
+@@ -621,9 +619,9 @@ def WriteFullOTAPackage(input_zip, output_zip):
+ #    product = GetBuildProp("ro.build.product", OPTIONS.info_dict)
+ #    script.Print("*   Product: %s"%(product));
+ #  else:
+-  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
+-  model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
+-  script.Print("*   Device: %s (%s)"%(model, device));
++#  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
++#  model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
++#  script.Print("*   Device: %s (%s)"%(model, device));
+   script.Print("******************************************");
+ 
+   if OPTIONS.backuptool:
+-- 
+1.9.1
+

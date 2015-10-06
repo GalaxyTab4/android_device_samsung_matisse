@@ -1,0 +1,26 @@
+From a0c019e73609eb6a3f33fa659f1ac770e35bbe29 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 12 Sep 2015 13:13:43 +0200
+Subject: [PATCH 2/2] OTA URL
+
+Change-Id: I55d27502d5a39cebe145d070c81dc1cf051305e0
+---
+ config/common.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 52a04fa..aa8121b 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -295,7 +295,7 @@ BLISS_OTA_BUILDDIR := Official
+ ifeq ($(BLISS_BUILDTYPE),NIGHTLY)
+   BLISS_OTA_BUILDDIR := Nightlies
+ endif
+-BLISS_BASE_URL    := http://downloads.blissroms.com/BlissPop
++BLISS_BASE_URL    := http://android.comtek-wiebe.de/BlissPop
+ ifeq ($(BLISS_DEVICE_URL),)
+   BLISS_DEVICE_URL := $(BLISS_BASE_URL)/$(BLISS_OTA_BUILDDIR)/$(TARGET_DEVICE)
+ endif
+-- 
+2.1.4
+
