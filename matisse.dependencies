@@ -15,7 +15,7 @@
         "remote":       "sub",
         "repository":   "GalaxyTab4/android_vendor_samsung_matisse",
         "target_path":  "vendor/samsung/matisse",
-        "revision":     "pac-5.1"
+        "revision":     "cm-12.1"
     },
     {
         "remote":       "CyanogenMod",
