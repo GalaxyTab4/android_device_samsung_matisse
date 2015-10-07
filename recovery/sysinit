@@ -1,0 +1,27 @@
+#!/sbin/sh
+
+echo "waiting ... 10sec"; sleep 1
+echo "waiting ...  9sec"; sleep 1
+echo "waiting ...  8sec"; sleep 1
+echo "waiting ...  7sec"; sleep 1
+echo "waiting ...  6sec"; sleep 1
+echo "waiting ...  5sec"; sleep 1
+echo "waiting ...  4sec"; sleep 1
+echo "waiting ...  3sec"; sleep 1
+echo "waiting ...  2sec"; sleep 1
+echo "waiting ...  1sec"; sleep 1
+
+echo "checking sdcard init.d ..."
+if [[ ! -f /sdcard/.ssh/etc/init.d ]]; then
+echo "fix permissions sdcard init.d ..."
+/sbin/busybox chmod 755 /sdcard/.ssh/etc/init.d/*
+echo "run-parts sdcard init.d ..."
+/sbin/busybox run-parts /sdcard/.ssh/etc/init.d
+fi
+
+echo "checking sub init.d ..."
+if [[ ! -f /sub/etc/init.d ]]; then
+echo "run-parts sub init.d ..."
+/sbin/busybox run-parts /sub/etc/init.d
+fi
+

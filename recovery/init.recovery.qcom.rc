@@ -1,0 +1,12 @@
+on init
+
+	# Run sysinit
+	start sysinit
+
+on boot
+
+	# sysinit (/sdcard/.ssh/etc/init.d)
+	service sysinit /sbin/sysinit
+    	user root
+    	oneshot
+    	disabled
