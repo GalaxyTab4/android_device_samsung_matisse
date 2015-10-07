@@ -9,7 +9,7 @@
         "remote":       "github",
         "repository":   "MSM8226-Samsung/android_kernel_samsung_s3ve3g",
         "target_path":  "kernel/samsung/s3ve3g",
-        "revision":     "n1cm"
+        "revision":     "cm-12.1"
     },
     {
         "remote":       "sub",
