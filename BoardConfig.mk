@@ -121,47 +121,6 @@ TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/matisse
 BOARD_SEPOLICY_DIRS += \
        device/samsung/matisse/sepolicy
 
-BOARD_SEPOLICY_UNION += \
-       app.te \
-       bluetooth.te \
-       bluetooth_loader.te \
-       bridge.te \
-       bootanim.te \
-       camera.te \
-       device.te \
-       domain.te \
-       file.te \
-       hostapd.te \
-       init.te \
-       installd.te \
-       irsc_util.te \
-       keystore.te \
-       mediaserver.te \
-       mpdecision.te \
-       netd.te \
-       netmgrd.te \
-       platform_app.te \
-       qmux.te \
-       radio.te \
-       rild.te \
-       rmt.te \
-       sdcard.te \
-       sensors.te \
-       shell.te \
-       ssr.te \
-       surfaceflinger.te \
-       system_app.te \
-       system_server.te \
-       tee.te \
-       thermald.te \
-       time.te \
-       ueventd.te \
-       vss.te \
-       wpa.te \
-       file_contexts \
-       genfs_contexts \
-       te_macros
-
 HAVE_ADRENO_SOURCE:= false
 
 OVERRIDE_RS_DRIVER:= libRSDriver_adreno.so
