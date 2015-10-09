@@ -15,4 +15,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/aosp_lt03lte.mk
+    $(LOCAL_DIR)/aosp_matisse.mk

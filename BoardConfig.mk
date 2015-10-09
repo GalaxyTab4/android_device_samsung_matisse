@@ -27,12 +27,15 @@ BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE :=  2048
 BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
 BOARD_RAMDISK_OFFSET     := 0x02000000
-
+#BOARD_KERNEL_SEPARATED_DT := true
 BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3  androidboot.selinux=permissive
-
+#TARGET_KERNEL_SOURCE := kernel/samsung/lt03lte
+#TARGET_KERNEL_CONFIG := msm8226-sec_defconfig
+#TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig
+#TARGET_KERNEL_VARIANT_CONFIG := msm8226-sec_matissewifi_defconfig
+#BOARD_CUSTOM_BOOTIMG_MK := device/samsung/matisse/mkbootimg.mk
 BOARD_CUSTOM_MKBOOTIMG := kernel/samsung/lt03lte/tools/mkbootimg
-
-BOARD_KERNEL_DTB := device/samsung/lt03lte-kernel/dtb
+BOARD_KERNEL_DTB := device/samsung/matisse/dt.img
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --dt $(BOARD_KERNEL_DTB)
 
 # Shader cache config options
@@ -50,34 +53,36 @@ BOARD_USES_ALSA_AUDIO := true
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
 
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/lt03lte/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/lt03lte/bluetooth/vnd_lt03lte.txt
-
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/matisse/bluetooth
 
 # Wifi related defines
-WPA_SUPPLICANT_VERSION      := VER_0_8_X
-BOARD_WLAN_DEVICE           := bcmdhd
-BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+BOARD_HAS_QCOM_WLAN              := true
+BOARD_HAS_QCOM_WLAN_SDK          := true
+BOARD_WLAN_DEVICE                := qcwcn
+BOARD_HOSTAPD_DRIVER             := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
-BOARD_HOSTAPD_DRIVER        := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
-WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/dhd/parameters/firmware_path"
-WIFI_DRIVER_FW_PATH_AP      := "/system/etc/wifi/bcmdhd_apsta.bin"
-WIFI_DRIVER_FW_PATH_STA     := "/system/etc/wifi/bcmdhd_sta.bin"
-#WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcmdhd_apsta.bin"
-#WIFI_DRIVER_FW_PATH_STA     := "/vendor/firmware/fw_bcmdhd.bin"
+TARGET_PROVIDES_WCNSS_QMI        := true
+TARGET_USES_QCOM_WCNSS_QMI       := true
+TARGET_USES_WCNSS_CTRL           := true
+WPA_SUPPLICANT_VERSION           := VER_0_8_X
+WIFI_DRIVER_FW_PATH_STA          := "sta"
+WIFI_DRIVER_FW_PATH_AP           := "ap"
+WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/wlan.ko"
+WIFI_DRIVER_MODULE_NAME          := "wlan"
 
 BOARD_USES_SECURE_SERVICES := true
 
 
 TARGET_NO_RADIOIMAGE := true
-TARGET_BOARD_PLATFORM := msm8974
-TARGET_BOOTLOADER_BOARD_NAME := lt03lte
-TARGET_BOARD_INFO_FILE := device/samsung/lt03lte/board-info.txt
+TARGET_BOARD_PLATFORM := msm8226
+TARGET_BOOTLOADER_BOARD_NAME := matisse
+TARGET_BOARD_INFO_FILE := device/samsung/matisse/board-info.txt
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
 TARGET_NO_RPC := true
 
-BOARD_EGL_CFG := device/samsung/lt03lte/egl.cfg
+BOARD_EGL_CFG := device/samsung/matisse/egl.cfg
 
 USE_OPENGL_RENDERER := true
 VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
@@ -107,14 +112,14 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 
 BOARD_CHARGER_ENABLE_SUSPEND := true
 
-TARGET_RECOVERY_FSTAB = device/samsung/lt03lte/rootdir/etc/fstab.qcom
+TARGET_RECOVERY_FSTAB = device/samsung/matisse/rootdir/etc/fstab.qcom
 
-TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/lt03lte
+TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/matisse
 
-#BOARD_HAL_STATIC_LIBRARIES := libdumpstate.lt03lte
+#BOARD_HAL_STATIC_LIBRARIES := libdumpstate.matisse
 
 BOARD_SEPOLICY_DIRS += \
-       device/samsung/lt03lte/sepolicy
+       device/samsung/matisse/sepolicy
 
 BOARD_SEPOLICY_UNION += \
        app.te \
@@ -169,7 +174,7 @@ USE_DEVICE_SPECIFIC_CAMERA:= true
 TARGET_PROVIDES_CAMERA_HAL := true
 COMMON_GLOBAL_CFLAGS += -DSAMSUNG_CAMERA_HARDWARE
 
--include vendor/samsung/lt03lte/BoardConfigVendor.mk
+-include vendor/samsung/matisse/BoardConfigVendor.mk
 
 # Enable Minikin text layout engine (will be the default soon)
 USE_MINIKIN := true

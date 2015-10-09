@@ -14,14 +14,14 @@
 # limitations under the License.
 #
 
-# This file includes all definitions that apply to ALL lt03lte devices, and
-# are also specific to lt03lte devices
+# This file includes all definitions that apply to ALL matisse devices, and
+# are also specific to matisse devices
 #
 # Everything in this directory will become public
 
 
 ifeq ($(TARGET_PREBUILT_KERNEL),)
-LOCAL_KERNEL := device/samsung/lt03lte-kernel/zImage
+LOCAL_KERNEL := device/samsung/matisse/zImage
 else
 LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
 endif
@@ -31,38 +31,35 @@ PRODUCT_COPY_FILES := \
 
 
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/google/bootanimation.zip:system/media/bootanimation.zip
+    device/samsung/matisse/google/bootanimation.zip:system/media/bootanimation.zip
 
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/rootdir/etc/init.qcom.rc:root/init.qcom.rc \
-    device/samsung/lt03lte/rootdir/etc/init.qcom.power.rc:root/init.qcom.power.rc \
-    device/samsung/lt03lte/rootdir/etc/init.qcom.usb.rc:root/init.qcom.usb.rc \
-    device/samsung/lt03lte/rootdir/etc/fstab.qcom:root/fstab.qcom \
-    device/samsung/lt03lte/rootdir/etc/ueventd.qcom.rc:root/ueventd.qcom.rc
+    device/samsung/matisse/rootdir/etc/init.qcom.rc:root/init.qcom.rc \
+    device/samsung/matisse/rootdir/etc/init.qcom.power.rc:root/init.qcom.power.rc \
+    device/samsung/matisse/rootdir/etc/init.qcom.usb.rc:root/init.qcom.usb.rc \
+    device/samsung/matisse/rootdir/etc/fstab.qcom:root/fstab.qcom \
+    device/samsung/matisse/rootdir/etc/ueventd.qcom.rc:root/ueventd.qcom.rc
 
-# Input device files for lt03lte
+# Input device files for matisse
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/keylayout/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
-    device/samsung/lt03lte/keylayout/sec_e-pen.kl:system/usr/keylayout/sec_e-pen.kl \
-    device/samsung/lt03lte/keylayout/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl
+    device/samsung/matisse/keylayout/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
+    device/samsung/matisse/keylayout/sec_e-pen.kl:system/usr/keylayout/sec_e-pen.kl \
+    device/samsung/matisse/keylayout/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl
 
 # Prebuilt input device calibration files
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/idc/sec_e-pen.idc:system/usr/idc/sec_e-pen.idc
+    device/samsung/matisse/idc/sec_e-pen.idc:system/usr/idc/sec_e-pen.idc
 
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/audio/audio_policy.conf:system/etc/audio_policy.conf \
-    device/samsung/lt03lte/audio/mixer_paths.xml:system/etc/mixer_paths.xml
+    device/samsung/matisse/audio/audio_policy.conf:system/etc/audio_policy.conf \
+    device/samsung/matisse/audio/mixer_paths.xml:system/etc/mixer_paths.xml
 
 PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-    device/samsung/lt03lte/media_profiles.xml:system/etc/media_profiles.xml \
-    device/samsung/lt03lte/media_codecs.xml:system/etc/media_codecs.xml
-
-PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/bluetooth/bcmdhd.cal:system/etc/wifi/bcmdhd.cal
+    device/samsung/matisse/media_profiles.xml:system/etc/media_profiles.xml \
+    device/samsung/matisse/media_codecs.xml:system/etc/media_codecs.xml
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
@@ -94,42 +91,44 @@ PRODUCT_COPY_FILES += \
 
 # For GPS
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/sec_config:system/etc/sec_config
-
-PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
-
-
-
-# Add WiFi Firmware
-$(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4356/device-bcm.mk)
+    device/samsung/matisse/sec_config:system/etc/sec_config
 
 # WiFi cal NVRAM file
-
-# For SPN display
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/spn-conf.xml:system/etc/spn-conf.xml
-
-PRODUCT_TAGS += dalvik.gc.type-precise
-
-PRODUCT_AAPT_CONFIG := normal hdpi xhdpi xxhdpi
-PRODUCT_AAPT_PREF_CONFIG := xhdpi
-
-PRODUCT_CHARACTERISTICS := tablet
-
-DEVICE_PACKAGE_OVERLAYS := \
-    device/samsung/lt03lte/overlay
+    device/samsung/matisse/wifi/WCNSS_cfg.dat:system/etc/firmware/wlan/prima/WCNSS_cfg.dat \
+    device/samsung/matisse/wifi/WCNSS_qcom_cfg.ini:system/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini \
+    device/samsung/matisse/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
 
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
-    $(LOCAL_PATH)/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
-    $(LOCAL_PATH)/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
+    device/samsung/matisse/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
+    device/samsung/matisse/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
+    device/samsung/matisse/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
 PRODUCT_PACKAGES := \
     libwpa_client \
     hostapd \
     dhcpcd.conf \
-    wpa_supplicant
+    wpa_supplicant \
+	libcurl \
+	libqsap_sdk \
+	libQWiFiSoftApCfg \
+	libwcnss_qmi \
+	wcnss_service
+
+# For SPN display
+PRODUCT_COPY_FILES += \
+    device/samsung/matisse/spn-conf.xml:system/etc/spn-conf.xml
+
+PRODUCT_TAGS += dalvik.gc.type-precise
+
+PRODUCT_AAPT_CONFIG := large
+PRODUCT_AAPT_PREF_CONFIG := mdpi
+PRODUCT_LOCALES += mdpi
+
+PRODUCT_CHARACTERISTICS := tablet
+
+DEVICE_PACKAGE_OVERLAYS := \
+    device/samsung/matisse/overlay
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
@@ -137,10 +136,10 @@ PRODUCT_PACKAGES += \
     librs_jni
 
 PRODUCT_PACKAGES += \
-    gralloc.msm8974 \
+    gralloc.msm8226 \
     libgenlock \
-    hwcomposer.msm8974 \
-    memtrack.msm8974 \
+    hwcomposer.msm8226 \
+    memtrack.msm8226 \
     libqdutils \
     libqdMetaData
 
@@ -155,8 +154,8 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     audiod \
-    audio.primary.msm8974 \
-    audio_policy.msm8974 \
+    audio.primary.msm8226 \
+    audio_policy.msm8226 \
     audio.a2dp.default \
     audio.usb.default \
     audio.r_submix.default \
@@ -174,27 +173,27 @@ PRODUCT_PACKAGES += \
     libqcompostprocbundle
 
 PRODUCT_COPY_FILES += \
-    device/samsung/lt03lte/audio/audio_effects.conf:system/vendor/etc/audio_effects.conf
+    device/samsung/matisse/audio/audio_effects.conf:system/vendor/etc/audio_effects.conf
 
 PRODUCT_PACKAGES += \
     libqomx_core \
     libmmcamera_interface \
     libmmjpeg_interface \
-    camera.msm8974 \
+    camera.msm8226 \
     mm-jpeg-interface-test \
     mm-qcamera-app \
     libxml2
 
 PRODUCT_PACKAGES += \
-    keystore.msm8974
+    keystore.msm8226
 
 PRODUCT_PACKAGES += \
-    power.msm8974
+    power.msm8226
 
 # GPS configuration
 #PRODUCT_COPY_FILES += \
-#    device/samsung/lt03lte/gps/gps.conf:system/etc/gps.conf \
-#    device/samsung/lt03lte/gps/sap.conf:system/etc/sap.conf
+#    device/samsung/matisse/gps/gps.conf:system/etc/gps.conf \
+#    device/samsung/matisse/gps/sap.conf:system/etc/sap.conf
 
 # GPS
 #See proprietary packages
@@ -203,7 +202,7 @@ PRODUCT_PACKAGES += \
     libion
 
 PRODUCT_PACKAGES += \
-    lights.lt03lte
+    lights.matisse
 
 
 PRODUCT_PACKAGES += \
@@ -223,13 +222,13 @@ PRODUCT_PACKAGES += \
     strace
 
 PRODUCT_PACKAGES += \
-    power.lt03lte
+    power.matisse
 
 PRODUCT_PACKAGES += \
-    consumerir.lt03lte
+    consumerir.matisse
 
 PRODUCT_PACKAGES += \
-    copybit.msm8974
+    copybit.msm8226
 
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.opengles.version=196608
@@ -256,7 +255,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     mm.enable.smoothstreaming=true
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.sf.lcd_density=320
+    ro.sf.lcd_density=160
 
 #PRODUCT_PROPERTY_OVERRIDES += \
 #    persist.hwc.mdpcomp.enable=true
@@ -327,5 +326,4 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
 
 $(call inherit-product-if-exists, hardware/qcom/msm8x74/msm8x74.mk)
 $(call inherit-product-if-exists, vendor/qcom/gpu/msm8x74/msm8x74-gpu-vendor.mk)
-$(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4339/device-bcm.mk)
-$(call inherit-product-if-exists, vendor/samsung/lt03lte/lt03lte-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/matisse/matisse-vendor.mk)

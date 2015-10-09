@@ -23,7 +23,7 @@
 # *not* include it on all devices, so it is safe even with hardware-specific
 # components.
 
-ifneq ($(filter lt03lte, $(TARGET_DEVICE)),)
+ifneq ($(filter matisse, $(TARGET_DEVICE)),)
 
 LOCAL_PATH := $(call my-dir)
 
@@ -226,5 +226,5 @@ $(shell mkdir -p $(TARGET_OUT)/etc/firmware/wcd9320; \
 		$(TARGET_OUT)/etc/firmware/wcd9320/wcd9320_mbhc.bin; \
 	ln -sf /data/misc/audio/wcd9320_mad_audio.bin \
 		$(TARGET_OUT)/etc/firmware/wcd9320/wcd9320_mad_audio.bin)
-		
+
 endif

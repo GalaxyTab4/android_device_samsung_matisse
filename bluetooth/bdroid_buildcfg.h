@@ -18,6 +18,6 @@
 #define _BDROID_BUILDCFG_H
 
 #define BTA_DISABLE_DELAY 100 /* in milliseconds */
-#define BTM_DEF_LOCAL_NAME   "Samsung Galaxy Note 10.1 (2014)"
+#define BTM_DEF_LOCAL_NAME   "Samsung Galaxy Tab 4"
 
 #endif

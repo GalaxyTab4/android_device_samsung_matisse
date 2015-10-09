@@ -6,9 +6,9 @@ LOCAL_PATH := $(call my-dir)
 
 ## Imported from the original makefile...
 KERNEL_CONFIG := $(KERNEL_OUT)/.config
-G2_DTS_NAMES := msm8974
+G2_DTS_NAMES := msm8226
 
-G2_DTS_FILES = $(wildcard $(TOP)/$(TARGET_KERNEL_SOURCE)/arch/arm/boot/dts/msm8974/msm8974-sec-lt03-*.dts)
+G2_DTS_FILES = $(wildcard $(TOP)/$(TARGET_KERNEL_SOURCE)/arch/arm/boot/dts/msm8226/msm8226-sec-matissewifi-*.dts)
 G2_DTS_FILE = $(lastword $(subst /, ,$(1)))
 DTB_FILE = $(addprefix $(KERNEL_OUT)/arch/arm/boot/,$(patsubst %.dts,%.dtb,$(call G2_DTS_FILE,$(1))))
 ZIMG_FILE = $(addprefix $(KERNEL_OUT)/arch/arm/boot/,$(patsubst %.dts,%-zImage,$(call G2_DTS_FILE,$(1))))
@@ -25,8 +25,8 @@ endef
 
 
 ## Build and run dtbtool
-DTBTOOL := $(HOST_OUT_EXECUTABLES)/dtbToolCM$(HOST_EXECUTABLE_SUFFIX)
-INSTALLED_DTIMAGE_TARGET := $(PRODUCT_OUT)/dt.img
+DTBTOOL := kernel/samsung/lt03lte/tools/dtbTool
+INSTALLED_DTIMAGE_TARGET := device/samsung/matisse/dt.img
 
 $(INSTALLED_DTIMAGE_TARGET): $(DTBTOOL) $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr $(INSTALLED_KERNEL_TARGET)
 	@echo -e ${CL_CYN}"Start DT image: $@"${CL_RST}
