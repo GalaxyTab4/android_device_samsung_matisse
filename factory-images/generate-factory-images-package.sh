@@ -16,10 +16,10 @@
 
 source ../../../common/clear-factory-images-variables.sh
 BUILD=1433121
-DEVICE=lt03lte
-PRODUCT=lt03lte
+DEVICE=matisse
+PRODUCT=matisse
 VERSION=lrw73l
 SRCPREFIX=signed-
-BOOTLOADER=moto-apq8084-70.39
-RADIO=d4.0-9625-02.48
+BOOTLOADER=
+RADIO=
 source ../../../common/generate-factory-images-common.sh
