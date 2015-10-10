@@ -21,7 +21,7 @@
 
 
 ifeq ($(TARGET_PREBUILT_KERNEL),)
-LOCAL_KERNEL := device/samsung/matisse/zImage
+LOCAL_KERNEL := device/samsung/matisse-kernel/kernel
 else
 LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
 endif
