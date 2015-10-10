@@ -28,7 +28,7 @@ PRODUCT_DEVICE := matisse
 PRODUCT_BRAND := Android
 PRODUCT_MODEL := AOSP on matisse
 PRODUCT_MANUFACTURER := samsung
-PRODUCT_RESTRICT_VENDOR_FILES := true
+#PRODUCT_RESTRICT_VENDOR_FILES := true
 
 $(call inherit-product, device/samsung/matisse/device.mk)
 $(call inherit-product-if-exists, vendor/samsung/matisse/device-vendor.mk)
