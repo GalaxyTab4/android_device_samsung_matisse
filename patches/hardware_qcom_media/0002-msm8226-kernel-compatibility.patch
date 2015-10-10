@@ -1,0 +1,37 @@
+From 5d5187a176181e087a2db79076789547f0c4655a Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 10 Oct 2015 04:36:47 +0200
+Subject: [PATCH 2/2] msm8226: kernel compatibility
+
+---
+ mm-video-v4l2/vidc/vdec.mk | 1 +
+ mm-video-v4l2/vidc/venc.mk | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/mm-video-v4l2/vidc/vdec.mk b/mm-video-v4l2/vidc/vdec.mk
+index 175b304..6025cab 100644
+--- a/mm-video-v4l2/vidc/vdec.mk
++++ b/mm-video-v4l2/vidc/vdec.mk
+@@ -63,6 +63,7 @@ libOmxVdec-def += -DMAX_RES_1080P
+ libOmxVdec-def += -DMAX_RES_1080P_EBI
+ libOmxVdec-def += -DPROCESS_EXTRADATA_IN_OUTPUT_PORT
+ libOmxVdec-def += -D_MSM8974_
++libOmxVdec-def += -D_ION_HEAP_MASK_COMPATIBILITY_WA
+ endif
+ ifeq ($(TARGET_BOARD_PLATFORM),msm8084)
+ libOmxVdec-def += -DMAX_RES_1080P
+diff --git a/mm-video-v4l2/vidc/venc.mk b/mm-video-v4l2/vidc/venc.mk
+index 58bba49..53d4d26 100644
+--- a/mm-video-v4l2/vidc/venc.mk
++++ b/mm-video-v4l2/vidc/venc.mk
+@@ -50,6 +50,7 @@ endif
+ ifeq ($(TARGET_BOARD_PLATFORM),msm8226)
+ libmm-venc-def += -DMAX_RES_1080P
+ libmm-venc-def += -D_MSM8974_
++libmm-venc-def += -D_ION_HEAP_MASK_COMPATIBILITY_WA
+ endif
+ ifeq ($(TARGET_BOARD_PLATFORM),msm8084)
+ libmm-venc-def += -DMAX_RES_1080P
+-- 
+2.1.4
+

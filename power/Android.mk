@@ -18,8 +18,8 @@ LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE_RELATIVE_PATH := hw
-LOCAL_SRC_FILES := power_lt03lte.c
+LOCAL_SRC_FILES := power_matisse.c
 LOCAL_SHARED_LIBRARIES := liblog libcutils
 LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE := power.lt03lte
+LOCAL_MODULE := power.msm8226
 include $(BUILD_SHARED_LIBRARY)

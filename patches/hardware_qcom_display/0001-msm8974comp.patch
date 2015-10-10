@@ -1,0 +1,58 @@
+From 31c758b3b254a3e0d4781d7f9143e8fbac4db720 Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 19:19:45 +0100
+Subject: [PATCH] [lt03lte] kernel driver compatibility
+
+---
+ msm8974/libgralloc/ionalloc.cpp    | 2 +-
+ msm8974/libqdutils/mdp_version.cpp | 2 ++
+ msm8974/libqdutils/mdp_version.h   | 2 ++
+ 3 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/msm8974/libgralloc/ionalloc.cpp b/msm8974/libgralloc/ionalloc.cpp
+index 1ad334e..4a51251 100644
+--- a/msm8974/libgralloc/ionalloc.cpp
++++ b/msm8974/libgralloc/ionalloc.cpp
+@@ -73,7 +73,7 @@ int IonAlloc::alloc_buffer(alloc_data& data)
+ 
+     ionAllocData.len = data.size;
+     ionAllocData.align = data.align;
+-    ionAllocData.heap_id_mask = data.flags & ~ION_SECURE;
++    ionAllocData.heap_mask = data.flags & ~ION_SECURE;
+     ionAllocData.flags = data.uncached ? 0 : ION_FLAG_CACHED;
+     // ToDo: replace usage of alloc data structure with
+     //  ionallocdata structure.
+diff --git a/msm8974/libqdutils/mdp_version.cpp b/msm8974/libqdutils/mdp_version.cpp
+index 1dd317f..9f7f8b0 100644
+--- a/msm8974/libqdutils/mdp_version.cpp
++++ b/msm8974/libqdutils/mdp_version.cpp
+@@ -160,9 +160,11 @@ bool MDPVersion::is8x26() {
+     //                                        0000   -  minor number
+     // 8x26 v1 minor number is 0000
+     //      v2 minor number is 0001 etc..
++#if 0
+     if( mMdpRev >= MDSS_MDP_HW_REV_101 && mMdpRev < MDSS_MDP_HW_REV_102) {
+         return true;
+     }
++#endif
+     return false;
+ }
+ 
+diff --git a/msm8974/libqdutils/mdp_version.h b/msm8974/libqdutils/mdp_version.h
+index 316899f..84ab697 100644
+--- a/msm8974/libqdutils/mdp_version.h
++++ b/msm8974/libqdutils/mdp_version.h
+@@ -53,11 +53,13 @@ enum mdp_version {
+     MDSS_V5     = 500,
+ };
+ 
++#if 0
+ enum mdp_rev {
+     MDSS_MDP_HW_REV_100 = 0x10000000,
+     MDSS_MDP_HW_REV_101 = 0x10010000, //8x26
+     MDSS_MDP_HW_REV_102 = 0x10020000,
+ };
++#endif
+ 
+ enum {
+     MAX_DISPLAY_DIM = 2048,

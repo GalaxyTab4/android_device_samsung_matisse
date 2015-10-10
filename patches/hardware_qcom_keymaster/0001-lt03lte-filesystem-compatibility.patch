@@ -1,0 +1,42 @@
+From b1f21aeef303aaadf97c83b2d45031f3c385574e Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 18:58:31 +0100
+Subject: [PATCH 1/2] [lt03lte] filesystem compatibility
+
+---
+ Android.mk         | 3 +++
+ keymaster_qcom.cpp | 4 ++++
+ 2 files changed, 7 insertions(+)
+
+diff --git a/Android.mk b/Android.mk
+index 614bcbe..c9f7fff 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -3,6 +3,9 @@ LOCAL_PATH := $(call my-dir)
+ ifneq ($(filter msm8960 msm8974 msm8226 msm8084,$(TARGET_BOARD_PLATFORM)),)
+ 
+ keymaster-def := -fvisibility=hidden -Wall
++ifeq ($(TARGET_BOARD_PLATFORM),msm8974)
++keymaster-def += -D_ION_HEAP_MASK_COMPATIBILITY_WA
++endif
+ ifeq ($(TARGET_BOARD_PLATFORM),msm8084)
+ keymaster-def += -D_ION_HEAP_MASK_COMPATIBILITY_WA
+ endif
+diff --git a/keymaster_qcom.cpp b/keymaster_qcom.cpp
+index b828f96..9120537 100644
+--- a/keymaster_qcom.cpp
++++ b/keymaster_qcom.cpp
+@@ -759,6 +759,10 @@ static int qcom_km_open(const hw_module_t* module, const char* name,
+     ret = (*km_handle->QSEECom_start_app)((struct QSEECom_handle **)&km_handle->qseecom,
+                          "/vendor/firmware/keymaster", "keymaster", 4096*2);
+     if (ret) {
++        ret = (*km_handle->QSEECom_start_app)((struct QSEECom_handle **)&km_handle->qseecom,
++                         "/firmware/image", "keymaste", 4096*2);
++    }
++    if (ret) {
+         ALOGE("Loading keymaster app failed");
+         free(km_handle);
+         return -1;
+-- 
+2.1.4
+

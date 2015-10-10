@@ -202,7 +202,7 @@ PRODUCT_PACKAGES += \
     libion
 
 PRODUCT_PACKAGES += \
-    lights.matisse
+    lights.msm8226
 
 
 PRODUCT_PACKAGES += \
@@ -222,10 +222,10 @@ PRODUCT_PACKAGES += \
     strace
 
 PRODUCT_PACKAGES += \
-    power.matisse
+    power.msm8226
 
 PRODUCT_PACKAGES += \
-    consumerir.matisse
+    consumerir.msm8226
 
 PRODUCT_PACKAGES += \
     copybit.msm8226
@@ -324,6 +324,6 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 # setup dalvik vm configs.
 $(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
 
-$(call inherit-product-if-exists, hardware/qcom/msm8x74/msm8x74.mk)
+$(call inherit-product-if-exists, hardware/qcom/msm8x26/msm8x26.mk)
 $(call inherit-product-if-exists, vendor/qcom/gpu/msm8x74/msm8x74-gpu-vendor.mk)
 $(call inherit-product-if-exists, vendor/samsung/matisse/matisse-vendor.mk)

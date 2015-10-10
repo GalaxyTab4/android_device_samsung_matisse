@@ -1,0 +1,185 @@
+From 5a4e50ce02226c23fb986e79a9934a34734a8d8b Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 19:16:05 +0100
+Subject: [PATCH] [lt03lte] binary blob compatibility
+
+---
+ core/LocAdapterBase.cpp |  9 +++++++++
+ core/LocAdapterBase.h   |  4 +++-
+ core/LocApiBase.cpp     |  9 +++++++++
+ core/LocApiBase.h       |  2 ++
+ core/LocDualContext.cpp | 12 ++++++++++++
+ core/LocDualContext.h   |  2 ++
+ 6 files changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/core/LocAdapterBase.cpp b/core/LocAdapterBase.cpp
+index eea8edd..267d35b 100644
+--- a/core/LocAdapterBase.cpp
++++ b/core/LocAdapterBase.cpp
+@@ -50,6 +50,15 @@ LocAdapterBase::LocAdapterBase(const LOC_API_ADAPTER_EVENT_MASK_T mask,
+     mLocApi->addAdapter(this);
+ }
+ 
++LocAdapterBase::LocAdapterBase(const LOC_API_ADAPTER_EVENT_MASK_T mask,
++                               ContextBase* context) :
++    mEvtMask(mask), mContext(context),
++    mLocApi(context->getLocApi()), mLocAdapterProxyBase(NULL),
++    mMsgTask(context->getMsgTask())
++{
++    mLocApi->addAdapter(this);
++}
++
+ void LocAdapterBase::handleEngineUpEvent()
+ {
+     if (mLocAdapterProxyBase) {
+diff --git a/core/LocAdapterBase.h b/core/LocAdapterBase.h
+index 9348a89..c63b111 100644
+--- a/core/LocAdapterBase.h
++++ b/core/LocAdapterBase.h
+@@ -50,7 +50,9 @@ class LocAdapterBase {
+ public:
+     inline virtual ~LocAdapterBase() { mLocApi->removeAdapter(this); }
+     LocAdapterBase(const LOC_API_ADAPTER_EVENT_MASK_T mask,
+-                   ContextBase* context, LocAdapterProxyBase *adapterProxyBase = NULL);
++                   ContextBase* context, LocAdapterProxyBase *adapterProxyBase);
++    LocAdapterBase(const LOC_API_ADAPTER_EVENT_MASK_T mask,
++                   ContextBase* context);
+     inline LOC_API_ADAPTER_EVENT_MASK_T
+         checkMask(LOC_API_ADAPTER_EVENT_MASK_T mask) const {
+         return mEvtMask & mask;
+diff --git a/core/LocApiBase.cpp b/core/LocApiBase.cpp
+index 9298a7a..f252bf9 100644
+--- a/core/LocApiBase.cpp
++++ b/core/LocApiBase.cpp
+@@ -133,6 +133,13 @@ LocApiBase::LocApiBase(const MsgTask* msgTask,
+     memset(mLocAdapters, 0, sizeof(mLocAdapters));
+ }
+ 
++LocApiBase::LocApiBase(const MsgTask* msgTask,
++                       LOC_API_ADAPTER_EVENT_MASK_T excludedMask) :
++    mExcludedMask(excludedMask), mMsgTask(msgTask), mMask(0), mContext(NULL)
++{
++    memset(mLocAdapters, 0, sizeof(mLocAdapters));
++}
++
+ LOC_API_ADAPTER_EVENT_MASK_T LocApiBase::getEvtMask()
+ {
+     LOC_API_ADAPTER_EVENT_MASK_T mask = 0;
+@@ -208,7 +215,9 @@ void LocApiBase::handleEngineUpEvent()
+     // This will take care of renegotiating the loc handle
+     mMsgTask->sendMsg(new LocSsrMsg(this));
+ 
++#ifdef NEW_API
+     LocDualContext::injectFeatureConfig(mContext);
++#endif
+ 
+     // loop through adapters, and deliver to all adapters.
+     TO_ALL_LOCADAPTERS(mLocAdapters[i]->handleEngineUpEvent());
+diff --git a/core/LocApiBase.h b/core/LocApiBase.h
+index 2d2b887..251319d 100644
+--- a/core/LocApiBase.h
++++ b/core/LocApiBase.h
+@@ -84,6 +84,8 @@ class LocApiBase {
+     LocApiBase(const MsgTask* msgTask,
+                LOC_API_ADAPTER_EVENT_MASK_T excludedMask,
+                ContextBase* context = NULL);
++    LocApiBase(const MsgTask* msgTask,
++               LOC_API_ADAPTER_EVENT_MASK_T excludedMask);
+     inline virtual ~LocApiBase() { close(); }
+     bool isInSession();
+     const LOC_API_ADAPTER_EVENT_MASK_T mExcludedMask;
+diff --git a/core/LocDualContext.cpp b/core/LocDualContext.cpp
+index ab15110..6043a88 100644
+--- a/core/LocDualContext.cpp
++++ b/core/LocDualContext.cpp
+@@ -55,7 +55,9 @@ LocDualContext::mBgExclMask =
+ const MsgTask* LocDualContext::mMsgTask = NULL;
+ ContextBase* LocDualContext::mFgContext = NULL;
+ ContextBase* LocDualContext::mBgContext = NULL;
++#if 0
+ ContextBase* LocDualContext::mInjectContext = NULL;
++#endif
+ // the name must be shorter than 15 chars
+ const char* LocDualContext::mLocationHalName = "Loc_hal_worker";
+ const char* LocDualContext::mLBSLibName = "liblbs_core.so";
+@@ -88,10 +90,12 @@ ContextBase* LocDualContext::getLocFgContext(MsgTask::tCreate tCreator,
+         mFgContext = new LocDualContext(msgTask,
+                                         mFgExclMask);
+     }
++#if 0
+     if(NULL == mInjectContext) {
+         mInjectContext = mFgContext;
+         injectFeatureConfig(mInjectContext);
+     }
++#endif
+     return mFgContext;
+ }
+ 
+@@ -103,11 +107,13 @@ ContextBase* LocDualContext::getLocFgContext(MsgTask::tAssociate tAssociate,
+         mFgContext = new LocDualContext(msgTask,
+                                         mFgExclMask);
+     }
++#if 0
+     if(NULL == mInjectContext) {
+         LOC_LOGD("%s:%d]: mInjectContext is FgContext", __func__, __LINE__);
+         mInjectContext = mFgContext;
+         injectFeatureConfig(mInjectContext);
+     }
++#endif
+     return mFgContext;
+ 
+ }
+@@ -120,11 +126,13 @@ ContextBase* LocDualContext::getLocBgContext(MsgTask::tCreate tCreator,
+         mBgContext = new LocDualContext(msgTask,
+                                         mBgExclMask);
+     }
++#if 0
+     if(NULL == mInjectContext) {
+         LOC_LOGD("%s:%d]: mInjectContext is BgContext", __func__, __LINE__);
+         mInjectContext = mBgContext;
+         injectFeatureConfig(mInjectContext);
+     }
++#endif
+     return mBgContext;
+ }
+ 
+@@ -136,14 +144,17 @@ ContextBase* LocDualContext::getLocBgContext(MsgTask::tAssociate tAssociate,
+         mBgContext = new LocDualContext(msgTask,
+                                         mBgExclMask);
+     }
++#if 0
+     if(NULL == mInjectContext) {
+         LOC_LOGD("%s:%d]: mInjectContext is BgContext", __func__, __LINE__);
+         mInjectContext = mBgContext;
+         injectFeatureConfig(mInjectContext);
+     }
++#endif
+     return mBgContext;
+ }
+ 
++#if 0
+ void LocDualContext :: injectFeatureConfig(ContextBase *curContext)
+ {
+     LOC_LOGD("%s:%d]: Enter", __func__, __LINE__);
+@@ -154,6 +165,7 @@ void LocDualContext :: injectFeatureConfig(ContextBase *curContext)
+     }
+     LOC_LOGD("%s:%d]: Exit", __func__, __LINE__);
+ }
++#endif
+ 
+ LocDualContext::LocDualContext(const MsgTask* msgTask,
+                                LOC_API_ADAPTER_EVENT_MASK_T exMask) :
+diff --git a/core/LocDualContext.h b/core/LocDualContext.h
+index cdc4df3..6038beb 100644
+--- a/core/LocDualContext.h
++++ b/core/LocDualContext.h
+@@ -40,7 +40,9 @@ class LocDualContext : public ContextBase {
+     static const MsgTask* mMsgTask;
+     static ContextBase* mFgContext;
+     static ContextBase* mBgContext;
++#if 0
+     static ContextBase* mInjectContext;
++#endif
+     static const MsgTask* getMsgTask(MsgTask::tCreate tCreator,
+                                      const char* name);
+     static const MsgTask* getMsgTask(MsgTask::tAssociate tAssociate,

@@ -1,0 +1,1390 @@
+From dbe447904af12d93fbcdf3c3416c4e1ccd2ce887 Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 18:28:26 +0100
+Subject: [PATCH] [lt03lte] Init
+
+---
+ kernel-headers/linux/ion.h            | 503 ++++++++++++++++++++++++++++++----
+ kernel-headers/linux/msm_audio_acdb.h |   9 +-
+ kernel-headers/linux/msm_ion.h        |  29 +-
+ kernel-headers/linux/msm_kgsl.h       |   4 +-
+ kernel-headers/linux/msm_mdp.h        | 248 +++++++++++++----
+ kernel-headers/linux/msm_rotator.h    |   1 +
+ kernel-headers/linux/msm_vidc_dec.h   |   1 -
+ kernel-headers/linux/videodev2.h      | 146 +++-------
+ kernel-headers/media/msmb_camera.h    |  20 +-
+ 9 files changed, 736 insertions(+), 225 deletions(-)
+
+diff --git a/kernel-headers/linux/ion.h b/kernel-headers/linux/ion.h
+index 30738b5..e175a7a 100644
+--- a/kernel-headers/linux/ion.h
++++ b/kernel-headers/linux/ion.h
+@@ -1,73 +1,460 @@
+-/****************************************************************************
+- ****************************************************************************
+- ***
+- ***   This header was automatically generated from a Linux kernel header
+- ***   of the same name, to make information necessary for userspace to
+- ***   call into the kernel available to libc.  It contains only constants,
+- ***   structures, and macros generated from the original header, and thus,
+- ***   contains no copyrightable information.
+- ***
+- ***   To edit the content of this header, modify the corresponding
+- ***   source file (e.g. under external/kernel-headers/original/) then
+- ***   run bionic/libc/kernel/tools/update_all.py
+- ***
+- ***   Any manual change here will be lost the next time this script will
+- ***   be run. You've been warned!
+- ***
+- ****************************************************************************
+- ****************************************************************************/
++/*
++ * include/linux/ion.h
++ *
++ * Copyright (C) 2011 Google, Inc.
++ * Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
+ #ifndef _LINUX_ION_H
+ #define _LINUX_ION_H
++
++#include <linux/ioctl.h>
+ #include <linux/types.h>
++
+ struct ion_handle;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ typedef struct ion_handle *ion_user_handle_t;
++
++/**
++ * enum ion_heap_types - list of all possible types of heaps
++ * @ION_HEAP_TYPE_SYSTEM:	 memory allocated via vmalloc
++ * @ION_HEAP_TYPE_SYSTEM_CONTIG: memory allocated via kmalloc
++ * @ION_HEAP_TYPE_CARVEOUT:	 memory allocated from a prereserved
++ * 				 carveout heap, allocations are physically
++ * 				 contiguous
++ * @ION_HEAP_END:		helper for iterating over heaps
++ */
+ enum ion_heap_type {
+- ION_HEAP_TYPE_SYSTEM,
+- ION_HEAP_TYPE_SYSTEM_CONTIG,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- ION_HEAP_TYPE_CARVEOUT,
+- ION_HEAP_TYPE_CUSTOM,
+- ION_NUM_HEAPS = 16,
++	ION_HEAP_TYPE_SYSTEM,
++	ION_HEAP_TYPE_SYSTEM_CONTIG,
++	ION_HEAP_TYPE_CARVEOUT,
++	ION_HEAP_TYPE_CHUNK,
++	ION_HEAP_TYPE_CUSTOM, /* must be last so device specific heaps always
++				 are at the end of this enum */
++	ION_NUM_HEAPS = 16,
+ };
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define ION_HEAP_SYSTEM_MASK (1 << ION_HEAP_TYPE_SYSTEM)
+-#define ION_HEAP_SYSTEM_CONTIG_MASK (1 << ION_HEAP_TYPE_SYSTEM_CONTIG)
+-#define ION_HEAP_CARVEOUT_MASK (1 << ION_HEAP_TYPE_CARVEOUT)
+-#define ION_FLAG_CACHED 1
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define ION_FLAG_CACHED_NEEDS_SYNC 2
++
++#define ION_HEAP_SYSTEM_MASK		(1 << ION_HEAP_TYPE_SYSTEM)
++#define ION_HEAP_SYSTEM_CONTIG_MASK	(1 << ION_HEAP_TYPE_SYSTEM_CONTIG)
++#define ION_HEAP_CARVEOUT_MASK		(1 << ION_HEAP_TYPE_CARVEOUT)
++
++#define ION_NUM_HEAP_IDS		sizeof(unsigned int) * 8
++
++/**
++ * allocation flags - the lower 16 bits are used by core ion, the upper 16
++ * bits are reserved for use by the heaps themselves.
++ */
++#define ION_FLAG_CACHED 1		/* mappings of this buffer should be
++					   cached, ion will do cache
++					   maintenance when the buffer is
++					   mapped for dma */
++#define ION_FLAG_CACHED_NEEDS_SYNC 2	/* mappings of this buffer will created
++					   at mmap time, if this is set
++					   caches must be managed manually */
++#define ION_FLAG_FREED_FROM_SHRINKER 4	/* Skip any possible
++					   heap-specific caching
++					   mechanism (e.g. page
++					   pools). Guarantees that any
++					   buffer storage that came
++					   from the system allocator
++					   will be returned to the
++					   system allocator. */
++
++#ifdef __KERNEL__
++#include <linux/err.h>
++#include <mach/ion.h>
++struct ion_device;
++struct ion_heap;
++struct ion_mapper;
++struct ion_client;
++struct ion_buffer;
++
++/* This should be removed some day when phys_addr_t's are fully
++   plumbed in the kernel, and all instances of ion_phys_addr_t should
++   be converted to phys_addr_t.  For the time being many kernel interfaces
++   do not accept phys_addr_t's that would have to */
++#define ion_phys_addr_t unsigned long
++
++/**
++ * struct ion_platform_heap - defines a heap in the given platform
++ * @type:	type of the heap from ion_heap_type enum
++ * @id:		unique identifier for heap.  When allocating higher numbers
++ * 		will be allocated from first.  At allocation these are passed
++ *		as a bit mask and therefore can not exceed ION_NUM_HEAP_IDS.
++ * @name:	used for debug purposes
++ * @base:	base address of heap in physical memory if applicable
++ * @size:	size of the heap in bytes if applicable
++ * @memory_type:Memory type used for the heap
++ * @has_outer_cache:    set to 1 if outer cache is used, 0 otherwise.
++ * @extra_data:	Extra data specific to each heap type
++ * @priv:	heap private data
++ * @align:	required alignment in physical memory if applicable
++ * @priv:	private info passed from the board file
++ *
++ * Provided by the board file.
++ */
++struct ion_platform_heap {
++	enum ion_heap_type type;
++	unsigned int id;
++	const char *name;
++	ion_phys_addr_t base;
++	size_t size;
++	enum ion_memory_types memory_type;
++	unsigned int has_outer_cache;
++	void *extra_data;
++	ion_phys_addr_t align;
++	void *priv;
++};
++
++/**
++ * struct ion_platform_data - array of platform heaps passed from board file
++ * @has_outer_cache:    set to 1 if outer cache is used, 0 otherwise.
++ * @nr:    number of structures in the array
++ * @heaps: array of platform_heap structions
++ *
++ * Provided by the board file in the form of platform data to a platform device.
++ */
++struct ion_platform_data {
++	unsigned int has_outer_cache;
++	int nr;
++	struct ion_platform_heap *heaps;
++};
++
++#ifdef CONFIG_ION
++
++/**
++ * ion_reserve() - reserve memory for ion heaps if applicable
++ * @data:	platform data specifying starting physical address and
++ *		size
++ *
++ * Calls memblock reserve to set aside memory for heaps that are
++ * located at specific memory addresses or of specfic sizes not
++ * managed by the kernel
++ */
++void ion_reserve(struct ion_platform_data *data);
++
++/**
++ * ion_client_create() -  allocate a client and returns it
++ * @dev:		the global ion device
++ * @heap_type_mask:	mask of heaps this client can allocate from
++ * @name:		used for debugging
++ */
++struct ion_client *ion_client_create(struct ion_device *dev,
++				     const char *name);
++
++/**
++ * ion_client_destroy() -  free's a client and all it's handles
++ * @client:	the client
++ *
++ * Free the provided client and all it's resources including
++ * any handles it is holding.
++ */
++void ion_client_destroy(struct ion_client *client);
++
++/**
++ * ion_alloc - allocate ion memory
++ * @client:		the client
++ * @len:		size of the allocation
++ * @align:		requested allocation alignment, lots of hardware blocks
++ *			have alignment requirements of some kind
++ * @heap_id_mask:	mask of heaps to allocate from, if multiple bits are set
++ *			heaps will be tried in order from highest to lowest
++ *			id
++ * @flags:		heap flags, the low 16 bits are consumed by ion, the
++ *			high 16 bits are passed on to the respective heap and
++ *			can be heap custom
++ *
++ * Allocate memory in one of the heaps provided in heap mask and return
++ * an opaque handle to it.
++ */
++struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
++			     size_t align, unsigned int heap_id_mask,
++			     unsigned int flags);
++
++/**
++ * ion_free - free a handle
++ * @client:	the client
++ * @handle:	the handle to free
++ *
++ * Free the provided handle.
++ */
++void ion_free(struct ion_client *client, struct ion_handle *handle);
++
++/**
++ * ion_phys - returns the physical address and len of a handle
++ * @client:	the client
++ * @handle:	the handle
++ * @addr:	a pointer to put the address in
++ * @len:	a pointer to put the length in
++ *
++ * This function queries the heap for a particular handle to get the
++ * handle's physical address.  It't output is only correct if
++ * a heap returns physically contiguous memory -- in other cases
++ * this api should not be implemented -- ion_sg_table should be used
++ * instead.  Returns -EINVAL if the handle is invalid.  This has
++ * no implications on the reference counting of the handle --
++ * the returned value may not be valid if the caller is not
++ * holding a reference.
++ */
++int ion_phys(struct ion_client *client, struct ion_handle *handle,
++	     ion_phys_addr_t *addr, size_t *len);
++
++/**
++ * ion_map_dma - return an sg_table describing a handle
++ * @client:	the client
++ * @handle:	the handle
++ *
++ * This function returns the sg_table describing
++ * a particular ion handle.
++ */
++struct sg_table *ion_sg_table(struct ion_client *client,
++			      struct ion_handle *handle);
++
++/**
++ * ion_map_kernel - create mapping for the given handle
++ * @client:	the client
++ * @handle:	handle to map
++ *
++ * Map the given handle into the kernel and return a kernel address that
++ * can be used to access this address.
++ */
++void *ion_map_kernel(struct ion_client *client, struct ion_handle *handle);
++
++/**
++ * ion_unmap_kernel() - destroy a kernel mapping for a handle
++ * @client:	the client
++ * @handle:	handle to unmap
++ */
++void ion_unmap_kernel(struct ion_client *client, struct ion_handle *handle);
++
++/**
++ * ion_share_dma_buf() - share buffer as dma-buf
++ * @client:	the client
++ * @handle:	the handle
++ */
++struct dma_buf *ion_share_dma_buf(struct ion_client *client,
++						struct ion_handle *handle);
++
++/**
++ * ion_share_dma_buf_fd() - given an ion client, create a dma-buf fd
++ * @client:	the client
++ * @handle:	the handle
++ */
++int ion_share_dma_buf_fd(struct ion_client *client, struct ion_handle *handle);
++
++/**
++ * ion_import_dma_buf() - given an dma-buf fd from the ion exporter get handle
++ * @client:	the client
++ * @fd:		the dma-buf fd
++ *
++ * Given an dma-buf fd that was allocated through ion via ion_share_dma_buf,
++ * import that fd and return a handle representing it.  If a dma-buf from
++ * another exporter is passed in this function will return ERR_PTR(-EINVAL)
++ */
++struct ion_handle *ion_import_dma_buf(struct ion_client *client, int fd);
++
++#else
++static inline void ion_reserve(struct ion_platform_data *data)
++{
++
++}
++
++static inline struct ion_client *ion_client_create(struct ion_device *dev,
++				     unsigned int heap_mask, const char *name)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline void ion_client_destroy(struct ion_client *client) { }
++
++static inline struct ion_handle *ion_alloc(struct ion_client *client,
++					size_t len, size_t align,
++					unsigned int heap_mask,
++					unsigned int flags)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline void ion_free(struct ion_client *client,
++	struct ion_handle *handle) { }
++
++
++static inline int ion_phys(struct ion_client *client,
++	struct ion_handle *handle, ion_phys_addr_t *addr, size_t *len)
++{
++	return -ENODEV;
++}
++
++static inline struct sg_table *ion_sg_table(struct ion_client *client,
++			      struct ion_handle *handle)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline void *ion_map_kernel(struct ion_client *client,
++	struct ion_handle *handle)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline void ion_unmap_kernel(struct ion_client *client,
++	struct ion_handle *handle) { }
++
++static inline int ion_share_dma_buf(struct ion_client *client, struct ion_handle *handle)
++{
++	return -ENODEV;
++}
++
++static inline struct ion_handle *ion_import_dma_buf(struct ion_client *client, int fd)
++{
++	return ERR_PTR(-ENODEV);
++}
++
++static inline int ion_handle_get_flags(struct ion_client *client,
++	struct ion_handle *handle, unsigned long *flags)
++{
++	return -ENODEV;
++}
++
++#endif /* CONFIG_ION */
++#endif /* __KERNEL__ */
++
++/**
++ * DOC: Ion Userspace API
++ *
++ * create a client by opening /dev/ion
++ * most operations handled via following ioctls
++ *
++ */
++
++/**
++ * struct ion_allocation_data - metadata passed from userspace for allocations
++ * @len:		size of the allocation
++ * @align:		required alignment of the allocation
++ * @heap_id_mask:	mask of heap ids to allocate from
++ * @flags:		flags passed to heap
++ * @handle:		pointer that will be populated with a cookie to use to 
++ *			refer to this allocation
++ *
++ * Provided by userspace as an argument to the ioctl
++ */
+ struct ion_allocation_data {
+- size_t len;
+- size_t align;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- unsigned int heap_id_mask;
+- unsigned int flags;
+- ion_user_handle_t handle;
++	size_t len;
++	size_t align;
++	unsigned int heap_mask;
++	unsigned int flags;
++	ion_user_handle_t handle;
+ };
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++
++/**
++ * struct ion_fd_data - metadata passed to/from userspace for a handle/fd pair
++ * @handle:	a handle
++ * @fd:		a file descriptor representing that handle
++ *
++ * For ION_IOC_SHARE or ION_IOC_MAP userspace populates the handle field with
++ * the handle returned from ion alloc, and the kernel returns the file
++ * descriptor to share or map in the fd field.  For ION_IOC_IMPORT, userspace
++ * provides the file descriptor and the kernel returns the handle.
++ */
+ struct ion_fd_data {
+- ion_user_handle_t handle;
+- int fd;
++	ion_user_handle_t handle;
++	int fd;
+ };
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++
++/**
++ * struct ion_handle_data - a handle passed to/from the kernel
++ * @handle:	a handle
++ */
+ struct ion_handle_data {
+- ion_user_handle_t handle;
++	ion_user_handle_t handle;
+ };
++
++/**
++ * struct ion_custom_data - metadata passed to/from userspace for a custom ioctl
++ * @cmd:	the custom ioctl function to call
++ * @arg:	additional data to pass to the custom ioctl, typically a user
++ *		pointer to a predefined structure
++ *
++ * This works just like the regular cmd and arg fields of an ioctl.
++ */
+ struct ion_custom_data {
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- unsigned int cmd;
+- unsigned long arg;
++	unsigned int cmd;
++	unsigned long arg;
+ };
+-#define ION_IOC_MAGIC 'I'
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define ION_IOC_ALLOC _IOWR(ION_IOC_MAGIC, 0,   struct ion_allocation_data)
+-#define ION_IOC_FREE _IOWR(ION_IOC_MAGIC, 1, struct ion_handle_data)
+-#define ION_IOC_MAP _IOWR(ION_IOC_MAGIC, 2, struct ion_fd_data)
+-#define ION_IOC_SHARE _IOWR(ION_IOC_MAGIC, 4, struct ion_fd_data)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define ION_IOC_IMPORT _IOWR(ION_IOC_MAGIC, 5, struct ion_fd_data)
+-#define ION_IOC_SYNC _IOWR(ION_IOC_MAGIC, 7, struct ion_fd_data)
+-#define ION_IOC_CUSTOM _IOWR(ION_IOC_MAGIC, 6, struct ion_custom_data)
+-#endif
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define ION_IOC_MAGIC		'I'
++
++/**
++ * DOC: ION_IOC_ALLOC - allocate memory
++ *
++ * Takes an ion_allocation_data struct and returns it with the handle field
++ * populated with the opaque handle for the allocation.
++ */
++#define ION_IOC_ALLOC		_IOWR(ION_IOC_MAGIC, 0, \
++				      struct ion_allocation_data)
++
++/**
++ * DOC: ION_IOC_FREE - free memory
++ *
++ * Takes an ion_handle_data struct and frees the handle.
++ */
++#define ION_IOC_FREE		_IOWR(ION_IOC_MAGIC, 1, struct ion_handle_data)
++
++/**
++ * DOC: ION_IOC_MAP - get a file descriptor to mmap
++ *
++ * Takes an ion_fd_data struct with the handle field populated with a valid
++ * opaque handle.  Returns the struct with the fd field set to a file
++ * descriptor open in the current address space.  This file descriptor
++ * can then be used as an argument to mmap.
++ */
++#define ION_IOC_MAP		_IOWR(ION_IOC_MAGIC, 2, struct ion_fd_data)
++
++/**
++ * DOC: ION_IOC_SHARE - creates a file descriptor to use to share an allocation
++ *
++ * Takes an ion_fd_data struct with the handle field populated with a valid
++ * opaque handle.  Returns the struct with the fd field set to a file
++ * descriptor open in the current address space.  This file descriptor
++ * can then be passed to another process.  The corresponding opaque handle can
++ * be retrieved via ION_IOC_IMPORT.
++ */
++#define ION_IOC_SHARE		_IOWR(ION_IOC_MAGIC, 4, struct ion_fd_data)
++
++/**
++ * DOC: ION_IOC_IMPORT - imports a shared file descriptor
++ *
++ * Takes an ion_fd_data struct with the fd field populated with a valid file
++ * descriptor obtained from ION_IOC_SHARE and returns the struct with the handle
++ * filed set to the corresponding opaque handle.
++ */
++#define ION_IOC_IMPORT		_IOWR(ION_IOC_MAGIC, 5, struct ion_fd_data)
++
++/**
++ * DOC: ION_IOC_SYNC - syncs a shared file descriptors to memory
++ *
++ * Deprecated in favor of using the dma_buf api's correctly (syncing
++ * will happend automatically when the buffer is mapped to a device).
++ * If necessary should be used after touching a cached buffer from the cpu,
++ * this will make the buffer in memory coherent.
++ */
++#define ION_IOC_SYNC		_IOWR(ION_IOC_MAGIC, 7, struct ion_fd_data)
++
++/**
++ * DOC: ION_IOC_CUSTOM - call architecture specific ion ioctl
++ *
++ * Takes the argument of the architecture specific ioctl to call and
++ * passes appropriate userdata for that ioctl
++ */
++#define ION_IOC_CUSTOM		_IOWR(ION_IOC_MAGIC, 6, struct ion_custom_data)
++
++
++#endif /* _LINUX_ION_H */
+diff --git a/kernel-headers/linux/msm_audio_acdb.h b/kernel-headers/linux/msm_audio_acdb.h
+index 752febd..9d8f32b 100644
+--- a/kernel-headers/linux/msm_audio_acdb.h
++++ b/kernel-headers/linux/msm_audio_acdb.h
+@@ -57,6 +57,8 @@
+ #define AUDIO_REGISTER_VOCPROC_VOL_TABLE _IOW(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_COMMON_IOCTL_NUM+28), unsigned)
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define AUDIO_DEREGISTER_VOCPROC_VOL_TABLE _IOW(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_COMMON_IOCTL_NUM+29), unsigned)
++#define AUDIO_SET_HW_DELAY_RX _IOW(AUDIO_IOCTL_MAGIC,    (AUDIO_MAX_COMMON_IOCTL_NUM+30), struct hw_delay)
++#define AUDIO_SET_HW_DELAY_TX _IOW(AUDIO_IOCTL_MAGIC,    (AUDIO_MAX_COMMON_IOCTL_NUM+31), struct hw_delay)
+ #define AUDIO_MAX_ACDB_IOCTL (AUDIO_MAX_COMMON_IOCTL_NUM+40)
+ struct cal_block {
+  uint32_t cal_size;
+@@ -85,7 +87,11 @@ struct msm_spk_prot_cfg {
+ struct msm_spk_prot_status {
+  int r0;
+  int status;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++};
++
++struct hw_delay {
++ uint32_t num_entries;
++ void *delay_info;
+ };
+ #define AUDIO_GET_RTAC_ADM_INFO _IOR(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_ACDB_IOCTL+1), unsigned)
+ #define AUDIO_GET_RTAC_VOICE_INFO _IOR(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_ACDB_IOCTL+2), unsigned)
+@@ -99,6 +105,7 @@ struct msm_spk_prot_status {
+ #define AUDIO_SET_RTAC_CVS_CAL _IOWR(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_ACDB_IOCTL+8), unsigned)
+ #define AUDIO_GET_RTAC_CVP_CAL _IOWR(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_ACDB_IOCTL+9), unsigned)
+ #define AUDIO_SET_RTAC_CVP_CAL _IOWR(AUDIO_IOCTL_MAGIC,   (AUDIO_MAX_ACDB_IOCTL+10), unsigned)
++#define AUDIO_GET_RTAC_ADM_INFO_V2 _IOWR(AUDIO_IOCTL_MAGIC,    (AUDIO_MAX_ACDB_IOCTL+11), unsigned)
+ #define AUDIO_MAX_RTAC_IOCTL (AUDIO_MAX_ACDB_IOCTL+20)
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #endif
+diff --git a/kernel-headers/linux/msm_ion.h b/kernel-headers/linux/msm_ion.h
+index e6090ef..091cb39 100644
+--- a/kernel-headers/linux/msm_ion.h
++++ b/kernel-headers/linux/msm_ion.h
+@@ -22,7 +22,7 @@
+ enum msm_ion_heap_types {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  ION_HEAP_TYPE_MSM_START = ION_HEAP_TYPE_CUSTOM + 1,
+- ION_HEAP_TYPE_IOMMU = ION_HEAP_TYPE_MSM_START,
++	ION_HEAP_TYPE_IOMMUCA = ION_HEAP_TYPE_MSM_START,
+  ION_HEAP_TYPE_DMA,
+  ION_HEAP_TYPE_CP,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -37,21 +37,29 @@ enum ion_heap_ids {
+  ION_CP_WB_HEAP_ID = 16,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  ION_CAMERA_HEAP_ID = 20,
++	ION_IOMMUCA_HEAP_ID = ION_CAMERA_HEAP_ID,
+  ION_SYSTEM_CONTIG_HEAP_ID = 21,
+  ION_ADSP_HEAP_ID = 22,
+  ION_PIL1_HEAP_ID = 23,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  ION_SF_HEAP_ID = 24,
+- ION_IOMMU_HEAP_ID = 25,
++	ION_SYSTEM_HEAP_ID = 25,
+  ION_PIL2_HEAP_ID = 26,
+  ION_QSECOM_HEAP_ID = 27,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  ION_AUDIO_HEAP_ID = 28,
+  ION_MM_FIRMWARE_HEAP_ID = 29,
+- ION_SYSTEM_HEAP_ID = 30,
++
+  ION_HEAP_ID_RESERVED = 31
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ };
++
++/*
++ * The IOMMU heap is deprecated! Here are some aliases for backwards
++ * compatibility:
++ */
++#define ION_IOMMU_HEAP_ID ION_SYSTEM_HEAP_ID
++#define ION_HEAP_TYPE_IOMMU ION_HEAP_TYPE_SYSTEM
+ enum ion_fixed_position {
+  NOT_FIXED,
+  FIXED_LOW,
+@@ -79,8 +87,8 @@ enum cp_mem_usage {
+ #define ION_FORCE_CONTIGUOUS ION_FLAG_FORCE_CONTIGUOUS
+ #define ION_HEAP(bit) (1 << (bit))
+ #define ION_ADSP_HEAP_NAME "adsp"
+-#define ION_VMALLOC_HEAP_NAME "vmalloc"
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define ION_SYSTEM_HEAP_NAME	"system"
++#define ION_VMALLOC_HEAP_NAME	ION_SYSTEM_HEAP_NAME
+ #define ION_KMALLOC_HEAP_NAME "kmalloc"
+ #define ION_AUDIO_HEAP_NAME "audio"
+ #define ION_SF_HEAP_NAME "sf"
+@@ -88,6 +96,7 @@ enum cp_mem_usage {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define ION_CAMERA_HEAP_NAME "camera_preview"
+ #define ION_IOMMU_HEAP_NAME "iommu"
++#define ION_IOMMUCA_HEAP_NAME	"iommuca"
+ #define ION_MFC_HEAP_NAME "mfc"
+ #define ION_WB_HEAP_NAME "wb"
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -108,9 +117,19 @@ struct ion_flush_data {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  unsigned int length;
+ };
++struct ion_prefetch_data {
++       int heap_id;
++       unsigned long len;
++};
+ #define ION_IOC_MSM_MAGIC 'M'
+ #define ION_IOC_CLEAN_CACHES _IOWR(ION_IOC_MSM_MAGIC, 0,   struct ion_flush_data)
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define ION_IOC_INV_CACHES _IOWR(ION_IOC_MSM_MAGIC, 1,   struct ion_flush_data)
+ #define ION_IOC_CLEAN_INV_CACHES _IOWR(ION_IOC_MSM_MAGIC, 2,   struct ion_flush_data)
++#define ION_IOC_PREFETCH               _IOWR(ION_IOC_MSM_MAGIC, 3, \
++                                               struct ion_prefetch_data)
++
++#define ION_IOC_DRAIN                  _IOWR(ION_IOC_MSM_MAGIC, 4, \
++                                               struct ion_prefetch_data)
++
+ #endif
+diff --git a/kernel-headers/linux/msm_kgsl.h b/kernel-headers/linux/msm_kgsl.h
+index e9cbb8d..3a2cd3a 100644
+--- a/kernel-headers/linux/msm_kgsl.h
++++ b/kernel-headers/linux/msm_kgsl.h
+@@ -44,6 +44,7 @@
+ #define KGSL_CONTEXT_TYPE_CL 2
+ #define KGSL_CONTEXT_TYPE_C2D 3
+ #define KGSL_CONTEXT_TYPE_RS 4
++#define KGSL_CONTEXT_TYPE_UNKNOWN	0x1E
+ #define KGSL_CONTEXT_INVALID 0xffffffff
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define KGSL_MEMFLAGS_GPUREADONLY 0x01000000
+@@ -492,8 +493,7 @@ struct kgsl_perfcounter_get {
+  unsigned int countable;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  unsigned int offset;
+- unsigned int offset_hi;
+- unsigned int __pad;
++ unsigned int __pad[2];
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define IOCTL_KGSL_PERFCOUNTER_GET   _IOWR(KGSL_IOC_TYPE, 0x38, struct kgsl_perfcounter_get)
+diff --git a/kernel-headers/linux/msm_mdp.h b/kernel-headers/linux/msm_mdp.h
+index 205df7b..b0a0ecf 100644
+--- a/kernel-headers/linux/msm_mdp.h
++++ b/kernel-headers/linux/msm_mdp.h
+@@ -73,10 +73,35 @@
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MSMFB_WRITEBACK_SET_MIRRORING_HINT _IOW(MSMFB_IOCTL_MAGIC, 167,   unsigned int)
+ #define MSMFB_ASYNC_BLIT _IOW(MSMFB_IOCTL_MAGIC, 168, unsigned int)
++#define MSMFB_OVERLAY_PREPARE		_IOWR(MSMFB_IOCTL_MAGIC, 169, \
++						struct mdp_overlay_list)
+ #define FB_TYPE_3D_PANEL 0x10101010
+ #define MDP_IMGTYPE2_START 0x10000
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MSMFB_DRIVER_VERSION 0xF9E8D701
++/* HW Revisions for different MDSS targets */
++#define MDSS_GET_MAJOR(rev)		((rev) >> 28)
++#define MDSS_GET_MINOR(rev)		(((rev) >> 16) & 0xFFF)
++#define MDSS_GET_STEP(rev)		((rev) & 0xFFFF)
++#define MDSS_GET_MAJOR_MINOR(rev)	((rev) >> 16)
++
++#define IS_MDSS_MAJOR_MINOR_SAME(rev1, rev2)	\
++	(MDSS_GET_MAJOR_MINOR((rev1)) == MDSS_GET_MAJOR_MINOR((rev2)))
++
++#define MDSS_MDP_REV(major, minor, step)	\
++	((((major) & 0x000F) << 28) |		\
++	 (((minor) & 0x0FFF) << 16) |		\
++	 ((step)   & 0xFFFF))
++
++#define MDSS_MDP_HW_REV_100	MDSS_MDP_REV(1, 0, 0) /* 8974 v1.0 */
++#define MDSS_MDP_HW_REV_101	MDSS_MDP_REV(1, 1, 0) /* 8x26 v1.0 */
++#define MDSS_MDP_HW_REV_101_1	MDSS_MDP_REV(1, 1, 1) /* 8x26 v2.0, 8926 v1.0 */
++#define MDSS_MDP_HW_REV_101_2	MDSS_MDP_REV(1, 1, 2) /* 8926 v2.0 */
++#define MDSS_MDP_HW_REV_102	MDSS_MDP_REV(1, 2, 0) /* 8974 v2.0 */
++#define MDSS_MDP_HW_REV_102_1	MDSS_MDP_REV(1, 2, 1) /* 8974 v3.0 (Pro) */
++#define MDSS_MDP_HW_REV_103	MDSS_MDP_REV(1, 3, 0) /* 8084 v1.0 */
++#define MDSS_MDP_HW_REV_103_1	MDSS_MDP_REV(1, 3, 1) /* 8084 v1.1 */
++#define MDSS_MDP_HW_REV_200	MDSS_MDP_REV(2, 0, 0) /* 8092 v1.0 */
+ enum {
+  NOTIFY_UPDATE_START,
+  NOTIFY_UPDATE_STOP,
+@@ -87,7 +112,8 @@ enum {
+  NOTIFY_TYPE_NO_UPDATE,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  NOTIFY_TYPE_SUSPEND,
+- NOTIFY_TYPE_UPDATE,
++	NOTIFY_TYPE_UPDATE,
++	NOTIFY_TYPE_BL_UPDATE,
+ };
+ enum {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -127,6 +153,14 @@ enum {
+  MDP_Y_CBCR_H2V2_VENUS,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  MDP_BGRX_8888,
++	MDP_RGBA_8888_TILE,	/* RGBA 8888 in tile format */
++	MDP_ARGB_8888_TILE,	/* ARGB 8888 in tile format */
++	MDP_ABGR_8888_TILE,	/* ABGR 8888 in tile format */
++	MDP_BGRA_8888_TILE,	/* BGRA 8888 in tile format */
++	MDP_RGBX_8888_TILE,	/* RGBX 8888 in tile format */
++	MDP_XRGB_8888_TILE,	/* XRGB 8888 in tile format */
++	MDP_XBGR_8888_TILE,	/* XBGR 8888 in tile format */
++	MDP_BGRX_8888_TILE,	/* BGRX 8888 in tile format */
+  MDP_YCBYCR_H2V1,
+  MDP_IMGTYPE_LIMIT,
+  MDP_RGB_BORDERFILL,
+@@ -164,6 +198,7 @@ enum {
+ #define MDP_BLUR 0x10
+ #define MDP_BLEND_FG_PREMULT 0x20000
+ #define MDP_IS_FG 0x40000
++#define MDP_SOLID_FILL 0x00000020
+ #define MDP_DEINTERLACE 0x80000000
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDP_SHARPENING 0x40000000
+@@ -187,6 +222,7 @@ enum {
+ #define MDP_BORDERFILL_SUPPORTED 0x00010000
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDP_SECURE_OVERLAY_SESSION 0x00008000
++#define MDP_SECURE_DISPLAY_OVERLAY_SESSION	0x00002000
+ #define MDP_OV_PIPE_FORCE_DMA 0x00004000
+ #define MDP_MEMORY_ID_TYPE_FB 0x00001000
+ #define MDP_BWC_EN 0x00000400
+@@ -243,13 +279,21 @@ struct mdp_csc {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ };
+ #define MDP_BLIT_REQ_VERSION 2
++
++struct color {
++	uint32_t r;
++	uint32_t g;
++	uint32_t b;
++	uint32_t alpha;
++};
++
+ struct mdp_blit_req {
+- struct mdp_img src;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- struct mdp_img dst;
+- struct mdp_rect src_rect;
+- struct mdp_rect dst_rect;
+- uint32_t alpha;
++	struct mdp_img src;
++	struct mdp_img dst;
++	struct mdp_rect src_rect;
++	struct mdp_rect dst_rect;
++	struct color const_color;
++	uint32_t alpha;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  uint32_t transp_mask;
+  uint32_t flags;
+@@ -303,7 +347,29 @@ struct msmfb_writeback_data {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDP_PP_IGC_FLAG_ROM0 0x10
+ #define MDP_PP_IGC_FLAG_ROM1 0x20
+-#define MDSS_PP_DSPP_CFG 0x000
++
++#define MDP_PP_PA_HUE_ENABLE		0x10
++#define MDP_PP_PA_SAT_ENABLE		0x20
++#define MDP_PP_PA_VAL_ENABLE		0x40
++#define MDP_PP_PA_CONT_ENABLE		0x80
++#define MDP_PP_PA_SIX_ZONE_ENABLE	0x100
++#define MDP_PP_PA_SKIN_ENABLE		0x200
++#define MDP_PP_PA_SKY_ENABLE		0x400
++#define MDP_PP_PA_FOL_ENABLE		0x800
++#define MDP_PP_PA_HUE_MASK		0x1000
++#define MDP_PP_PA_SAT_MASK		0x2000
++#define MDP_PP_PA_VAL_MASK		0x4000
++#define MDP_PP_PA_CONT_MASK		0x8000
++#define MDP_PP_PA_SIX_ZONE_HUE_MASK	0x10000
++#define MDP_PP_PA_SIX_ZONE_SAT_MASK	0x20000
++#define MDP_PP_PA_SIX_ZONE_VAL_MASK	0x40000
++#define MDP_PP_PA_MEM_COL_SKIN_MASK	0x80000
++#define MDP_PP_PA_MEM_COL_SKY_MASK	0x100000
++#define MDP_PP_PA_MEM_COL_FOL_MASK	0x200000
++#define MDP_PP_PA_MEM_PROTECT_EN	0x400000
++#define MDP_PP_PA_SAT_ZERO_EXP_EN	0x800000
++
++#define MDSS_PP_DSPP_CFG	0x000
+ #define MDSS_PP_SSPP_CFG 0x100
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDSS_PP_LM_CFG 0x200
+@@ -348,7 +414,8 @@ struct mdp_qseed_cfg_data {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDP_OVERLAY_PP_SHARP_CFG 0x10
+ #define MDP_OVERLAY_PP_HIST_CFG 0x20
+-#define MDP_OVERLAY_PP_HIST_LUT_CFG 0x40
++#define MDP_OVERLAY_PP_HIST_LUT_CFG    0x40
++#define MDP_OVERLAY_PP_PA_V2_CFG       0x80
+ #define MDP_CSC_FLAG_ENABLE 0x1
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDP_CSC_FLAG_YUV_IN 0x2
+@@ -375,7 +442,32 @@ struct mdp_pa_cfg {
+  uint32_t sat_adj;
+  uint32_t val_adj;
+  uint32_t cont_adj;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++};
++
++struct mdp_pa_mem_col_cfg {
++	uint32_t color_adjust_p0;
++	uint32_t color_adjust_p1;
++	uint32_t hue_region;
++	uint32_t sat_region;
++	uint32_t val_region;
++};
++
++#define MDP_SIX_ZONE_LUT_SIZE		384
++
++struct mdp_pa_v2_data {
++	/* Mask bits for PA features */
++	uint32_t flags;
++	uint32_t global_hue_adj;
++	uint32_t global_sat_adj;
++	uint32_t global_val_adj;
++	uint32_t global_cont_adj;
++	uint32_t six_zone_len;
++	uint32_t *six_zone_curve_p0;
++	uint32_t *six_zone_curve_p1;
++	uint32_t six_zone_thresh;
++	struct mdp_pa_mem_col_cfg skin_cfg;
++	struct mdp_pa_mem_col_cfg sky_cfg;
++	struct mdp_pa_mem_col_cfg fol_cfg;
+ };
+ struct mdp_igc_lut_data {
+  uint32_t block;
+@@ -405,9 +497,9 @@ struct mdp_overlay_pp_params {
+  uint32_t config_ops;
+  struct mdp_csc_cfg csc_cfg;
+  struct mdp_qseed_cfg qseed_cfg[2];
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- struct mdp_pa_cfg pa_cfg;
+- struct mdp_igc_lut_data igc_cfg;
++	struct mdp_pa_cfg pa_cfg;
++	struct mdp_pa_v2_data pa_v2_cfg;
++	struct mdp_igc_lut_data igc_cfg;
+  struct mdp_sharp_cfg sharp_cfg;
+  struct mdp_histogram_cfg hist_cfg;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -420,7 +512,40 @@ enum mdss_mdp_blend_op {
+  BLEND_OP_PREMULTIPLIED,
+  BLEND_OP_COVERAGE,
+  BLEND_OP_MAX,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++};
++
++#define MAX_PLANES	4
++struct mdp_scale_data {
++	uint8_t enable_pxl_ext;
++
++	int init_phase_x[MAX_PLANES];
++	int phase_step_x[MAX_PLANES];
++	int init_phase_y[MAX_PLANES];
++	int phase_step_y[MAX_PLANES];
++
++	int num_ext_pxls_left[MAX_PLANES];
++	int num_ext_pxls_right[MAX_PLANES];
++	int num_ext_pxls_top[MAX_PLANES];
++	int num_ext_pxls_btm[MAX_PLANES];
++
++	int left_ftch[MAX_PLANES];
++	int left_rpt[MAX_PLANES];
++	int right_ftch[MAX_PLANES];
++	int right_rpt[MAX_PLANES];
++
++	int top_rpt[MAX_PLANES];
++	int btm_rpt[MAX_PLANES];
++	int top_ftch[MAX_PLANES];
++	int btm_ftch[MAX_PLANES];
++
++	uint32_t roi_w[MAX_PLANES];
++};
++enum mdp_overlay_pipe_type {
++        PIPE_TYPE_AUTO = 0,
++        PIPE_TYPE_VIG,
++        PIPE_TYPE_RGB,
++        PIPE_TYPE_DMA,
++        PIPE_TYPE_MAX,
+ };
+ struct mdp_overlay {
+  struct msmfb_img src;
+@@ -433,14 +558,15 @@ struct mdp_overlay {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  uint32_t blend_op;
+  uint32_t transp_mask;
+- uint32_t flags;
+- uint32_t id;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- uint32_t user_data[7];
+- uint8_t horz_deci;
+- uint8_t vert_deci;
+- struct mdp_overlay_pp_params overlay_pp_cfg;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++	uint32_t flags;
++	uint32_t pipe_type;
++	uint32_t id;
++	uint32_t user_data[6];
++	uint32_t bg_color;
++	uint8_t horz_deci;
++	uint8_t vert_deci;
++	struct mdp_overlay_pp_params overlay_pp_cfg;
++	struct mdp_scale_data scale;
+ };
+ struct msmfb_overlay_3d {
+  uint32_t is_3d;
+@@ -466,22 +592,22 @@ struct mdp_histogram {
+  uint32_t *b;
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define MISR_CRC_BATCH_SIZE 32
+ enum {
+- DISPLAY_MISR_EDP,
+- DISPLAY_MISR_DSI0,
+- DISPLAY_MISR_DSI1,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- DISPLAY_MISR_HDMI,
+- DISPLAY_MISR_LCDC,
++	DISPLAY_MISR_EDP = 0,
++	DISPLAY_MISR_DSI0,
++	DISPLAY_MISR_DSI1,
++	DISPLAY_MISR_HDMI,
++	DISPLAY_MISR_LCDC,
++	DISPLAY_MISR_MDP,
+  DISPLAY_MISR_ATV,
+  DISPLAY_MISR_DSI_CMD,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  DISPLAY_MISR_MAX
+ };
+ enum {
+- MISR_OP_NONE,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- MISR_OP_SFM,
++	MISR_OP_NONE = 0,
++	MISR_OP_SFM,
+  MISR_OP_MFM,
+  MISR_OP_BM,
+  MISR_OP_MAX
+@@ -492,7 +618,7 @@ struct mdp_misr {
+  uint32_t frame_count;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  uint32_t crc_op_mode;
+- uint32_t crc_value[32];
++	uint32_t crc_value[MISR_CRC_BATCH_SIZE];
+ };
+ enum {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -590,7 +716,11 @@ struct mdp_pa_cfg_data {
+  uint32_t block;
+  struct mdp_pa_cfg pa_data;
+ };
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++
++struct mdp_pa_v2_cfg_data {
++	uint32_t block;
++	struct mdp_pa_v2_data pa_v2_data;
++};
+ struct mdp_dither_cfg_data {
+  uint32_t block;
+  uint32_t flags;
+@@ -635,11 +765,19 @@ enum {
+  DCM_ENTER,
+  DCM_EXIT,
+  DCM_BLANK,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++	DTM_ENTER,
++	DTM_EXIT,
+ };
++
++#define MDSS_PP_SPLIT_LEFT_ONLY		0x10000000
++#define MDSS_PP_SPLIT_RIGHT_ONLY	0x20000000
++#define MDSS_PP_SPLIT_MASK		0x30000000
++
+ #define MDSS_MAX_BL_BRIGHTNESS 255
+-#define AD_BL_LIN_LEN (MDSS_MAX_BL_BRIGHTNESS + 1)
+-#define MDSS_AD_MODE_AUTO_BL 0x0
++#define AD_BL_LIN_LEN 256
++#define AD_BL_ATT_LUT_LEN 33
++
++#define MDSS_AD_MODE_AUTO_BL	0x0
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDSS_AD_MODE_AUTO_STR 0x1
+ #define MDSS_AD_MODE_TARG_STR 0x3
+@@ -670,10 +808,13 @@ struct mdss_ad_init {
+  uint16_t frame_h;
+  uint8_t logo_v;
+  uint8_t logo_h;
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- uint32_t bl_lin_len;
+- uint32_t *bl_lin;
+- uint32_t *bl_lin_inv;
++	uint32_t alpha;
++	uint32_t alpha_base;
++	uint32_t bl_lin_len;
++	uint32_t bl_att_len;
++	uint32_t *bl_lin;
++	uint32_t *bl_lin_inv;
++	uint32_t *bl_att_lut;
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDSS_AD_BL_CTRL_MODE_EN 1
+@@ -729,9 +870,9 @@ enum {
+  mdp_op_lut_cfg,
+  mdp_op_qseed_cfg,
+  mdp_bl_scale_cfg,
+- mdp_op_pa_cfg,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- mdp_op_dither_cfg,
++	mdp_op_pa_cfg,
++	mdp_op_pa_v2_cfg,
++	mdp_op_dither_cfg,
+  mdp_op_gamut_cfg,
+  mdp_op_calib_cfg,
+  mdp_op_ad_cfg,
+@@ -766,8 +907,9 @@ struct msmfb_mdp_pp {
+  struct mdp_qseed_cfg_data qseed_cfg_data;
+  struct mdp_bl_scale_data bl_scale_data;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- struct mdp_pa_cfg_data pa_cfg_data;
+- struct mdp_dither_cfg_data dither_cfg_data;
++		struct mdp_pa_cfg_data pa_cfg_data;
++		struct mdp_pa_v2_cfg_data pa_v2_cfg_data;
++		struct mdp_dither_cfg_data dither_cfg_data;
+  struct mdp_gamut_cfg_data gamut_cfg_data;
+  struct mdp_calib_config_data calib_cfg;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -787,7 +929,8 @@ enum {
+  metadata_op_frame_rate,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  metadata_op_vic,
+- metadata_op_wb_format,
++	metadata_op_wb_format,
++	metadata_op_wb_secure,
+  metadata_op_get_caps,
+  metadata_op_crc,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -808,6 +951,8 @@ struct mdss_hw_caps {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  uint8_t vig_pipes;
+  uint8_t dma_pipes;
++	uint8_t max_smp_cnt;
++	uint8_t smp_per_pipe;
+  uint32_t features;
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -822,12 +967,14 @@ struct msmfb_metadata {
+  uint32_t panel_frame_rate;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  uint32_t video_info_code;
+- struct mdss_hw_caps caps;
++		struct mdss_hw_caps caps;
++		uint8_t secure_en;
+  } data;
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MDP_MAX_FENCE_FD 32
+ #define MDP_BUF_SYNC_FLAG_WAIT 1
++#define MDP_BUF_SYNC_FLAG_RETIRE_FENCE	0x10
+ struct mdp_buf_sync {
+  uint32_t flags;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+@@ -850,7 +997,14 @@ struct mdp_display_commit {
+  uint32_t flags;
+  uint32_t wait_for_finish;
+  struct fb_var_screeninfo var;
++ struct mdp_rect roi;
++};
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++struct mdp_overlay_list {
++	uint32_t num_overlays;
++	struct mdp_overlay **overlay_list;
++	uint32_t flags;
++	uint32_t processed_overlays;
+ };
+ struct mdp_page_protection {
+  uint32_t page_protection;
+diff --git a/kernel-headers/linux/msm_rotator.h b/kernel-headers/linux/msm_rotator.h
+index d731b76..63e413c 100644
+--- a/kernel-headers/linux/msm_rotator.h
++++ b/kernel-headers/linux/msm_rotator.h
+@@ -69,6 +69,7 @@ struct msm_rotator_platform_data {
+  unsigned int number_of_clocks;
+  unsigned int hardware_version_number;
+  struct msm_rot_clocks *rotator_clks;
++ struct msm_bus_scale_pdata *bus_scale_table;
+  char rot_iommu_split_domain;
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ };
+diff --git a/kernel-headers/linux/msm_vidc_dec.h b/kernel-headers/linux/msm_vidc_dec.h
+index 81a47d2..85303be 100644
+--- a/kernel-headers/linux/msm_vidc_dec.h
++++ b/kernel-headers/linux/msm_vidc_dec.h
+@@ -216,7 +216,6 @@ enum vdec_codec {
+  VDEC_CODECTYPE_VC1_RCV = 0xc,
+  VDEC_CODECTYPE_HEVC = 0xd,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- VDEC_CODECTYPE_MVC = 0xe,
+ };
+ enum vdec_mpeg2_profile {
+  VDEC_MPEG2ProfileSimple = 0x1,
+diff --git a/kernel-headers/linux/videodev2.h b/kernel-headers/linux/videodev2.h
+index 89ce8e2..66403a4 100644
+--- a/kernel-headers/linux/videodev2.h
++++ b/kernel-headers/linux/videodev2.h
+@@ -275,6 +275,7 @@ struct v4l2_pix_format {
+ #define V4L2_PIX_FMT_DIVX v4l2_fourcc('D', 'I', 'V', 'X')
+ #define V4L2_PIX_FMT_VP8 v4l2_fourcc('V', 'P', '8', '0')
+ #define V4L2_PIX_FMT_HEVC v4l2_fourcc('H', 'E', 'V', 'C')
++#define V4L2_PIX_FMT_HEVC_HYBRID v4l2_fourcc('H', 'V', 'C', 'H')
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define V4L2_PIX_FMT_CPIA1 v4l2_fourcc('C', 'P', 'I', 'A')
+ #define V4L2_PIX_FMT_WNVA v4l2_fourcc('W', 'N', 'V', 'A')
+@@ -488,33 +489,28 @@ struct v4l2_buffer {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define V4L2_BUF_FLAG_ERROR 0x0040
+ #define V4L2_BUF_FLAG_TIMECODE 0x0100
++#define V4L2_BUF_FLAG_INPUT     0x0200 
+ #define V4L2_BUF_FLAG_PREPARED 0x0400
+ #define V4L2_BUF_FLAG_NO_CACHE_INVALIDATE 0x0800
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define V4L2_BUF_FLAG_NO_CACHE_CLEAN 0x1000
+-#define V4L2_BUF_FLAG_TIMESTAMP_MASK 0xe000
+-#define V4L2_BUF_FLAG_TIMESTAMP_UNKNOWN 0x0000
+-#define V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC 0x2000
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_BUF_FLAG_TIMESTAMP_COPY 0x4000
+-#define V4L2_QCOM_BUF_FLAG_CODECCONFIG 0x10000
+-#define V4L2_QCOM_BUF_FLAG_EOSEQ 0x20000
+-#define V4L2_QCOM_BUF_TIMESTAMP_INVALID 0x40000
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_QCOM_BUF_FLAG_IDRFRAME 0x80000
+-#define V4L2_QCOM_BUF_FLAG_DECODEONLY 0x100000
+-#define V4L2_QCOM_BUF_DATA_CORRUPT 0x200000
+-#define V4L2_QCOM_BUF_DROP_FRAME 0x400000
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_QCOM_BUF_INPUT_UNSUPPORTED 0x800000
+-#define V4L2_QCOM_BUF_FLAG_EOS 0x1000000
+-#define V4L2_QCOM_BUF_TS_DISCONTINUITY 0x2000000
+-#define V4L2_QCOM_BUF_TS_ERROR 0x4000000
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_QCOM_BUF_FLAG_READONLY 0x8000000
+-#define V4L2_MSM_VIDC_BUF_START_CODE_NOT_FOUND 0x10000000
++#define V4L2_BUF_FLAG_EOS 0x2000
++#define V4L2_QCOM_BUF_FLAG_CODECCONFIG 0x4000
++#define V4L2_QCOM_BUF_FLAG_EOSEQ 0x8000
++#define V4L2_QCOM_BUF_TIMESTAMP_INVALID 0x10000
++/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define V4L2_QCOM_BUF_FLAG_IDRFRAME 0x20000
++#define V4L2_QCOM_BUF_FLAG_DECODEONLY 0x40000
++#define V4L2_QCOM_BUF_DATA_CORRUPT 0x80000
++#define V4L2_QCOM_BUF_DROP_FRAME 0x100000
++/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define V4L2_QCOM_BUF_INPUT_UNSUPPORTED 0x200000
++#define V4L2_QCOM_BUF_FLAG_EOS 0x2000
++
++/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define V4L2_QCOM_BUF_FLAG_READONLY 0x400000
++#define V4L2_MSM_BUF_FLAG_MBAFF 0x800000
+ #define V4L2_MSM_BUF_FLAG_YUV_601_709_CLAMP 0x20000000
+-#define V4L2_MSM_BUF_FLAG_MBAFF 0x40000000
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ struct v4l2_framebuffer {
+  __u32 capability;
+@@ -574,6 +570,7 @@ struct v4l2_captureparm {
+ #define V4L2_CAP_QCOM_FRAMESKIP 0x2000
+ struct v4l2_qcom_frameskip {
+  __u64 maxframeinterval;
++ __u8 fpsvariance;
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ struct v4l2_outputparm {
+@@ -1598,17 +1595,16 @@ enum v4l2_mpeg_vidc_extradata {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  V4L2_MPEG_VIDC_EXTRADATA_NUM_CONCEALED_MB,
+  V4L2_MPEG_VIDC_EXTRADATA_METADATA_FILLER,
+- V4L2_MPEG_VIDC_EXTRADATA_INPUT_CROP,
+- V4L2_MPEG_VIDC_EXTRADATA_DIGITAL_ZOOM,
++ V4L2_MPEG_VIDC_INDEX_EXTRADATA_INPUT_CROP,
++ V4L2_MPEG_VIDC_INDEX_EXTRADATA_DIGITAL_ZOOM,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_MPEG_VIDC_EXTRADATA_ASPECT_RATIO,
++ V4L2_MPEG_VIDC_INDEX_EXTRADATA_ASPECT_RATIO,
+  V4L2_MPEG_VIDC_EXTRADATA_MPEG2_SEQDISP,
+- V4L2_MPEG_VIDC_EXTRADATA_STREAM_USERDATA,
+  V4L2_MPEG_VIDC_EXTRADATA_FRAME_QP,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  V4L2_MPEG_VIDC_EXTRADATA_FRAME_BITS_INFO,
++ V4L2_MPEG_VIDC_EXTRADATA_LTR,
+  V4L2_MPEG_VIDC_EXTRADATA_METADATA_MBI,
+- V4L2_MPEG_VIDC_EXTRADATA_LTR
+ };
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define V4L2_CID_MPEG_VIDC_SET_PERF_LEVEL (V4L2_CID_MPEG_MSM_VIDC_BASE + 26)
+@@ -1652,97 +1648,35 @@ enum v4l2_mpeg_vidc_video_vp8_profile_level {
+  V4L2_MPEG_VIDC_VIDEO_VP8_VERSION_3,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ };
+-#define V4L2_CID_MPEG_VIDC_VIDEO_H264_VUI_BITSTREAM_RESTRICT   (V4L2_CID_MPEG_MSM_VIDC_BASE + 34)
+-enum v4l2_mpeg_vidc_video_h264_vui_bitstream_restrict {
+- V4L2_MPEG_VIDC_VIDEO_H264_VUI_BITSTREAM_RESTRICT_DISABLED = 0,
++#define V4L2_CID_MPEG_VIDC_VIDEO_DEINTERLACE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 34)
++enum v4l2_mpeg_vidc_video_deinterlace {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_MPEG_VIDC_VIDEO_H264_VUI_BITSTREAM_RESTRICT_ENABLED = 1
++ V4L2_CID_MPEG_VIDC_VIDEO_DEINTERLACE_DISABLED = 0,
++ V4L2_CID_MPEG_VIDC_VIDEO_DEINTERLACE_ENABLED = 1
+ };
+-#define V4L2_CID_MPEG_VIDC_VIDEO_PRESERVE_TEXT_QUALITY   (V4L2_CID_MPEG_MSM_VIDC_BASE + 35)
+-enum v4l2_mpeg_vidc_video_preserve_text_quality {
++#define V4L2_CID_MPEG_VIDC_VIDEO_STREAM_OUTPUT_MODE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 35)
++enum v4l2_mpeg_vidc_video_decoder_multi_stream {
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_MPEG_VIDC_VIDEO_PRESERVE_TEXT_QUALITY_DISABLED = 0,
+- V4L2_MPEG_VIDC_VIDEO_PRESERVE_TEXT_QUALITY_ENABLED = 1
++ V4L2_CID_MPEG_VIDC_VIDEO_STREAM_OUTPUT_PRIMARY = 0,
++ V4L2_CID_MPEG_VIDC_VIDEO_STREAM_OUTPUT_SECONDARY = 1,
+ };
+-#define V4L2_CID_MPEG_VIDC_VIDEO_REQUEST_SEQ_HEADER   (V4L2_CID_MPEG_MSM_VIDC_BASE + 36)
++#define V4L2_CID_MPEG_VIDC_VIDEO_VP8_MIN_QP (V4L2_CID_MPEG_MSM_VIDC_BASE + 36)
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_LTRMODE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 37)
++#define V4L2_CID_MPEG_VIDC_VIDEO_VP8_MAX_QP (V4L2_CID_MPEG_MSM_VIDC_BASE + 37)
++#define V4L2_CID_MPEG_VIDC_VIDEO_CONCEAL_COLOR   (V4L2_CID_MPEG_MSM_VIDC_BASE + 38)
++#define V4L2_CID_MPEG_VIDC_VIDEO_LTRMODE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 39)
+ enum v4l2_mpeg_vidc_video_ltrmode {
+  V4L2_MPEG_VIDC_VIDEO_LTR_MODE_DISABLE = 0,
+  V4L2_MPEG_VIDC_VIDEO_LTR_MODE_MANUAL = 1,
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+  V4L2_MPEG_VIDC_VIDEO_LTR_MODE_PERIODIC = 2
+ };
+-#define V4L2_CID_MPEG_VIDC_VIDEO_LTRCOUNT   (V4L2_CID_MPEG_MSM_VIDC_BASE + 38)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_USELTRFRAME   (V4L2_CID_MPEG_MSM_VIDC_BASE + 39)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_MARKLTRFRAME   (V4L2_CID_MPEG_MSM_VIDC_BASE + 40)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_HIER_P_NUM_LAYERS   (V4L2_CID_MPEG_MSM_VIDC_BASE + 41)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_VPX_ERROR_RESILIENCE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 42)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_VP8_MIN_QP (V4L2_CID_MPEG_MSM_VIDC_BASE + 43)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_VP8_MAX_QP (V4L2_CID_MPEG_MSM_VIDC_BASE + 44)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_MPEG4_TIME_RESOLUTION   (V4L2_CID_MPEG_MSM_VIDC_BASE + 45)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_STREAM_OUTPUT_MODE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 46)
+-enum v4l2_mpeg_vidc_video_decoder_multi_stream {
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_CID_MPEG_VIDC_VIDEO_STREAM_OUTPUT_PRIMARY = 0,
+- V4L2_CID_MPEG_VIDC_VIDEO_STREAM_OUTPUT_SECONDARY = 1,
+-};
+-#define V4L2_CID_MPEG_VIDC_VIDEO_MVC_BUFFER_LAYOUT   (V4L2_CID_MPEG_MSM_VIDC_BASE + 47)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-enum v4l2_mpeg_vidc_video_mvc_layout {
+- V4L2_MPEG_VIDC_VIDEO_MVC_SEQUENTIAL = 0,
+- V4L2_MPEG_VIDC_VIDEO_MVC_TOP_BOTTOM = 1
+-};
++#define V4L2_CID_MPEG_VIDC_VIDEO_LTRCOUNT   (V4L2_CID_MPEG_MSM_VIDC_BASE + 40)
++#define V4L2_CID_MPEG_VIDC_VIDEO_USELTRFRAME   (V4L2_CID_MPEG_MSM_VIDC_BASE + 41)
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_CONCEAL_COLOR   (V4L2_CID_MPEG_MSM_VIDC_BASE + 48)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_SCS_THRESHOLD   (V4L2_CID_MPEG_MSM_VIDC_BASE + 49)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_DEINTERLACE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 50)
+-enum v4l2_mpeg_vidc_video_deinterlace {
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_CID_MPEG_VIDC_VIDEO_DEINTERLACE_DISABLED = 0,
+- V4L2_CID_MPEG_VIDC_VIDEO_DEINTERLACE_ENABLED = 1
+-};
+-#define V4L2_CID_MPEG_VIDC_VIDEO_MPEG2_LEVEL (V4L2_CID_MPEG_MSM_VIDC_BASE+51)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-enum v4l2_mpeg_vidc_video_mpeg2_level {
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_LEVEL_0 = 0,
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_LEVEL_1 = 1,
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_LEVEL_2 = 2,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_LEVEL_3 = 3,
+-};
+-#define V4L2_CID_MPEG_VIDC_VIDEO_MPEG2_PROFILE (V4L2_CID_MPEG_MSM_VIDC_BASE+52)
+-enum v4l2_mpeg_vidc_video_mpeg2_profile {
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_PROFILE_SIMPLE = 0,
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_PROFILE_MAIN = 1,
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_PROFILE_422 = 2,
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_PROFILE_SNR_SCALABLE = 3,
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_PROFILE_SPATIAL_SCALABLE = 4,
+- V4L2_MPEG_VIDC_VIDEO_MPEG2_PROFILE_HIGH = 5,
+-};
+-#define V4L2_CID_MPEG_VIDC_VIDEO_RATE_CONTROL_TIMESTAMP_MODE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 53)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-enum v4l2_mpeg_vidc_video_rate_control_timestamp_mode {
+- V4L2_MPEG_VIDC_VIDEO_RATE_CONTROL_TIMESTAMP_MODE_HONOR = 0,
+- V4L2_MPEG_VIDC_VIDEO_RATE_CONTROL_TIMESTAMP_MODE_IGNORE = 1,
+-};
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_ENABLE_INITIAL_QP   (V4L2_CID_MPEG_MSM_VIDC_BASE + 54)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_I_FRAME_QP   (V4L2_CID_MPEG_MSM_VIDC_BASE + 55)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_P_FRAME_QP   (V4L2_CID_MPEG_MSM_VIDC_BASE + 56)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_B_FRAME_QP   (V4L2_CID_MPEG_MSM_VIDC_BASE + 57)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_IFRAME_X_RANGE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 58)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_PFRAME_X_RANGE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 59)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_BFRAME_X_RANGE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 60)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_IFRAME_Y_RANGE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 61)
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define V4L2_CID_MPEG_VIDC_VIDEO_PFRAME_Y_RANGE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 62)
+-#define V4L2_CID_MPEG_VIDC_VIDEO_BFRAME_Y_RANGE   (V4L2_CID_MPEG_MSM_VIDC_BASE + 63)
++#define V4L2_CID_MPEG_VIDC_VIDEO_MARKLTRFRAME   (V4L2_CID_MPEG_MSM_VIDC_BASE + 42)
++#define V4L2_CID_MPEG_VIDC_VIDEO_HIER_P_NUM_LAYERS   (V4L2_CID_MPEG_MSM_VIDC_BASE + 43)
++
+ #define V4L2_CID_CAMERA_CLASS_BASE (V4L2_CTRL_CLASS_CAMERA | 0x900)
+ #define V4L2_CID_CAMERA_CLASS (V4L2_CTRL_CLASS_CAMERA | 1)
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+diff --git a/kernel-headers/media/msmb_camera.h b/kernel-headers/media/msmb_camera.h
+index 124ff74..fc3354d 100644
+--- a/kernel-headers/media/msmb_camera.h
++++ b/kernel-headers/media/msmb_camera.h
+@@ -23,15 +23,18 @@
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #include <linux/ioctl.h>
+ #define MSM_CAM_V4L2_IOCTL_NOTIFY   _IOW('V', BASE_VIDIOC_PRIVATE + 30, struct v4l2_event)
+-#define MSM_CAM_V4L2_IOCTL_NOTIFY_META   _IOW('V', BASE_VIDIOC_PRIVATE + 31, struct v4l2_event)
++#define MSM_CAM_V4L2_IOCTL_NOTIFY_ERROR   _IOW('V', BASE_VIDIOC_PRIVATE + 31, struct v4l2_event)
+ #define MSM_CAM_V4L2_IOCTL_CMD_ACK   _IOW('V', BASE_VIDIOC_PRIVATE + 32, struct v4l2_event)
++#define MSM_CAM_V4L2_IOCTL_NOTIFY_MODULE_STATUS   _IOW('V', BASE_VIDIOC_PRIVATE + 33, struct v4l2_event)
++
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+-#define MSM_CAM_V4L2_IOCTL_NOTIFY_ERROR   _IOW('V', BASE_VIDIOC_PRIVATE + 33, struct v4l2_event)
++
+ #define QCAMERA_DEVICE_GROUP_ID 1
+ #define QCAMERA_VNODE_GROUP_ID 2
+ #define MSM_CAMERA_NAME "msm_camera"
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MSM_CONFIGURATION_NAME "msm_config"
++#define MSM_CAMERA_DUMMY_NAME   "msm_cam_dummy"
+ #define MSM_CAMERA_SUBDEV_CSIPHY 0
+ #define MSM_CAMERA_SUBDEV_CSID 1
+ #define MSM_CAMERA_SUBDEV_ISPIF 2
+@@ -48,9 +51,16 @@
+ /* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
+ #define MSM_CAMERA_SUBDEV_LED_FLASH 11
+ #define MSM_CAMERA_SUBDEV_STROBE_FLASH 12
+-#define MSM_CAMERA_SUBDEV_BUF_MNGR 13
+-#define MSM_MAX_CAMERA_SENSORS 5
+-/* WARNING: DO NOT EDIT, AUTO-GENERATED CODE - SEE TOP FOR INSTRUCTIONS */
++#define MSM_CAMERA_SUBDEV_BUF_MNGR     13
++#define MSM_CAMERA_SUBDEV_SENSOR_INIT  14
++
++#define MSM_MAX_CAMERA_SENSORS  5
++
++/* The below macro is defined to put an upper limit on maximum
++ * number of buffer requested per stream. In case of extremely
++ * large value for number of buffer due to data structure corruption
++ * we return error to avoid integer overflow. This value may be
++ * configured in future*/
+ #define MSM_CAMERA_MAX_STREAM_BUF 40
+ #define MSM_CAMERA_FEATURE_BASE 0x00010000
+ #define MSM_CAMERA_FEATURE_SHUTDOWN (MSM_CAMERA_FEATURE_BASE + 1)

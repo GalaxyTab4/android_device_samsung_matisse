@@ -1,0 +1,32 @@
+From 1afcd116b6d537f39ef584eb0ba0365d965f916e Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 22:05:42 +0100
+Subject: [PATCH] [lt03lte] Enable Home Key wakeup
+
+---
+ core/java/android/view/KeyEvent.java | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/core/java/android/view/KeyEvent.java b/core/java/android/view/KeyEvent.java
+index 0701b53..5476cc7 100644
+--- a/core/java/android/view/KeyEvent.java
++++ b/core/java/android/view/KeyEvent.java
+@@ -1803,12 +1803,13 @@ public static final boolean isSystemKey(int keyCode) {
+     /** @hide */
+     public static final boolean isWakeKey(int keyCode) {
+         switch (keyCode) {
+-            case KeyEvent.KEYCODE_BACK:
++            //case KeyEvent.KEYCODE_BACK:
+             case KeyEvent.KEYCODE_POWER:
+-            case KeyEvent.KEYCODE_MENU:
+-            case KeyEvent.KEYCODE_SLEEP:
+-            case KeyEvent.KEYCODE_WAKEUP:
+-            case KeyEvent.KEYCODE_PAIRING:
++            //case KeyEvent.KEYCODE_MENU:
++            //case KeyEvent.KEYCODE_SLEEP:
++            //case KeyEvent.KEYCODE_WAKEUP:
++            //case KeyEvent.KEYCODE_PAIRING:
++            case KeyEvent.KEYCODE_HOME:
+                 return true;
+         }
+         return false;

@@ -1,0 +1,130 @@
+From 34bc51e55a02eb5cca47f843dd55d337d9ed5a76 Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 22:23:06 +0100
+Subject: [PATCH] [lt03lte] Custom stuff
+
+---
+ core/main.mk                             |  2 +-
+ core/tasks/vendor_module_check.mk        | 12 ++++++------
+ target/product/core.mk                   |  4 +++-
+ target/product/full_base.mk              | 21 ++++++++++++---------
+ target/product/full_base_telephony.mk    |  4 ++--
+ tools/releasetools/ota_from_target_files |  2 +-
+ 6 files changed, 25 insertions(+), 20 deletions(-)
+
+diff --git a/core/main.mk b/core/main.mk
+index 9d6e233..894e02a 100644
+--- a/core/main.mk
++++ b/core/main.mk
+@@ -320,7 +320,7 @@ enable_target_debugging := true
+ tags_to_install :=
+ ifneq (,$(user_variant))
+   # Target is secure in user builds.
+-  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=1
++  ADDITIONAL_DEFAULT_PROPERTIES += ro.secure=0
+ 
+   ifeq ($(user_variant),userdebug)
+     # Pick up some extra useful tools
+diff --git a/core/tasks/vendor_module_check.mk b/core/tasks/vendor_module_check.mk
+index d8e8ec7..95ea6be 100644
+--- a/core/tasks/vendor_module_check.mk
++++ b/core/tasks/vendor_module_check.mk
+@@ -57,12 +57,12 @@ $(error Error: Product "$(TARGET_PRODUCT)" cannot have overlay in vendor tree: \
+     $(filter vendor/%, $(PRODUCT_PACKAGE_OVERLAYS) $(DEVICE_PACKAGE_OVERLAYS)))
+ endif
+ _vendor_check_copy_files := $(filter vendor/%, $(PRODUCT_COPY_FILES))
+-ifneq (,$(_vendor_check_copy_files))
+-$(foreach c, $(_vendor_check_copy_files), \
+-  $(if $(filter $(_vendor_owner_whitelist), $(call word-colon,3,$(c))),,\
+-    $(error Error: vendor PRODUCT_COPY_FILES file "$(c)" has unknown owner))\
+-  $(eval _vendor_module_owner_info += $(call word-colon,2,$(c)):$(call word-colon,3,$(c))))
+-endif
++#ifneq (,$(_vendor_check_copy_files))
++#$(foreach c, $(_vendor_check_copy_files), \
++#  $(if $(filter $(_vendor_owner_whitelist), $(call word-colon,3,$(c))),,\
++#    $(error Error: vendor PRODUCT_COPY_FILES file "$(c)" has unknown owner))\
++#  $(eval _vendor_module_owner_info += $(call word-colon,2,$(c)):$(call word-colon,3,$(c))))
++#endif
+ _vendor_check_copy_files :=
+ 
+ $(foreach m, $(_vendor_check_modules), \
+diff --git a/target/product/core.mk b/target/product/core.mk
+index 876a536..2fbc418 100644
+--- a/target/product/core.mk
++++ b/target/product/core.mk
+@@ -46,7 +46,6 @@ PRODUCT_PACKAGES += \
+     libpac \
+     PrintSpooler \
+     ProxyHandler \
+-    QuickSearchBox \
+     Settings \
+     SharedStorageBackup \
+     Telecom \
+@@ -54,4 +53,7 @@ PRODUCT_PACKAGES += \
+     VpnDialogs \
+     MmsService
+ 
++#PRODUCT_PACKAGES += \
++#    QuickSearchBox
++
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_base.mk)
+diff --git a/target/product/full_base.mk b/target/product/full_base.mk
+index 9b1a826..585e29f 100644
+--- a/target/product/full_base.mk
++++ b/target/product/full_base.mk
+@@ -28,15 +28,18 @@ PRODUCT_PACKAGES := \
+     WAPPushManager
+ 
+ PRODUCT_PACKAGES += \
+-    Galaxy4 \
+-    HoloSpiralWallpaper \
+-    LiveWallpapers \
+-    LiveWallpapersPicker \
+-    MagicSmokeWallpapers \
+-    NoiseField \
+-    PhaseBeam \
+-    VisualizationWallpapers \
+-    PhotoTable
++    LiveWallpapersPicker
++
++#PRODUCT_PACKAGES += \
++#    Galaxy4 \
++#    HoloSpiralWallpaper \
++#    LiveWallpapers \
++#    LiveWallpapersPicker \
++#    MagicSmokeWallpapers \
++#    NoiseField \
++#    PhaseBeam \
++#    VisualizationWallpapers \
++#    PhotoTable
+ 
+ # Additional settings used in all AOSP builds
+ PRODUCT_PROPERTY_OVERRIDES := \
+diff --git a/target/product/full_base_telephony.mk b/target/product/full_base_telephony.mk
+index 2fd2ce8..5792df3 100644
+--- a/target/product/full_base_telephony.mk
++++ b/target/product/full_base_telephony.mk
+@@ -19,8 +19,8 @@
+ # build quite specifically for the emulator, and might not be
+ # entirely appropriate to inherit from for on-device configurations.
+ 
+-PRODUCT_PACKAGES := \
+-    VoiceDialer
++#PRODUCT_PACKAGES := \
++#    VoiceDialer
+ 
+ PRODUCT_PROPERTY_OVERRIDES := \
+     keyguard.no_require_sim=true \
+diff --git a/tools/releasetools/ota_from_target_files b/tools/releasetools/ota_from_target_files
+index 755e5c2..69eee2c 100755
+--- a/tools/releasetools/ota_from_target_files
++++ b/tools/releasetools/ota_from_target_files
+@@ -386,7 +386,7 @@ def AppendAssertions(script, info_dict, oem_dict = None):
+   oem_props = info_dict.get("oem_fingerprint_properties")
+   if oem_props is None or len(oem_props) == 0:
+     device = GetBuildProp("ro.product.device", info_dict)
+-    script.AssertDevice(device)
++    script.AssertDevice("lt03ltexx")
+   else:
+     if oem_dict is None:
+       raise common.ExternalError("No OEM file provided to answer expected assertions")

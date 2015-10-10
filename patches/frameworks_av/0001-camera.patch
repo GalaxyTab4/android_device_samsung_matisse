@@ -1,0 +1,42 @@
+From 695bac4c6ecff856db4b5ea87ab373c92761556f Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 22:11:28 +0100
+Subject: [PATCH] [lt03lte] Camera binary blob compatiblity
+
+---
+ camera/CameraParameters.cpp       | 7 +++++++
+ include/camera/CameraParameters.h | 3 +++
+ 2 files changed, 10 insertions(+)
+
+diff --git a/camera/CameraParameters.cpp b/camera/CameraParameters.cpp
+index 25d632d..c716830 100644
+--- a/camera/CameraParameters.cpp
++++ b/camera/CameraParameters.cpp
+@@ -281,6 +281,13 @@ int CameraParameters::getInt(const char *key) const
+     return strtol(v, 0, 0);
+ }
+ 
++#ifdef SAMSUNG_CAMERA_HARDWARE
++int CameraParameters::getInt64(const char *key) const
++{
++    return -1;
++}
++#endif
++
+ float CameraParameters::getFloat(const char *key) const
+ {
+     const char *v = get(key);
+diff --git a/include/camera/CameraParameters.h b/include/camera/CameraParameters.h
+index c6074fc..5ad5122 100644
+--- a/include/camera/CameraParameters.h
++++ b/include/camera/CameraParameters.h
+@@ -52,6 +52,9 @@ class CameraParameters
+     void setFloat(const char *key, float value);
+     const char *get(const char *key) const;
+     int getInt(const char *key) const;
++#ifdef SAMSUNG_CAMERA_HARDWARE
++    int getInt64(const char *key) const;
++#endif
+     float getFloat(const char *key) const;
+ 
+     void remove(const char *key);
