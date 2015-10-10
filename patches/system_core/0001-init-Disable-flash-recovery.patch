@@ -1,0 +1,32 @@
+From 969b57d1108f429397a73340dc9cda4f173ccba6 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 10 Oct 2015 17:15:21 +0200
+Subject: [PATCH] init : Disable flash recovery
+
+Change-Id: I89261445ebd00906456819e11b3fed39a926a6ad
+---
+ rootdir/init.rc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/rootdir/init.rc b/rootdir/init.rc
+index cbcb842..ea664e0 100644
+--- a/rootdir/init.rc
++++ b/rootdir/init.rc
+@@ -589,10 +589,10 @@ service installd /system/bin/installd
+     class main
+     socket installd stream 600 system system
+ 
+-service flash_recovery /system/bin/install-recovery.sh
+-    class main
+-    seclabel u:r:install_recovery:s0
+-    oneshot
++#service flash_recovery /system/bin/install-recovery.sh
++#    class main
++#    seclabel u:r:install_recovery:s0
++#    oneshot
+ 
+ service racoon /system/bin/racoon
+     class main
+-- 
+2.1.4
+

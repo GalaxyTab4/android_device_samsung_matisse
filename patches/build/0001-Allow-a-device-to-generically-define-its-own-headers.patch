@@ -1,0 +1,29 @@
+From 81433758cf75bc518ea53892b59e10309d8ded10 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 10 Oct 2015 17:05:51 +0200
+Subject: [PATCH] Allow a device to generically define its own headers
+
+Change-Id: Idf01dc5e84c6a2fca1bcf5717506e7d5fa20a3fc
+---
+ core/binary.mk | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/core/binary.mk b/core/binary.mk
+index 1e313ff..e8b3572 100644
+--- a/core/binary.mk
++++ b/core/binary.mk
+@@ -818,6 +818,11 @@ normal_objects := \
+ 
+ all_objects := $(normal_objects) $(gen_o_objects)
+ 
++## Allow a device's own headers to take precedence over global ones
++ifneq ($(TARGET_SPECIFIC_HEADER_PATH),)
++my_c_includes := $(TOPDIR)$(TARGET_SPECIFIC_HEADER_PATH) $(my_c_includes)
++endif
++
+ my_c_includes += $(TOPDIR)$(LOCAL_PATH) $(intermediates) $(generated_sources_dir)
+ 
+ ifndef LOCAL_SDK_VERSION
+-- 
+2.1.4
+
