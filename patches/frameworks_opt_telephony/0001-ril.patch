@@ -1,0 +1,175 @@
+From a99ba32124930c2c88371c0e720fc4294844c57f Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 19:28:46 +0100
+Subject: [PATCH] [lt03lte] ril binary blob compatibility
+
+---
+ src/java/com/android/internal/telephony/RIL.java | 88 +++++++++++++++++++++---
+ 1 file changed, 79 insertions(+), 9 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index f59e883..c3f62b2 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -902,11 +902,20 @@ public void setDataAllowed(boolean allowed, Message result) {
+     @Override
+     public void
+     dial(String address, int clirMode, UUSInfo uusInfo, Message result) {
++        if (PhoneNumberUtils.isEmergencyNumber(address)) {
++            dialEmergencyCall(address, clirMode, result);
++            return;
++        }
++
+         RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL, result);
+ 
+         rr.mParcel.writeString(address);
+         rr.mParcel.writeInt(clirMode);
+ 
++        rr.mParcel.writeInt(0);         // CallDetails.call_type
++        rr.mParcel.writeInt(1);         // CallDetails.call_domain
++        rr.mParcel.writeString("");     // CallDetails.getCsvFromExtras
++
+         if (uusInfo == null) {
+             rr.mParcel.writeInt(0); // UUS information is absent
+         } else {
+@@ -921,6 +930,21 @@ public void setDataAllowed(boolean allowed, Message result) {
+         send(rr);
+     }
+ 
++    private void
++    dialEmergencyCall(String address, int clirMode, Message result) {
++        RILRequest rr = RILRequest.obtain(RIL_REQUEST_DIAL_EMERGENCY, result);
++
++        rr.mParcel.writeString(address + "/");
++        rr.mParcel.writeInt(clirMode);
++
++        rr.mParcel.writeInt(0);        // CallDetails.call_type
++        rr.mParcel.writeInt(3);        // CallDetails.call_domain
++        rr.mParcel.writeString("");    // CallDetails.getCsvFromExtra
++        rr.mParcel.writeInt(0);        // Unknown
++
++        send(rr);
++    }
++
+     @Override
+     public void
+     getIMSI(Message result) {
+@@ -1067,6 +1091,9 @@ public void getPreferredVoicePrivacy(Message result) {
+ 
+         if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
+ 
++        rr.mParcel.writeInt(1);
++        rr.mParcel.writeInt(0);
++
+         send(rr);
+     }
+ 
+@@ -2749,6 +2776,9 @@ private RILRequest findAndRemoveRequestFromList(int serial) {
+             case RIL_UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED: ret =  responseInts(p); break;
+             case RIL_UNSOL_SRVCC_STATE_NOTIFY: ret = responseInts(p); break;
+             case RIL_UNSOL_HARDWARE_CONFIG_CHANGED: ret = responseHardwareConfig(p); break;
++            case RIL_UNSOL_DEVICE_READY_NOTI: ret =  responseVoid(p); break;
++            case RIL_UNSOL_AM: ret = responseString(p); break;
++            case RIL_UNSOL_RESPONSE_HANDOVER: ret =  responseVoid(p); break;
+ 
+             default:
+                 throw new RuntimeException("Unrecognized unsol response: " + response);
+@@ -3372,20 +3402,52 @@ private void notifyRegistrantsRilConnectionChanged(int rilVer) {
+             dc = new DriverCall();
+ 
+             dc.state = DriverCall.stateFromCLCC(p.readInt());
+-            dc.index = p.readInt();
++            riljLogv("dc.state=" + dc.state);
++
++            // & 0xff to truncate to 1 byte added for us, not in RIL.java
++            dc.index = p.readInt() & 0xff;
++            riljLogv("dc.index=" + dc.index);
++
+             dc.TOA = p.readInt();
++            riljLogv("dc.TOA=" + dc.TOA);
++
+             dc.isMpty = (0 != p.readInt());
++            riljLogv("dc.isMpty=" + dc.isMpty);
++
+             dc.isMT = (0 != p.readInt());
++            riljLogv("dc.isMT=" + dc.isMT);
++
+             dc.als = p.readInt();
++            riljLogv("dc.als=" + dc.als);
+             voiceSettings = p.readInt();
++
++            riljLogv("dc.isVoice=" + voiceSettings);
+             dc.isVoice = (0 == voiceSettings) ? false : true;
++            
++            //boolean isVideo = (0 != p.readInt());
++            //riljLogv("isVideo=" + isVideo);
++
++            int call_type = p.readInt();            // Samsung CallDetails
++            riljLogv("call_type=" + call_type);
++            int call_domain = p.readInt();          // Samsung CallDetails
++            riljLogv("call_domain=" + call_domain);
++            String csv = p.readString();            // Samsung CallDetails
++            riljLogv("csv=" + csv);
++
+             dc.isVoicePrivacy = (0 != p.readInt());
++            riljLogv("dc.isVoicePrivacy=" + dc.isVoicePrivacy);
++
+             dc.number = p.readString();
++            riljLogv("dc.number=" + dc.number);
++
+             int np = p.readInt();
++            riljLogv("np=" +np);
+             dc.numberPresentation = DriverCall.presentationFromCLIP(np);
++
+             dc.name = p.readString();
+             // according to ril.h, namePresentation should be handled as numberPresentation;
+             dc.namePresentation = DriverCall.presentationFromCLIP(p.readInt());
++
+             int uusInfoPresent = p.readInt();
+             if (uusInfoPresent == 1) {
+                 dc.uusInfo = new UUSInfo();
+@@ -3554,21 +3616,26 @@ private DataCallResponse getDataCallResponse(Parcel p, int version) {
+         String strings[] = (String [])responseStrings(p);
+         ArrayList<OperatorInfo> ret;
+ 
+-        if (strings.length % 4 != 0) {
++        for (int i = 0 ; i < strings.length ; i ++) {
++            riljLog("responseOperatorInfos: i=" + i + " s=" + strings[i]);
++        }
++
++        if (strings.length % 6 != 0) {
+             throw new RuntimeException(
+                 "RIL_REQUEST_QUERY_AVAILABLE_NETWORKS: invalid response. Got "
+-                + strings.length + " strings, expected multible of 4");
++                + strings.length + " strings, expected multible of 6");
+         }
+ 
+-        ret = new ArrayList<OperatorInfo>(strings.length / 4);
++        ret = new ArrayList<OperatorInfo>(strings.length / 6);
+ 
+-        for (int i = 0 ; i < strings.length ; i += 4) {
++        for (int i = 0 ; i < strings.length ; i += 6) {
++            
+             ret.add (
+                 new OperatorInfo(
+-                    strings[i+0],
+-                    strings[i+1],
+-                    strings[i+2],
+-                    strings[i+3]));
++                    strings[i+0], //operatorAlphaLong
++                    strings[i+1], //operatorAlphaShort
++                    strings[i+2], //operatorNumeric
++                    strings[i+3])); //state
+         }
+ 
+         return ret;
+@@ -4045,6 +4112,9 @@ private Object responseGmsBroadcastConfig(Parcel p) {
+             case RIL_UNSOL_SRVCC_STATE_NOTIFY:
+                     return "UNSOL_SRVCC_STATE_NOTIFY";
+             case RIL_UNSOL_HARDWARE_CONFIG_CHANGED: return "RIL_UNSOL_HARDWARE_CONFIG_CHANGED";
++            case RIL_UNSOL_DEVICE_READY_NOTI: return "RIL_UNSOL_DEVICE_READY_NOTI";
++            case RIL_UNSOL_AM: return "RIL_UNSOL_AM";
++            case RIL_UNSOL_RESPONSE_HANDOVER : return "RIL_UNSOL_RESPONSE_HANDOVER";
+             default: return "<unknown response>";
+         }
+     }

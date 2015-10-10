@@ -1,0 +1,26 @@
+From 5a3b356f8d2c70c0ed35df95aff86d4c73e32766 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 10 Oct 2015 04:20:47 +0200
+Subject: [PATCH 2/2] msm8226: keymaster ion comp.
+
+---
+ Android.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Android.mk b/Android.mk
+index c9f7fff..4a21cae 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -3,6 +3,9 @@ LOCAL_PATH := $(call my-dir)
+ ifneq ($(filter msm8960 msm8974 msm8226 msm8084,$(TARGET_BOARD_PLATFORM)),)
+ 
+ keymaster-def := -fvisibility=hidden -Wall
++ifeq ($(TARGET_BOARD_PLATFORM),msm8226)
++keymaster-def += -D_ION_HEAP_MASK_COMPATIBILITY_WA
++endif
+ ifeq ($(TARGET_BOARD_PLATFORM),msm8974)
+ keymaster-def += -D_ION_HEAP_MASK_COMPATIBILITY_WA
+ endif
+-- 
+2.1.4
+

@@ -1,0 +1,54 @@
+From 3ec6c7c5ea5ab52bdbc6f5afb56b717c303a4649 Mon Sep 17 00:00:00 2001
+From: Schischu <schischu65@gmail.com>
+Date: Fri, 9 Jan 2015 22:06:17 +0100
+Subject: [PATCH] [lt03lte] ril compatibility
+
+---
+ telephony/java/android/telephony/SignalStrength.java          | 11 +++++++++++
+ .../java/com/android/internal/telephony/RILConstants.java     |  6 ++++++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/telephony/java/android/telephony/SignalStrength.java b/telephony/java/android/telephony/SignalStrength.java
+index 3363ca6..f916bf8 100644
+--- a/telephony/java/android/telephony/SignalStrength.java
++++ b/telephony/java/android/telephony/SignalStrength.java
+@@ -297,6 +297,17 @@ public static SignalStrength makeSignalStrengthFromRilParcel(Parcel in) {
+         ss.mLteRssnr = in.readInt();
+         ss.mLteCqi = in.readInt();
+ 
++        if ((ss.mLteSignalStrength & 0xff) == 255 || ss.mLteSignalStrength== 99) {
++            ss.mLteSignalStrength = 99;
++            ss.mLteRsrp = SignalStrength.INVALID;
++            ss.mLteRsrq = SignalStrength.INVALID;
++            ss.mLteRssnr = SignalStrength.INVALID;
++            ss.mLteCqi = SignalStrength.INVALID;
++        }
++        else {
++            ss.mLteSignalStrength &= 0xff;
++        }
++
+         return ss;
+     }
+ 
+diff --git a/telephony/java/com/android/internal/telephony/RILConstants.java b/telephony/java/com/android/internal/telephony/RILConstants.java
+index e730bde..81fd3d2 100644
+--- a/telephony/java/com/android/internal/telephony/RILConstants.java
++++ b/telephony/java/com/android/internal/telephony/RILConstants.java
+@@ -292,6 +292,8 @@
+     int RIL_REQUEST_SET_DATA_PROFILE = 128;
+     int RIL_REQUEST_SHUTDOWN = 129;
+ 
++    int RIL_REQUEST_DIAL_EMERGENCY = 10016;
++
+     int RIL_UNSOL_RESPONSE_BASE = 1000;
+     int RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED = 1000;
+     int RIL_UNSOL_RESPONSE_CALL_STATE_CHANGED = 1001;
+@@ -334,4 +336,8 @@
+     int RIL_UNSOL_UICC_SUBSCRIPTION_STATUS_CHANGED = 1038;
+     int RIL_UNSOL_SRVCC_STATE_NOTIFY = 1039;
+     int RIL_UNSOL_HARDWARE_CONFIG_CHANGED = 1040;
++
++    int RIL_UNSOL_DEVICE_READY_NOTI = 11008;
++    int RIL_UNSOL_AM = 11010;
++    int RIL_UNSOL_RESPONSE_HANDOVER = 11021;
+ }

@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+TARGET_OTA_ASSERT_DEVICE := matissewifi,matisse
+
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/matisse/include
+
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_CPU_SMP := true
@@ -27,16 +31,17 @@ BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE :=  2048
 BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
 BOARD_RAMDISK_OFFSET     := 0x02000000
-#BOARD_KERNEL_SEPARATED_DT := true
+BOARD_KERNEL_SEPARATED_DT := true
 BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3  androidboot.selinux=permissive
-#TARGET_KERNEL_SOURCE := kernel/samsung/lt03lte
-#TARGET_KERNEL_CONFIG := msm8226-sec_defconfig
-#TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig
-#TARGET_KERNEL_VARIANT_CONFIG := msm8226-sec_matissewifi_defconfig
-#BOARD_CUSTOM_BOOTIMG_MK := device/samsung/matisse/mkbootimg.mk
-BOARD_CUSTOM_MKBOOTIMG := kernel/samsung/lt03lte/tools/mkbootimg
-BOARD_KERNEL_DTB := device/samsung/matisse/dt.img
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --dt $(BOARD_KERNEL_DTB)
+TARGET_KERNEL_SOURCE := kernel/samsung/lt03lte
+TARGET_KERNEL_CONFIG := msm8226-sec_defconfig
+TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig
+TARGET_KERNEL_VARIANT_CONFIG := msm8226-sec_matissewifi_defconfig
+BOARD_CUSTOM_BOOTIMG_MK := device/samsung/matisse/mkbootimg.mk
+#BOARD_CUSTOM_MKBOOTIMG := device/samsung/matisse/mkbootimg
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
+#BOARD_KERNEL_DTB := device/samsung/matisse/dt.img
+#BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --dt $(BOARD_KERNEL_DTB)
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
@@ -77,7 +82,7 @@ BOARD_USES_SECURE_SERVICES := true
 
 TARGET_NO_RADIOIMAGE := true
 TARGET_BOARD_PLATFORM := msm8226
-TARGET_BOOTLOADER_BOARD_NAME := matisse
+TARGET_BOOTLOADER_BOARD_NAME := matissewifi
 TARGET_BOARD_INFO_FILE := device/samsung/matisse/board-info.txt
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
 TARGET_NO_RPC := true
