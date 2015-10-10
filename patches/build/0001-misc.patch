@@ -124,7 +124,7 @@ index 755e5c2..69eee2c 100755
    if oem_props is None or len(oem_props) == 0:
      device = GetBuildProp("ro.product.device", info_dict)
 -    script.AssertDevice(device)
-+    script.AssertDevice("lt03ltexx")
++    script.AssertDevice("matisse")
    else:
      if oem_dict is None:
        raise common.ExternalError("No OEM file provided to answer expected assertions")

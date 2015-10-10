@@ -1,0 +1,49 @@
+From 7efeb87e940072b7f70a76ab0d61321da359326e Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 10 Oct 2015 23:26:10 +0200
+Subject: [PATCH] fix otapackage
+
+Change-Id: If97f52177584a01fa604b1c27379624fddd5f9db
+---
+ core/Makefile                            | 4 ++--
+ tools/releasetools/ota_from_target_files | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index 15c7f02..272c907 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -1435,7 +1435,7 @@ ifneq ($(OEM_THUMBPRINT_PROPERTIES),)
+ 	$(hide) echo "oem_fingerprint_properties=$(OEM_THUMBPRINT_PROPERTIES)" >> $(zip_root)/META/misc_info.txt
+ endif
+ 	$(call generate-userimage-prop-dictionary, $(zip_root)/META/misc_info.txt)
+-	$(hide) ./build/tools/releasetools/make_recovery_patch $(zip_root) $(zip_root)
++#	$(hide) ./build/tools/releasetools/make_recovery_patch $(zip_root) $(zip_root)
+ 	@# Zip everything up, preserving symlinks
+ 	$(hide) (cd $(zip_root) && zip -qry ../$(notdir $@) .)
+ 	@# Run fs_config on all the system, vendor, boot ramdisk,
+@@ -1445,7 +1445,7 @@ endif
+ 	$(hide) zipinfo -1 $@ | awk 'BEGIN { FS="BOOT/RAMDISK/" } /^BOOT\/RAMDISK\// {print $$2}' | $(HOST_OUT_EXECUTABLES)/fs_config -C -S $(SELINUX_FC) > $(zip_root)/META/boot_filesystem_config.txt
+ 	$(hide) zipinfo -1 $@ | awk 'BEGIN { FS="RECOVERY/RAMDISK/" } /^RECOVERY\/RAMDISK\// {print $$2}' | $(HOST_OUT_EXECUTABLES)/fs_config -C -S $(SELINUX_FC) > $(zip_root)/META/recovery_filesystem_config.txt
+ 	$(hide) (cd $(zip_root) && zip -q ../$(notdir $@) META/*filesystem_config.txt)
+-	$(hide) ./build/tools/releasetools/add_img_to_target_files -p $(HOST_OUT) $@
++#	$(hide) ./build/tools/releasetools/add_img_to_target_files -p $(HOST_OUT) $@
+ 
+ .PHONY: target-files-package
+ target-files-package: $(BUILT_TARGET_FILES_PACKAGE)
+diff --git a/tools/releasetools/ota_from_target_files b/tools/releasetools/ota_from_target_files
+index 993d8a7..6310747 100755
+--- a/tools/releasetools/ota_from_target_files
++++ b/tools/releasetools/ota_from_target_files
+@@ -386,7 +386,7 @@ def AppendAssertions(script, info_dict, oem_dict = None):
+   oem_props = info_dict.get("oem_fingerprint_properties")
+   if oem_props is None or len(oem_props) == 0:
+     device = GetBuildProp("ro.product.device", info_dict)
+-    script.AssertDevice("matisse")
++#    script.AssertDevice(device)
+   else:
+     if oem_dict is None:
+       raise common.ExternalError("No OEM file provided to answer expected assertions")
+-- 
+2.1.4
+

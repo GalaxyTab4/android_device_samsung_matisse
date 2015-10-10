@@ -31,9 +31,11 @@ BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE :=  2048
 BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
 BOARD_RAMDISK_OFFSET     := 0x02000000
+
 BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3  androidboot.selinux=permissive
-#BOARD_CUSTOM_BOOTIMG_MK := device/samsung/matisse/mkbootimg.mk
-BOARD_CUSTOM_MKBOOTIMG := device/samsung/matisse/mkbootimg
+
+BOARD_CUSTOM_MKBOOTIMG := kernel/samsung/lt03lte/tools/mkbootimg
+
 BOARD_KERNEL_DTB := device/samsung/matisse-kernel/dtb
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --dt $(BOARD_KERNEL_DTB)
 
@@ -86,8 +88,8 @@ BOARD_EGL_CFG := device/samsung/matisse/egl.cfg
 USE_OPENGL_RENDERER := true
 VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
 SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
-TARGET_USES_ION := true
-TARGET_USE_ION_COMPAT := true
+#TARGET_USES_ION := true
+#TARGET_USE_ION_COMPAT := true
 
 # Enable dex-preoptimization to speed up first boot sequence
 ifeq ($(HOST_OS),linux)

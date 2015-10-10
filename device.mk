@@ -198,8 +198,8 @@ PRODUCT_PACKAGES += \
 # GPS
 #See proprietary packages
 
-PRODUCT_PACKAGES += \
-    libion
+#PRODUCT_PACKAGES += \
+#    libion
 
 PRODUCT_PACKAGES += \
     lights.msm8226
