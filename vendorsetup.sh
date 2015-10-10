@@ -15,4 +15,4 @@
 #
 
 add_lunch_combo aosp_matisse-userdebug
-sh device/samsung/matisse/patches/apply.sh
+#sh device/samsung/matisse/patches/apply.sh
