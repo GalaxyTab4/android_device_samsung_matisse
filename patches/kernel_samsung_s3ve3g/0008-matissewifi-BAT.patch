@@ -1,0 +1,37 @@
+From f604cd23bc8c2de27a14dfa192400f27a38a070e Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Wed, 14 Oct 2015 19:59:27 +0200
+Subject: [PATCH 08/10] matissewifi: BAT
+
+---
+ cyanogenmod_s3ve3g_defconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/cyanogenmod_s3ve3g_defconfig b/cyanogenmod_s3ve3g_defconfig
+index 47c1ec5..8a78d5a 100644
+--- a/cyanogenmod_s3ve3g_defconfig
++++ b/cyanogenmod_s3ve3g_defconfig
+@@ -2137,7 +2137,7 @@ CONFIG_POWER_SUPPLY=y
+ # CONFIG_BATTERY_BQ27541 is not set
+ # CONFIG_BATTERY_BQ28400 is not set
+ # CONFIG_QPNP_CHARGER is not set
+-CONFIG_QPNP_SEC_CHARGER=y
++# CONFIG_QPNP_SEC_CHARGER is not set
+ # CONFIG_NOT_USE_EXT_OVP is not set
+ # CONFIG_LTC4088_CHARGER is not set
+ CONFIG_BATTERY_BCL=y
+@@ -3593,8 +3593,9 @@ CONFIG_MOBICORE_SUPPORT=y
+ CONFIG_MOBICORE_API=y
+ # CONFIG_CORESIGHT is not set
+ # CONFIG_BIF is not set
+-# CONFIG_BATTERY_SAMSUNG is not set
+-# CONFIG_SAMSUNG_LPM_MODE is not set
++CONFIG_BATTERY_SAMSUNG=y
++CONFIG_CHARGER_SMB358=y
++CONFIG_SAMSUNG_LPM_MODE=y
+ # CONFIG_SAMSUNG_BATTERY_ENG_TEST is not set
+ # CONFIG_SAMSUNG_BATTERY_FACTORY is not set
+ CONFIG_SENSORS=y
+-- 
+2.6.1
+

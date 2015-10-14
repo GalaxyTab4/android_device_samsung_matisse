@@ -8,6 +8,7 @@ Change-Id: I90ae902e6980fbcf2b11508861bf9e4915c15c01
  arch/arm/Kconfig                        | 26 +++++++++++
  arch/arm/boot/compressed/head.S         | 72 +++++++++++++++++++++++++++++
  arch/arm/configs/msm8226-sec_defconfig  |  4 ++
+ arch/arm/configs/cyanogenmod_s3ve3g_defconfig
  arch/arm/include/asm/kexec.h            |  8 ++++
  arch/arm/kernel/machine_kexec.c         | 58 +++++++++++++++++++++--
  arch/arm/kernel/relocate_kernel.S       | 82 +++++++++++++++++++++++++++++++++
@@ -149,6 +150,18 @@ diff --git a/arch/arm/configs/msm8226-sec_defconfig b/arch/arm/configs/msm8226-s
 index 5c92768..5ffb1b4 100644
 --- a/arch/arm/configs/msm8226-sec_defconfig
 +++ b/arch/arm/configs/msm8226-sec_defconfig
+@@ -608,3 +608,7 @@ CONFIG_PRIMA_WLAN_OKC=y
+ CONFIG_PRIMA_WLAN_11AC_HIGH_TP=y
+ CONFIG_WLAN_FEATURE_11W=y
+ CONFIG_QCOM_VOWIFI_11R=y
++CONFIG_KEXEC=y
++CONFIG_KEXEC_HARDBOOT=y
++CONFIG_PROC_DEVICETREE=y
++CONFIG_LOG_BUF_SHIFT=21
+diff --git a/arch/arm/configs/cyanogenmod_s3ve3g_defconfig b/arch/arm/configs/cyanogenmod_s3ve3g_defconfig
+index 5c92768..5ffb1b4 100644
+--- a/arch/arm/configs/cyanogenmod_s3ve3g_defconfig
++++ b/arch/arm/configs/cyanogenmod_s3ve3g_defconfig
 @@ -608,3 +608,7 @@ CONFIG_PRIMA_WLAN_OKC=y
  CONFIG_PRIMA_WLAN_11AC_HIGH_TP=y
  CONFIG_WLAN_FEATURE_11W=y

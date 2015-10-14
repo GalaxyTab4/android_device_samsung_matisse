@@ -1,0 +1,55 @@
+From d9c09e6ee010c3397a5647a082c3631e8069e65e Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Wed, 14 Oct 2015 19:41:39 +0200
+Subject: [PATCH 01/10] matissewifi: variant config
+
+---
+ cyanogenmod_s3ve3g_defconfig | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/cyanogenmod_s3ve3g_defconfig b/cyanogenmod_s3ve3g_defconfig
+index c2ecb4b..0a48f38 100644
+--- a/cyanogenmod_s3ve3g_defconfig
++++ b/cyanogenmod_s3ve3g_defconfig
+@@ -370,7 +370,7 @@ CONFIG_MSM_MPM_OF=y
+ # CONFIG_MSM_LPM_TEST is not set
+ # CONFIG_SEC_MILLET_PROJECT is not set
+ # CONFIG_SEC_DEGAS_PROJECT is not set
+-# CONFIG_SEC_MATISSE_PROJECT is not set
++CONFIG_SEC_MATISSE_PROJECT=y
+ # CONFIG_SEC_ATLANTIC_PROJECT is not set
+ # CONFIG_SEC_HESTIA_PROJECT is not set
+ # CONFIG_SEC_AFYON_PROJECT is not set
+@@ -379,9 +379,9 @@ CONFIG_MSM_MPM_OF=y
+ # CONFIG_SEC_MILLETLTE_COMMON is not set
+ # CONFIG_SEC_DEGASLTE_COMMON is not set
+ # CONFIG_SEC_MILLETWIFI_COMMON is not set
+-# CONFIG_SEC_MATISSEWIFI_COMMON is not set
++CONFIG_SEC_MATISSEWIFI_COMMON=y
+ # CONFIG_SEC_BERLUTI_PROJECT is not set
+-CONFIG_SEC_S3VE_PROJECT=y
++# CONFIG_SEC_S3VE_PROJECT is not set
+ # CONFIG_SEC_MATISSELTE_COMMON is not set
+ # CONFIG_SEC_ATLANTICLTE_COMMON is not set
+ # CONFIG_SEC_HESTIALTE_COMMON is not set
+@@ -398,7 +398,7 @@ CONFIG_SEC_S3VE_PROJECT=y
+ # CONFIG_MACH_MATISSELTE_USC is not set
+ # CONFIG_MACH_MILLETWIFI_OPEN is not set
+ # CONFIG_MACH_MILLETWIFIUS_OPEN is not set
+-# CONFIG_MACH_MATISSEWIFI_OPEN is not set
++CONFIG_MACH_MATISSEWIFI_OPEN=y
+ # CONFIG_MACH_MATISSEWIFIUS_OPEN is not set
+ # CONFIG_MACH_MATISSEWIFIUS_GOOGLE is not set
+ # CONFIG_MACH_MATISSEWIFIUS_AMPLIFY is not set
+@@ -418,7 +418,7 @@ CONFIG_SEC_S3VE_PROJECT=y
+ # CONFIG_MACH_BERLUTI3G_COMMON is not set
+ # CONFIG_MACH_BERLUTILTE_EUR is not set
+ # CONFIG_MACH_BERLUTILTE_COMMON is not set
+-CONFIG_MACH_S3VE3G_EUR=y
++# CONFIG_MACH_S3VE3G_EUR is not set
+ # CONFIG_MACH_VICTORLTE is not set
+ # CONFIG_MACH_VICTORLTE_CMCC is not set
+ # CONFIG_MACH_VICTORLTE_CTC is not set
+-- 
+2.6.1
+
