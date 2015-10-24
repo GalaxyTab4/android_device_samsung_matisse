@@ -1,4 +1,4 @@
-# System.prop for s3ve3g
+# System.prop for matisse
 
 # RIL
 rild.libpath=/system/lib/libsec-ril.so
@@ -30,7 +30,7 @@ ro.qualcomm.bt.hci_transport=smd
 camera2.portability.force_api=1
 
 # Display
-debug.composition.type=c2d 
+debug.composition.type=c2d
 ro.opengles.version=196608
 ro.sf.lcd_density=320
 

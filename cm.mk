@@ -16,8 +16,8 @@
 $(call inherit-product, vendor/cm/config/common_full_phone.mk)
 
 # Inherit device configuration
-$(call inherit-product, device/samsung/s3ve3g/full_s3ve3g.mk)
+$(call inherit-product, device/samsung/matisse/full_matisse.mk)
 
 # Release name
-PRODUCT_RELEASE_NAME := GT-I9301I
-PRODUCT_NAME := cm_s3ve3g
+PRODUCT_RELEASE_NAME := SM-T53X
+PRODUCT_NAME := cm_matisse
