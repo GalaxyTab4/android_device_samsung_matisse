@@ -2,7 +2,7 @@
 
 set -e
 
-export DEVICE=s3ve3g
+export DEVICE=matisse
 export VENDOR=samsung
 
 function extract() {
