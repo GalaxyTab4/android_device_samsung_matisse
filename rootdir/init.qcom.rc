@@ -47,13 +47,15 @@ on init
     symlink /sdcard /mnt/sdcard
     symlink /sdcard /storage/sdcard0
 
+	symline /system/vendor/lib/egl /egl
+
 on fs
     mount_all fstab.qcom
 
     # Support Preload install apks
-    # mkdir /preload 0771 system system
-    # wait /dev/block/platform/msm_sdcc.1/by-name/hidden
-    # mount ext4 /dev/block/platform/msm_sdcc.1/by-name/hidden /preload nosuid nodev ro barrier=1
+    mkdir /sub 0771 system system
+    wait /dev/block/platform/msm_sdcc.1/by-name/hidden
+    mount ext4 /dev/block/platform/msm_sdcc.1/by-name/hidden /sub nosuid nodev ro barrier=1
     # setprop storage.preload.complete 1
 
     restorecon_recursive /efs
