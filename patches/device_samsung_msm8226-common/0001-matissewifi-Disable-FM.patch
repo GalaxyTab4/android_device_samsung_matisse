@@ -1,0 +1,48 @@
+From 9504545605fc4d769383cb434fafaa8f86525db7 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sun, 25 Oct 2015 10:32:37 +0100
+Subject: [PATCH] matissewifi: Disable FM
+
+Change-Id: I7e18e3b1c3fb9f8b3e3c4fc38de43e5478759e3f
+---
+ BoardConfigCommon.mk |  2 +-
+ msm8226.mk           | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
+index 7c41128..2f4e3a0 100644
+--- a/BoardConfigCommon.mk
++++ b/BoardConfigCommon.mk
+@@ -69,7 +69,7 @@ MAX_EGL_CACHE_KEY_SIZE := 12*1024
+ MAX_EGL_CACHE_SIZE := 2048*1024
+ 
+ # FM
+-AUDIO_FEATURE_ENABLED_FM := true
++AUDIO_FEATURE_ENABLED_FM := false
+ TARGET_QCOM_NO_FM_FIRMWARE := true
+ 
+ # Fonts
+diff --git a/msm8226.mk b/msm8226.mk
+index 27e8846..f95f832 100644
+--- a/msm8226.mk
++++ b/msm8226.mk
+@@ -80,11 +80,11 @@ PRODUCT_PACKAGES += \
+     libebtc
+ 
+ # FM
+-PRODUCT_PACKAGES += \
+-    FM2 \
+-    FMRecord \
+-    libqcomfm_jni \
+-    qcom.fmradio
++#PRODUCT_PACKAGES += \
++#    FM2 \
++#    FMRecord \
++#    libqcomfm_jni \
++#    qcom.fmradio
+ 
+ # GPS
+ PRODUCT_PACKAGES += \
+-- 
+2.1.4
+
