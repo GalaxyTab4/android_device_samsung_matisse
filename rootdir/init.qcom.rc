@@ -47,7 +47,7 @@ on init
     symlink /sdcard /mnt/sdcard
     symlink /sdcard /storage/sdcard0
 
-	symline /system/vendor/lib/egl /egl
+	symlink /system/vendor/lib/egl /egl
 
 on fs
     mount_all fstab.qcom
