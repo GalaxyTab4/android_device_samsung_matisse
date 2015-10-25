@@ -1,0 +1,150 @@
+From 7d908e372f563d4435dfc6c76f2ad13269a623ea Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sun, 25 Oct 2015 18:22:43 +0100
+Subject: [PATCH 1/2] Revert "mm-video-v4l2: vidc: add support for setting
+ operating-rate"
+
+This reverts commit dce0acfcb3cdf6eceef84f22def392cc6d4557ab.
+---
+ mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp   | 16 ----------
+ .../vidc/venc/inc/video_encoder_device_v4l2.h      |  2 --
+ mm-video-v4l2/vidc/venc/src/omx_video_encoder.cpp  |  9 ------
+ .../vidc/venc/src/video_encoder_device_v4l2.cpp    | 34 +---------------------
+ 4 files changed, 1 insertion(+), 60 deletions(-)
+
+diff --git a/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp b/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp
+index 22115b3..ea9daa2 100644
+--- a/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp
++++ b/mm-video-v4l2/vidc/vdec/src/omx_vdec_msm8974.cpp
+@@ -4462,22 +4462,6 @@ OMX_ERRORTYPE  omx_vdec::set_config(OMX_IN OMX_HANDLETYPE      hComp,
+             ret = OMX_ErrorUnsupportedSetting;
+         }
+         return ret;
+-    } else if ((int)configIndex == (int)OMX_IndexConfigOperatingRate) {
+-        OMX_PARAM_U32TYPE *rate = (OMX_PARAM_U32TYPE *)configData;
+-        DEBUG_PRINT_LOW("Set_config: operating-rate %u fps", rate->nU32 >> 16);
+-
+-        struct v4l2_control control;
+-
+-        control.id = V4L2_CID_MPEG_VIDC_VIDEO_OPERATING_RATE;
+-        control.value = rate->nU32;
+-
+-        if (ioctl(drv_ctx.video_driver_fd, VIDIOC_S_CTRL, &control)) {
+-            ret = errno == -EBUSY ? OMX_ErrorInsufficientResources :
+-                    OMX_ErrorUnsupportedSetting;
+-            DEBUG_PRINT_ERROR("Failed to set operating rate %u fps (%s)",
+-                    rate->nU32 >> 16, errno == -EBUSY ? "HW Overload" : strerror(errno));
+-        }
+-        return ret;
+     }
+ 
+     return OMX_ErrorNotImplemented;
+diff --git a/mm-video-v4l2/vidc/venc/inc/video_encoder_device_v4l2.h b/mm-video-v4l2/vidc/venc/inc/video_encoder_device_v4l2.h
+index 375dd27..552d202 100644
+--- a/mm-video-v4l2/vidc/venc/inc/video_encoder_device_v4l2.h
++++ b/mm-video-v4l2/vidc/venc/inc/video_encoder_device_v4l2.h
+@@ -357,7 +357,6 @@ class venc_dev
+         struct msm_venc_ltrinfo             ltrinfo;
+         struct msm_venc_vpx_error_resilience vpx_err_resilience;
+         struct msm_venc_priority            sess_priority;
+-        OMX_U32                             operating_rate;
+ 
+         bool venc_set_profile_level(OMX_U32 eProfile,OMX_U32 eLevel);
+         bool venc_set_intra_period(OMX_U32 nPFrames, OMX_U32 nBFrames);
+@@ -399,7 +398,6 @@ class venc_dev
+         bool venc_calibrate_gop();
+         bool venc_validate_hybridhp_params(OMX_U32 layers, OMX_U32 bFrames, OMX_U32 count, int mode);
+         bool venc_set_session_priority(OMX_U32 priority);
+-        bool venc_set_operatingrate(OMX_U32 rate);
+ 
+ #ifdef MAX_RES_1080P
+         OMX_U32 pmem_free();
+diff --git a/mm-video-v4l2/vidc/venc/src/omx_video_encoder.cpp b/mm-video-v4l2/vidc/venc/src/omx_video_encoder.cpp
+index a72e07e..cbe7a38 100644
+--- a/mm-video-v4l2/vidc/venc/src/omx_video_encoder.cpp
++++ b/mm-video-v4l2/vidc/venc/src/omx_video_encoder.cpp
+@@ -1783,15 +1783,6 @@ OMX_ERRORTYPE  omx_venc::set_config(OMX_IN OMX_HANDLETYPE      hComp,
+                 }
+                 break;
+             }
+-        case OMX_IndexConfigOperatingRate:
+-            {
+-                if (!handle->venc_set_config(configData, (OMX_INDEXTYPE)OMX_IndexConfigOperatingRate)) {
+-                    DEBUG_PRINT_ERROR("Failed to set OMX_IndexConfigOperatingRate");
+-                    return handle->hw_overload ? OMX_ErrorInsufficientResources :
+-                            OMX_ErrorUnsupportedSetting;
+-                }
+-                break;
+-            }
+         default:
+             DEBUG_PRINT_ERROR("ERROR: unsupported index %d", (int) configIndex);
+             break;
+diff --git a/mm-video-v4l2/vidc/venc/src/video_encoder_device_v4l2.cpp b/mm-video-v4l2/vidc/venc/src/video_encoder_device_v4l2.cpp
+index 6a633b2..87be774 100644
+--- a/mm-video-v4l2/vidc/venc/src/video_encoder_device_v4l2.cpp
++++ b/mm-video-v4l2/vidc/venc/src/video_encoder_device_v4l2.cpp
+@@ -254,7 +254,6 @@ venc_dev::venc_dev(class omx_venc *venc_class)
+     camera_mode_enabled = false;
+     memset(&ltrinfo, 0, sizeof(ltrinfo));
+     sess_priority.priority = 1;
+-    operating_rate = 0;
+ 
+     char property_value[PROPERTY_VALUE_MAX] = {0};
+     property_get("vidc.enc.log.in", property_value, "0");
+@@ -2105,16 +2104,7 @@ bool venc_dev::venc_set_config(void *configData, OMX_INDEXTYPE index)
+                 }
+                 break;
+             }
+-        case OMX_IndexConfigOperatingRate:
+-            {
+-                OMX_PARAM_U32TYPE *rate = (OMX_PARAM_U32TYPE *)configData;
+-                DEBUG_PRINT_LOW("Set_config: operating rate %d", rate->nU32);
+-                if (!venc_set_operatingrate(rate->nU32)) {
+-                    DEBUG_PRINT_ERROR("Failed to set operating rate");
+-                    return false;
+-                }
+-                break;
+-            }
++
+         default:
+             DEBUG_PRINT_ERROR("Unsupported config index = %u", index);
+             break;
+@@ -2360,8 +2350,6 @@ void venc_dev::venc_config_print()
+     DEBUG_PRINT_HIGH("ENC_CONFIG: Peak bitrate: %d", peak_bitrate.peakbitrate);
+ 
+     DEBUG_PRINT_HIGH("ENC_CONFIG: Session Priority: %u", sess_priority.priority);
+-
+-    DEBUG_PRINT_HIGH("ENC_CONFIG: Operating Rate: %u", operating_rate);
+ }
+ 
+ bool venc_dev::venc_reconfig_reqbufs()
+@@ -4692,26 +4680,6 @@ bool venc_dev::venc_set_session_priority(OMX_U32 priority) {
+     return true;
+ }
+ 
+-bool venc_dev::venc_set_operatingrate(OMX_U32 rate) {
+-    struct v4l2_control control;
+-
+-    control.id = V4L2_CID_MPEG_VIDC_VIDEO_OPERATING_RATE;
+-    control.value = rate;
+-
+-    DEBUG_PRINT_LOW("venc_set_operating_rate: %d fps", rate >> 16);
+-    DEBUG_PRINT_LOW("Calling IOCTL set control for id=%d, val=%d", control.id, control.value);
+-
+-    if(ioctl(m_nDriver_fd, VIDIOC_S_CTRL, &control)) {
+-        hw_overload = errno == EBUSY;
+-        DEBUG_PRINT_ERROR("Failed to set operating rate %d fps (%s)",
+-                rate >> 16, hw_overload ? "HW overload" : strerror(errno));
+-        return false;
+-    }
+-    operating_rate = rate;
+-    DEBUG_PRINT_LOW("Operating Rate Set = %d fps",  rate >> 16);
+-    return true;
+-}
+-
+ bool venc_dev::venc_get_profile_level(OMX_U32 *eProfile,OMX_U32 *eLevel)
+ {
+     bool status = true;
+-- 
+2.1.4
+
