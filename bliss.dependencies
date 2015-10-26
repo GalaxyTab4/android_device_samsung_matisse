@@ -1,0 +1,51 @@
+[
+    {
+
+        "target_path":  "device/samsung/msm8226-common",
+        "remote":       "github",
+        "repository":   "MSM8226-Samsung/android_device_samsung_msm8226-common",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "kernel/samsung/s3ve3g",
+        "remote":       "github",
+        "repository":   "MSM8226-Samsung/android_kernel_samsung_s3ve3g",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "vendor/samsung/matisse",
+        "remote":       "sub",
+        "repository":   "GalaxyTab4/android_vendor_samsung_matisse",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "device/samsung/qcom-common",
+        "remote":       "github",
+        "repository":   "CyanogenMod/android_device_samsung_qcom-common",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "external/sony/boringssl-compat",
+        "remote":       "github",
+        "repository":   "CyanogenMod/android_external_sony_boringssl-compat",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "device/qcom/common",
+        "remote":       "github",
+        "repository":   "CyanogenMod/android_device_qcom_common",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "external/stlport",
+        "remote":       "github",
+        "repository":   "CyanogenMod/android_external_stlport",
+        "revision":     "cm-13.0"
+    },
+    {
+        "target_path":  "hardware/samsung",
+        "remote":       "github",
+        "repository":   "CyanogenMod/android_hardware_samsung",
+        "revision":     "cm-13.0"
+    }
+]
