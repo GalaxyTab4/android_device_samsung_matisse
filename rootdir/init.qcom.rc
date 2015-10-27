@@ -588,11 +588,6 @@ service mpdecision /system/bin/mpdecision --avg_comp
     user root
     disabled
 
-service sensorservice /system/bin/sensorservice
-    class main
-    user root
-    oneshot
-
 service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
     user camera
