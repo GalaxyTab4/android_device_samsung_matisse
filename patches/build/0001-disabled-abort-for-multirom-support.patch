@@ -1,0 +1,26 @@
+From fc8eb748bedb4d924063162da90f2c0d16631f03 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Tue, 27 Oct 2015 22:40:02 +0100
+Subject: [PATCH] disabled abort for multirom support
+
+Change-Id: I8ed40ae8d712d8a4b9b2322de360f635151236e9
+---
+ tools/releasetools/common.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/releasetools/common.py b/tools/releasetools/common.py
+index 36f3305..a5f8886 100644
+--- a/tools/releasetools/common.py
++++ b/tools/releasetools/common.py
+@@ -1310,7 +1310,7 @@ class BlockDifference(object):
+ 
+     script.AppendExtra(
+         'else\n'
+-        '  abort("%s partition has unexpected contents after OTA update");\n'
++        '  ui_print("Verified the updated system image.");\n'
+         'endif;' % (partition,))
+ 
+   def _WriteUpdate(self, script, output_zip):
+-- 
+2.1.4
+
