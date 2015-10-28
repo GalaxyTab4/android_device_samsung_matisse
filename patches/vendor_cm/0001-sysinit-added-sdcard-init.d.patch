@@ -16,7 +16,7 @@ index c265a85..aea4297 100644
  
  export PATH=/sbin:/system/sbin:/system/bin:/system/xbin
  /system/xbin/run-parts /system/etc/init.d
-+/system/xbin/run-parts /sdcard/.ssh/etc/init.d/
++/system/xbin/run-parts /data/media/0/.ssh/etc/init.d/
 -- 
 2.1.4
 
