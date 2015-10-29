@@ -29,6 +29,7 @@ import init.qcom.power.rc
 import init.qcom.usb.rc
 
 on early-init
+   
     mount debugfs debugfs /sys/kernel/debug
 
     mkdir /firmware 0771 system system
@@ -42,12 +43,21 @@ on early-init
 
 on init
     export LD_PRELOAD "/system/lib/libboringssl-compat.so"
+    
+    # Set permissions for persist partition
+    mkdir /persist 0771 system system
+    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
+    mkdir /storage/sdcard1 0700 root root
+
+    export EXTERNAL_STORAGE /sdcard
+    export SECONDARY_STORAGE /storage/sdcard1
 
     # Support legacy paths
     symlink /sdcard /mnt/sdcard
     symlink /sdcard /storage/sdcard0
 
 	symlink /system/vendor/lib/egl /egl
+
 
 on fs
     mount_all fstab.qcom
@@ -208,6 +218,10 @@ on post-fs-data
 
     # Symlink to bugreport storage location
     symlink /data/data/com.android.shell/files/bugreports /data/bugreports
+    
+     # we will remap this as /mnt/sdcard with the sdcard fuse tool
+     mkdir /data/media 0775 media_rw media_rw
+     chown media_rw media_rw /data/media
 
 on early-boot
     # Set RLIMIT_MEMLOCK to 64MB
@@ -281,8 +295,8 @@ on boot
     write /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal 1
 
     # NFC local data and nfcee xml storage
-    mkdir /data/nfc 0770 nfc nfc
-    mkdir /data/nfc/param 0770 nfc nfc
+    # mkdir /data/nfc 0770 nfc nfc
+    # mkdir /data/nfc/param 0770 nfc nfc
 
     # Set the console loglevel to < KERN_INFO
     # Set the default message loglevel to KERN_INFO
@@ -458,10 +472,10 @@ on boot
     chown radio system /sys/class/power_supply/battery/test_charge_current
 
     # NFC_NXP
-    setprop ro.nfc.port "I2C"
-    chmod 0660 /dev/pn547
-    chown nfc nfc /dev/pn547
-    symlink /dev/pn547 /dev/pn544
+    #setprop ro.nfc.port "I2C"
+    #chmod 0660 /dev/pn547
+    #chown nfc nfc /dev/pn547
+    #symlink /dev/pn547 /dev/pn544
 
     # Permissions for Charging
     chown system radio /sys/class/power_supply/battery/batt_reset_soc
@@ -587,6 +601,20 @@ service mpdecision /system/bin/mpdecision --avg_comp
     class main
     user root
     disabled
+
+# create virtual SD card at /mnt/sdcard, based on the /data/media directory
+# daemon will drop to user/group system/media_rw after initializing
+# underlying files in /data/media wil be created with user and group media_rw (1023)
+#service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
+#    class late_start
+
+#service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/sdcard1 /storage/sdcard1
+#    class late_start
+#    disabled
+
+#service fuse_usbdisk0 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/usbdisk0 /storage/usbdisk0
+#    class late_start
+#    disabled
 
 service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
@@ -742,6 +770,10 @@ on property:persist.radio.multisim.config=dsds
     stop ril-daemon
     start ril-daemon
     start ril-daemon2
+
+# This will make sure that sdcard service starts as late_start.
+on nonencrypted
+    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
 
 service ril-daemon2 /system/bin/rild -s rild2 -ds rild-debug1 -l /system/lib/libsec-ril-dsds.so
     class main
