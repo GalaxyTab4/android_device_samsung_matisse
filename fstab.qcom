@@ -1,18 +1,22 @@
 # Android fstab file.
+#<src>                  <mnt_point>         <type>    <mnt_flags and options>                               <fs_mgr_flags>
 # The filesystem that contains the filesystem checker binary (typically /system) cannot
 # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
+# data partition must be located at the bottom for supporting device encryption
 
-#<src>                                              <mnt_point>     <type>  <mnt_flags and options>                                                                         <fs_mgr_flags>
-/dev/block/platform/msm_sdcc.1/by-name/system       /system         ext4    ro,errors=panic                                                                                 wait
-/dev/block/platform/msm_sdcc.1/by-name/userdata     /data           ext4    nosuid,nodev,noatime,noauto_da_alloc,journal_async_commit,errors=panic                          wait,check,encryptable=footer,length=-16384
-/dev/block/platform/msm_sdcc.1/by-name/cache        /cache          ext4    nosuid,nodev,noatime                                                                            wait,check
-/dev/block/platform/msm_sdcc.1/by-name/apnhlos      /firmware       vfat    ro,shortname=lower,uid=1000,gid=1026,dmask=222,fmask=333,context=u:object_r:firmware_file:s0    wait
-/dev/block/platform/msm_sdcc.1/by-name/modem        /firmware-modem vfat    ro,shortname=lower,uid=1000,gid=1026,dmask=227,fmask=337,context=u:object_r:firmware_file:s0    wait
-/dev/block/platform/msm_sdcc.1/by-name/persist      /persist        ext4    nosuid,nodev,noatime,noauto_da_alloc,journal_async_commit,errors=panic                          wait,check
-/dev/block/platform/msm_sdcc.1/by-name/efs          /efs            ext4    nosuid,nodev,noatime,noauto_da_alloc,journal_async_commit,errors=panic                          wait,check
-/dev/block/platform/msm_sdcc.1/by-name/boot         /boot           emmc    defaults                                                                                        recoveryonly
-/dev/block/platform/msm_sdcc.1/by-name/recovery     /recovery       emmc    defaults                                                                                        recoveryonly
+/dev/block/mmcblk0p23   /system            ext4      ro,noatime                                            wait
+/dev/block/mmcblk0p11   /efs               ext4      noatime,nosuid,nodev,journal_async_commit,errors=panic wait,check
+/dev/block/mmcblk0p24   /cache             ext4      noatime,nosuid,nodev,journal_async_commit,errors=panic wait,check
+/dev/block/mmcblk0p26   /data              ext4      noatime,nosuid,nodev,discard,noauto_da_alloc,journal_async_commit,errors=panic    wait,check,encryptable=footer,length=-16384
 
-# Vold managed volumes
-/devices/msm_sdcc.2/mmc_host/mmc1*                  auto            auto    defaults                                                                                        voldmanaged=sdcard1:auto,noemulatedsd
-/devices/platform/msm_hsusb_host/usb*               auto            auto    defaults                                                                                        voldmanaged=usbdisk:auto,noemulatedsd
+# Recovery
+/dev/block/mmcblk0p14    /boot             emmc      defaults                                              defaults
+/dev/block/mmcblk0p15    /recovery         emmc      defaults                                              defaults
+/dev/block/mmcblk0p1     /firmware         emmc      defaults                                              defaults
+/dev/block/mmcblk0p2     /modem            emmc      defaults                                              defaults
+/dev/block/mmcblk0p25    /preload          ext4      defaults                                              recoveryonly
+
+# Vold
+/devices/platform/sdhci.3/mmc_host* auto    auto      defaults                                              voldmanaged=sdcard1:auto,encryptable=userdata
+
+

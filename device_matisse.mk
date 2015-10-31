@@ -19,6 +19,7 @@ PRODUCT_COPY_FILES += \
 	device/samsung/matisse/ueventd.qcom.rc:root/ueventd.qcom.rc \
 	device/samsung/matisse/fstab.qcom:root/fstab.qcom \
 
+# Codecs
 PRODUCT_COPY_FILES += \
 	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
@@ -32,6 +33,10 @@ PRODUCT_COPY_FILES += \
 	device/samsung/matisse/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl \
 	device/samsung/matisse/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
 	device/samsung/matisse/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl \
+
+# Camera
+PRODUCT_PACKAGES += \
+	libxml2
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
