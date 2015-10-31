@@ -35,8 +35,8 @@ lib/hw/audio.usb.default.so
 lib/hw/gps.default.so
 lib/hw/sensors.msm8226.so
 lib/hw/camera.msm8226.so
-lib/hw/gralloc.msm8226.so
-lib/hw/hwcomposer.msm8226.so
+#lib/hw/gralloc.msm8226.so
+#lib/hw/hwcomposer.msm8226.so
 lib/hw/lights.msm8226.so
 lib/libasound.so
 lib/lib_Samsung_Resampler.so

@@ -17,7 +17,7 @@ PRODUCT_COPY_FILES += \
 	device/samsung/matisse/init.qcom.rc:root/init.qcom.rc \
 	device/samsung/matisse/init.recovery.qcom.rc:root/init.recovery.qcom.rc \
 	device/samsung/matisse/ueventd.qcom.rc:root/ueventd.qcom.rc \
-	device/samsung/matisse/fstab.qcom:root/fstab.qcomn \
+	device/samsung/matisse/fstab.qcom:root/fstab.qcom \
 
 PRODUCT_COPY_FILES += \
 	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
@@ -28,7 +28,6 @@ PRODUCT_COPY_FILES += \
 
 # Prebuilt kl keymaps
 PRODUCT_COPY_FILES += \
-
 	device/samsung/matisse/atmel_mxt_ts.kl:system/usr/keylayout/atmel_mxt_ts.kl \
 	device/samsung/matisse/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl \
 	device/samsung/matisse/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
@@ -41,6 +40,13 @@ PRODUCT_PACKAGES += \
 # Usb accessory
 PRODUCT_PACKAGES += \
 	com.android.future.usb.accessory
+
+# Display
+PRODUCT_PACKAGES += \
+    copybit.msm8226 \
+    gralloc.msm8226 \
+    hwcomposer.msm8226 \
+    memtrack.msm8226
 
 # Audio modules
 PRODUCT_PACKAGES += \
@@ -60,10 +66,11 @@ PRODUCT_PACKAGES += \
 
 # Wi-Fi
 PRODUCT_PACKAGES += \
-	dhcpcd.conf \
 	hostapd \
 	wpa_supplicant \
 	wpa_supplicant.conf
+
+# dhcpcd.conf \
 
 # GPS/RIL
 PRODUCT_PACKAGES += \
