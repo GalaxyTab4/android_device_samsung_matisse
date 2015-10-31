@@ -15,7 +15,6 @@ PRODUCT_COPY_FILES += \
 	device/samsung/matisse/init.qcom.power.rc:root/init.qcom.power.rc \
 	device/samsung/matisse/init.qcom.usb.rc:root/init.qcom.usb.rc \
 	device/samsung/matisse/init.qcom.rc:root/init.qcom.rc \
-	device/samsung/matisse/init.recovery.qcom.rc:root/init.recovery.qcom.rc \
 	device/samsung/matisse/ueventd.qcom.rc:root/ueventd.qcom.rc \
 	device/samsung/matisse/fstab.qcom:root/fstab.qcom \
 
@@ -34,9 +33,25 @@ PRODUCT_COPY_FILES += \
 	device/samsung/matisse/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
 	device/samsung/matisse/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl \
 
+# Audio
+PRODUCT_PACKAGES += \
+    audiod \
+    audio.a2dp.default \
+    audio.primary.msm8226 \
+    audio.r_submix.default \
+    audio.usb.default
+
+PRODUCT_PACKAGES += \
+    libaudio-resampler \
+    libqcompostprocbundle \
+    libqcomvisualizer \
+    libqcomvoiceprocessing \
+    tinymix
+
 # Camera
 PRODUCT_PACKAGES += \
-	libxml2
+    camera.msm8226 \
+    libxml2
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
@@ -52,14 +67,6 @@ PRODUCT_PACKAGES += \
     gralloc.msm8226 \
     hwcomposer.msm8226 \
     memtrack.msm8226
-
-# Audio modules
-PRODUCT_PACKAGES += \
-	audio.a2dp.default \
-	audio.usb.default \
-	audio.r_submix.default \
-
-USE_CUSTOM_AUDIO_POLICY := 1
 
 # Device-specific packages
 PRODUCT_PACKAGES += \
@@ -101,7 +108,6 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
 	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
-	packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
 
 # Support for Browser's saved page feature. This allows
 # for pages saved on previous versions of the OS to be
@@ -146,7 +152,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.heapgrowthlimit=56m \
 
 # Dalvik heap config
-include frameworks/native/build/phone-hdpi-512-dalvik-heap.mk
+include frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap
 
 $(call inherit-product, hardware/qcom/wlan/qcwcn/config/Android.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
