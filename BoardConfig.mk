@@ -3,6 +3,9 @@ USE_CAMERA_STUB := true
 # inherit from the proprietary version
 -include vendor/samsung/matisse/BoardConfigVendor.mk
 
+# Assert
+TARGET_OTA_ASSERT_DEVICE := matissewifi,matissewifiue,matisse3g,matisselte,matisse
+
 TARGET_ARCH := arm
 TARGET_NO_BOOTLOADER := true
 TARGET_BOOTLOADER_BOARD_NAME := MSM8226
@@ -23,9 +26,7 @@ TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 2048
-BOARD_KERNEL_SEPARATED_DT := true
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
-BOARD_CUSTOM_BOOTIMG_MK :=  device/samsung/matissemkbootimg.mk
+BOARD_MKBOOTIMG_ARGS := --dt device/samsung/matisse/dt.img --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
 
 # This is actually 1610612736, but reducing to 1049 MB to support users using repartition.
 # Feel free to increase when needed
