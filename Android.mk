@@ -1,3 +1,3 @@
-ifeq ($(TARGET_DEVICE),i9082)
+ifeq ($(TARGET_DEVICE),matisse)
     include $(all-subdir-makefiles)
 endif

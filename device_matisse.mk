@@ -1,6 +1,6 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
-$(call inherit-product-if-exists, vendor/samsung/i9082/i9082-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/matisse/matisse-vendor.mk)
 
 # FIXME: This allows only hdpi resources to be included, saving space.
 #        However, some bug caused holo apps' menu, checkboxes and
@@ -8,32 +8,31 @@ $(call inherit-product-if-exists, vendor/samsung/i9082/i9082-vendor.mk)
 # PRODUCT_AAPT_CONFIG := normal hdpi
 # PRODUCT_AAPT_PREF_CONFIG := hdpi
 
-DEVICE_PACKAGE_OVERLAYS += device/samsung/i9082/overlay
+DEVICE_PACKAGE_OVERLAYS += device/samsung/matisse/overlay
 
 # Init files
 PRODUCT_COPY_FILES += \
-	device/samsung/i9082/init.capri_ss_baffin.rc:root/init.capri_ss_baffin.rc \
-	device/samsung/i9082/init.bcm281x5.usb.rc:root/init.bcm281x5.usb.rc \
-	device/samsung/i9082/init.log.rc:root/init.log.rc \
-	device/samsung/i9082/init.recovery.capri_ss_baffin.rc:root/init.recovery.capri_ss_baffin.rc \
-	device/samsung/i9082/ueventd.capri_ss_baffin.rc:root/ueventd.capri_ss_baffin.rc \
-	device/samsung/i9082/fstab.capri_ss_baffin:root/fstab.capri_ss_baffin \
+	device/samsung/matisse/init.qcom.power.rc:root/init.qcom.power.rc \
+	device/samsung/matisse/init.qcom.usb.rc:root/init.qcom.usb.rc \
+	device/samsung/matisse/init.qcom.rc:root/init.qcom.rc \
+	device/samsung/matisse/init.recovery.qcom.rc:root/init.recovery.qcom.rc \
+	device/samsung/matisse/ueventd.qcom.rc:root/ueventd.qcom.rc \
+	device/samsung/matisse/fstab.qcom:root/fstab.qcomn \
 
 PRODUCT_COPY_FILES += \
 	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-	device/samsung/i9082/media_codecs.xml:system/etc/media_codecs.xml \
-	device/samsung/i9082/audio_policy.conf:system/etc/audio_policy.conf \
+	device/samsung/matisse/media_codecs.xml:system/etc/media_codecs.xml \
+	device/samsung/matisse/audio_policy.conf:system/etc/audio_policy.conf \
 
 # Prebuilt kl keymaps
 PRODUCT_COPY_FILES += \
-	device/samsung/i9082/bcm_headset.kl:system/usr/keylayout/bcm_headset.kl \
-	device/samsung/i9082/bcm_keypad_v2.kl:system/usr/keylayout/bcm_keypad_v2.kl \
-	device/samsung/i9082/cyttsp4_btn.kl:system/usr/keylayout/cyttsp4_btn.kl \
-	device/samsung/i9082/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
-	device/samsung/i9082/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl \
-	device/samsung/i9082/sii9234_rcp.kl:system/usr/keylayout/sii9234_rcp.kl
+
+	device/samsung/matisse/atmel_mxt_ts.kl:system/usr/keylayout/atmel_mxt_ts.kl \
+	device/samsung/matisse/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl \
+	device/samsung/matisse/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
+	device/samsung/matisse/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl \
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
@@ -54,7 +53,6 @@ USE_CUSTOM_AUDIO_POLICY := 1
 # Device-specific packages
 PRODUCT_PACKAGES += \
 	SamsungServiceMode \
-	Torch \
 
 # Charger
 PRODUCT_PACKAGES += \
@@ -74,7 +72,7 @@ PRODUCT_PACKAGES += \
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
-	frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
+	frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
 	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
 	frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
 	frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
@@ -138,9 +136,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Dalvik heap config
 include frameworks/native/build/phone-hdpi-512-dalvik-heap.mk
 
-$(call inherit-product, hardware/broadcom/wlan/bcmdhd/config/config-bcm.mk)
+$(call inherit-product, hardware/qcom/wlan/qcwcn/config/Android.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_i9082
-PRODUCT_DEVICE := i9082
+PRODUCT_NAME := full_matisse
+PRODUCT_DEVICE := matisse

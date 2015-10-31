@@ -1,82 +1,88 @@
 USE_CAMERA_STUB := true
 
 # inherit from the proprietary version
--include vendor/samsung/i9082/BoardConfigVendor.mk
+-include vendor/samsung/matisse/BoardConfigVendor.mk
 
 TARGET_ARCH := arm
 TARGET_NO_BOOTLOADER := true
-TARGET_BOARD_PLATFORM := capri
+TARGET_BOOTLOADER_BOARD_NAME := MSM8226
+TARGET_BOARD_PLATFORM := msm8226
+TARGET_BOARD_PLATFORM_GPU := qcom-adreno305
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_CPU_VARIANT := cortex-a9
+TARGET_CPU_VARIANT := krait
 TARGET_CPU_SMP := true
 
-TARGET_BOOTLOADER_BOARD_NAME := capri
+BOARD_VENDOR := samsung
+BOARD_USES_QCOM_HARDWARE := true
 
-BOARD_KERNEL_CMDLINE := console=ttyS0,115200n8 mem=832M@0xA2000000 androidboot.console=ttyS0 vc-cma-mem=0/176M@0xCB000000
-BOARD_KERNEL_BASE := 0xa2000000
-BOARD_KERNEL_PAGESIZE := 4096
-
-TARGET_USERIMAGES_USE_EXT4 := true
-
-BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 8388608
+# Kernel
+TARGET_KERNEL_CONFIG := cyanogenmod_s3ve3g_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
+BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_PAGESIZE := 2048
+BOARD_KERNEL_SEPARATED_DT := true
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
+BOARD_CUSTOM_BOOTIMG_MK :=  device/samsung/matissemkbootimg.mk
 
 # This is actually 1610612736, but reducing to 1049 MB to support users using repartition.
 # Feel free to increase when needed
 # See: http://forum.xda-developers.com/showpost.php?p=55293011&postcount=1
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1099956224
-
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 4404019200
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2097152000
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 12562627584
+BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00A00000
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x00A7DEA0
 BOARD_CACHEIMAGE_PARTITION_SIZE := 1073741824
 BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_FLASH_BLOCK_SIZE := 131072
+BOARD_HAS_NO_SELECT_BUTTON := true
+BOARD_HAS_LARGE_FILESYSTEM := true
+TARGET_USERIMAGES_USE_EXT4 := true
 
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
 
-# Kernel
-TARGET_KERNEL_CONFIG := cyanogenmod_i9082_defconfig
-
-BOARD_HAS_NO_SELECT_BUTTON := true
-BOARD_HAS_LARGE_FILESYSTEM := true
+# Audio
+AUDIO_FEATURE_ENABLED_LOW_LATENCY_CAPTURE := true
+AUDIO_FEATURE_LOW_LATENCY_PRIMARY := true
+BOARD_USES_ALSA_AUDIO := true
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/i9082/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/i9082/libbt_vndcfg.txt
+BOARD_HAVE_BLUETOOTH_QCOM := true
+BLUETOOTH_HCI_USE_MCT := true
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/matisse/bluetooth
 
 # Connectivity - Wi-Fi
-BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-WPA_SUPPLICANT_VERSION      := VER_0_8_X
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
-BOARD_HOSTAPD_DRIVER        := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_bcmdhd
-BOARD_WLAN_DEVICE           := bcmdhd
-BOARD_WLAN_DEVICE_REV       := bcm4334
-WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/dhd/parameters/firmware_path"
-WIFI_DRIVER_FW_PATH_STA     := "/system/etc/wifi/bcmdhd_sta.bin"
-WIFI_DRIVER_FW_PATH_AP      := "/system/etc/wifi/bcmdhd_apsta.bin"
-WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/dhd.ko"
-WIFI_DRIVER_MODULE_NAME     := "dhd"
-WIFI_DRIVER_MODULE_ARG      := "firmware_path=/system/etc/wifi/bcmdhd_sta.bin nvram_path=/system/etc/wifi/nvram_net.txt"
-WIFI_DRIVER_MODULE_AP_ARG   := "firmware_path=/system/etc/wifi/bcmdhd_apsta.bin nvram_path=/system/etc/wifi/nvram_net.txt"
-WIFI_BAND                   := 802_11_ABG
+BOARD_HAS_QCOM_WLAN              := true
+BOARD_HAS_QCOM_WLAN_SDK          := true
+BOARD_WLAN_DEVICE                := qcwcn
+BOARD_HOSTAPD_DRIVER             := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+#TARGET_PROVIDES_WCNSS_QMI        := true
+TARGET_USES_QCOM_WCNSS_QMI       := true
+TARGET_USES_WCNSS_CTRL           := true
+WPA_SUPPLICANT_VERSION           := VER_0_8_X
+WIFI_DRIVER_FW_PATH_STA          := "sta"
+WIFI_DRIVER_FW_PATH_AP           := "ap"
+WIFI_DRIVER_MODULE_PATH          := "/system/lib/modules/wlan.ko"
+WIFI_DRIVER_MODULE_NAME          := "wlan"
 
-# Wi-Fi Tethering
-BOARD_HAVE_SAMSUNG_WIFI := true
+WLAN_MODULES:
+	mkdir -p $(KERNEL_MODULES_OUT)/pronto
+	mv $(KERNEL_MODULES_OUT)/wlan.ko $(KERNEL_MODULES_OUT)/pronto/pronto_wlan.ko
+	ln -sf /system/lib/modules/pronto/pronto_wlan.ko $(TARGET_OUT)/lib/modules/wlan.ko
 
-# SkTextBox for libtvout
-BOARD_USES_SKTEXTBOX := true
+TARGET_KERNEL_MODULES += WLAN_MODULES
 
 # Hardware rendering
 USE_OPENGL_RENDERER := true
-BOARD_USE_MHEAP_SCREENSHOT := true
-BOARD_EGL_WORKAROUND_BUG_10194508 := true
-TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
-COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS -DCAPRI_HWC -DREFBASE_JB_MR1_COMPAT_SYMBOLS
+TARGET_USES_C2D_COMPOSITION := true
+TARGET_USES_ION := true
 
 # Bootanimation
 TARGET_BOOTANIMATION_PRELOAD := true
@@ -87,21 +93,21 @@ BOARD_CHARGER_ENABLE_SUSPEND := true
 BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
 
 # RIL
-BOARD_RIL_CLASS := ../../../device/samsung/i9082/ril/
+BOARD_RIL_CLASS := ../../../device/samsung/matisse/ril/
 
 # Recovery
-TARGET_RECOVERY_FSTAB := device/samsung/i9082/fstab.capri_ss_baffin
+TARGET_RECOVERY_FSTAB := device/samsung/matisse/fstab.qcom
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
 TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
 
-# healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd.capri
+# Healthd
+BOARD_HAL_STATIC_LIBRARIES := libhealthd.qcom
 
 # CMHW
-BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/i9082/cmhw/
+BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/matisse/cmhw/
 
 # GPS
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/i9082/include
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/matisse/include
 
 # Compat
 TARGET_USES_LOGD := false
@@ -111,4 +117,4 @@ MALLOC_IMPL := dlmalloc
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
-    device/samsung/i9082/sepolicy
+    device/samsung/matisse/sepolicy

@@ -19,10 +19,10 @@
 PRODUCT_COPY_FILES := device/sample/etc/apns-full-conf.xml:system/etc/apns-conf.xml
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
-$(call inherit-product, device/samsung/i9082/device_i9082.mk)
+$(call inherit-product, device/samsung/matisse/device_matisse.mk)
 
 # Overlay and packages usually set by vendor/cm
-DEVICE_PACKAGE_OVERLAYS += device/samsung/i9082/overlay2
+DEVICE_PACKAGE_OVERLAYS += device/samsung/matisse/overlay2
 
 PRODUCT_PACKAGES += \
     Galaxy4 \
@@ -53,15 +53,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 ifneq ($(TARGET_BUILD_VARIANT),eng)
 # Enable ADB authentication
-ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=1
+ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=0
 endif
 
 # Set parameters
-PRODUCT_DEVICE := i9082
-PRODUCT_NAME := aosp_i9082
+PRODUCT_DEVICE := matisse
+PRODUCT_NAME := aosp_matisse
 PRODUCT_BRAND := samsung
 PRODUCT_MANUFACTURER := samsung
-PRODUCT_MODEL := GT-I9082
+PRODUCT_MODEL := SM-T53X
 
 # Set build fingerprint / ID / Product Name etc.
-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=baffinvj TARGET_DEVICE=baffin BUILD_FINGERPRINT=samsung/baffinvj/baffin:4.1.2/JZO54K/I9082LDCAMC2:user/release-keys PRIVATE_BUILD_DESC="baffinvj-user 4.1.2 JZO54K I9082LDCAMC2 release-keys"
+PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=matisse TARGET_DEVICE=matisse BUILD_FINGERPRINT=samsung/matisse/matisse:4.1.2/JZO54K/matisse:user/release-keys PRIVATE_BUILD_DESC="matisse-user 4.1.2 JZO54K matisse release-keys"

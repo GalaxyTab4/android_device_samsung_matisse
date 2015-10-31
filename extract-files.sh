@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VENDOR=samsung
-DEVICE=i9082
+DEVICE=matisse
 
 BASE=../../../vendor/$VENDOR/$DEVICE/proprietary
 
