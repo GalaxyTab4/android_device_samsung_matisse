@@ -1,14 +1,18 @@
-#!/bin/bash
+#!/bin/sh
 
-for i in *.patch
-do
-	folder=`echo $i | sed 's/_/\//g' | sed 's/\.patch//g' | sed 's/\/legacy/_legacy/g' `
-	current=`pwd`
-	echo $folder
-	pushd ../../../../$folder
+MYABSPATH=$(readlink -f "$0")
+PATCHBASE=$(dirname "$MYABSPATH")
+CMBASE=$(readlink -f "$PATCHBASE/../../../../")
 
-	git reset --hard refs/tags/android-6.0.0_r1
-	git am -i < $current/$i
-
-	popd
+for i in $(find "$PATCHBASE"/* -type d); do
+	PATCHNAME=$(basename "$i")
+	PATCHTARGET=$PATCHNAME
+	for i in $(seq 4); do
+		PATCHTARGET=$(echo $PATCHTARGET | sed 's/_/\//')
+		if [ -d "$CMBASE/$PATCHTARGET" ]; then break; fi
+	done
+	echo "### Patches in $PATCHTARGET"
+	cd "$CMBASE/$PATCHTARGET" || exit 1
+	git reset --hard refs/tags/android-6.0.0_r1 || exit 1
+	git am -i -3 "$PATCHBASE/$PATCHNAME"/* || exit 1
 done
