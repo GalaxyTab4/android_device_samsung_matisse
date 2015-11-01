@@ -59,7 +59,7 @@ $(INSTALLED_DTIMAGE_TARGET): $(DTBTOOL) $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/u
 	@echo -e ${CL_CYN}"Made DT image: $@"${CL_RST}
 endif
 
-include device/qcom/msm8226/AndroidBoard.mk
+#include device/qcom/msm8226/AndroidBoard.mk
 
 #Create symbolic links
 $(shell mkdir -p $(TARGET_OUT_ETC)/firmware/wlan/prima; \

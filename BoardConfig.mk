@@ -28,13 +28,36 @@ BOARD_VENDOR := samsung
 BOARD_USES_QCOM_HARDWARE := true
 
 # Kernel
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_PAGESIZE :=  2048
+BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
+BOARD_RAMDISK_OFFSET     := 0x02000000
+BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
 TARGET_KERNEL_CONFIG := cyanogenmod_s3ve3g_defconfig
 TARGET_KERNEL_SOURCE := kernel
-BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
-BOARD_KERNEL_BASE := 0x00000000
-BOARD_KERNEL_PAGESIZE := 2048
+BOARD_MKBOOTIMG_ARGS := --dt device/samsung/matisse/dt.img --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
 BOARD_CUSTOM_MKBOOTIMG := device/samsung/matisse/mkbootimg
-BOARD_MKBOOTIMG_ARGS := --dt device/samsung/matisse/dt.img --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
+
+# Shader cache config options
+# Maximum size of the  GLES Shaders that can be cached for reuse.
+# Increase the size if shaders of size greater than 12KB are used.
+MAX_EGL_CACHE_KEY_SIZE := 12*1024
+# Maximum GLES shader cache size for each app to store the compiled shader
+# binaries. Decrease the size if RAM or Flash Storage size is a limitation
+# of the device.
+MAX_EGL_CACHE_SIZE := 2048*1024
+# Maximum dimension (width or height) of a virtual display that will be
+# handled by the hardware composer
+MAX_VIRTUAL_DISPLAY_DIMENSION := 2048
+
+BOARD_EGL_CFG := device/samsung/matisse/egl.cfg
+
+# Audio
+AUDIO_FEATURE_ENABLED_LOW_LATENCY_CAPTURE := true
+AUDIO_FEATURE_LOW_LATENCY_PRIMARY := true
+BOARD_USES_ALSA_AUDIO := true
+
+USE_CUSTOM_AUDIO_POLICY := 1
 
 # This is actually 1610612736, but reducing to 1049 MB to support users using repartition.
 # Feel free to increase when needed
@@ -55,12 +78,6 @@ TARGET_USERIMAGES_USE_EXT4 := true
 
 # Include an expanded selection of fonts
 EXTENDED_FONT_FOOTPRINT := true
-
-# Audio
-AUDIO_FEATURE_ENABLED_LOW_LATENCY_CAPTURE := true
-AUDIO_FEATURE_LOW_LATENCY_PRIMARY := true
-BOARD_USES_ALSA_AUDIO := true
-USE_CUSTOM_AUDIO_POLICY := 1
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
@@ -120,7 +137,8 @@ BOARD_HAL_STATIC_LIBRARIES := libhealthd.qcom
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/matisse/cmhw/
 
 # GPS
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/matisse/include
+TARGET_SPECIFIC_HEADER_PATH += device/samsung/matisse/include \
+							   hardware/qcom/msm8x26/kernel-headers
 
 # Compat
 TARGET_USES_LOGD := false
