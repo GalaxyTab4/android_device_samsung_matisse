@@ -152,7 +152,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.heapgrowthlimit=56m \
 
 # Dalvik heap config
-include frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap
+include frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk
 
 $(call inherit-product, hardware/qcom/wlan/qcwcn/config/Android.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)

@@ -8,7 +8,7 @@ do
 	pushd ../../../../$folder
 
 	git reset --hard refs/tags/android-6.0.0_r1
-	git am < $current/$i
+	git am -i < $current/$i
 
 	popd
 done
