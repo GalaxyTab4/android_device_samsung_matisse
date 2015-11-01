@@ -1,0 +1,31 @@
+From 1e3d7afc882c46058060ade4b21d778657618666 Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Wed, 24 Apr 2013 11:37:19 +0700
+Subject: [PATCH 2/8] OMXCodec: Re-implement requires-flush-before-shutdown
+ quirk
+
+Support is already there, but is not in the codec quirk reading list.
+Re-implement it as required by Broadcom's OMX
+
+Change-Id: I1beac06af8118dcf0c248b631bc8e6dbbab2c1d5
+---
+ media/libstagefright/OMXCodec.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index b1dde80..8c1c962 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -264,6 +264,9 @@ uint32_t OMXCodec::getComponentQuirks(
+     if (info->hasQuirk("output-buffers-are-unreadable")) {
+         quirks |= kOutputBuffersAreUnreadable;
+     }
++    if (info->hasQuirk("requires-flush-before-shutdown")) {
++        quirks |= kRequiresFlushBeforeShutdown;
++    }
+ 
+     return quirks;
+ }
+-- 
+2.5.0
+

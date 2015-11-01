@@ -1,7 +1,7 @@
-From f403c18eda783f8b02149d1380f8ef5e725a5d5d Mon Sep 17 00:00:00 2001
+From 467ae99daf3a8104d256388b8ddb1f496f28dd74 Mon Sep 17 00:00:00 2001
 From: sub77 <sub77@ymail.com>
 Date: Sun, 1 Nov 2015 00:36:58 +0100
-Subject: [PATCH] build: Add option to disable block-based ota
+Subject: [PATCH 02/18] build: Add option to disable block-based ota
 
 ---
  core/Makefile | 7 ++++++-

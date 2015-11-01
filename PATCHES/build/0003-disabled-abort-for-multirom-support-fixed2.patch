@@ -1,7 +1,7 @@
-From df3cf2021e26478f57f2de24977b5754ca1be60e Mon Sep 17 00:00:00 2001
+From 85aaa455d0e8213efa5bf8bd447874b5450a7cb9 Mon Sep 17 00:00:00 2001
 From: sub77 <sub77@ymail.com>
 Date: Wed, 28 Oct 2015 03:25:05 +0100
-Subject: [PATCH] disabled abort for multirom support fixed2
+Subject: [PATCH 03/18] disabled abort for multirom support fixed2
 
 Change-Id: Ide3823ad55f59137696133af69657c4717f72a6f
 ---
@@ -9,10 +9,10 @@ Change-Id: Ide3823ad55f59137696133af69657c4717f72a6f
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/releasetools/common.py b/tools/releasetools/common.py
-index 36f3305..5b998db 100644
+index 99b319d..19ffa11 100644
 --- a/tools/releasetools/common.py
 +++ b/tools/releasetools/common.py
-@@ -1310,7 +1310,7 @@ class BlockDifference(object):
+@@ -1272,7 +1272,7 @@ class BlockDifference(object):
  
      script.AppendExtra(
          'else\n'
@@ -22,5 +22,5 @@ index 36f3305..5b998db 100644
  
    def _WriteUpdate(self, script, output_zip):
 -- 
-2.1.4
+2.5.0
 

@@ -1,0 +1,29 @@
+From e2f4e9cac9d87d22150255d8e4439e4ed453682c Mon Sep 17 00:00:00 2001
+From: Alvin Francis <nivlafx@gmail.com>
+Date: Mon, 1 Dec 2014 13:13:40 -0400
+Subject: [PATCH 07/18] Fix libelf path
+
+Fixes kernel build
+
+Change-Id: Ic6cdb1734d7b865491e8e61403d32db4acafe514
+Signed-off-by: Alvin Francis <nivlafx@gmail.com>
+---
+ core/tasks/kernel.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/tasks/kernel.mk b/core/tasks/kernel.mk
+index b0ab1de..e6be63a 100644
+--- a/core/tasks/kernel.mk
++++ b/core/tasks/kernel.mk
+@@ -147,7 +147,7 @@ ifeq ($(TARGET_ARCH),arm)
+ endif
+ 
+ ifeq ($(HOST_OS),darwin)
+-  MAKE_FLAGS := C_INCLUDE_PATH=$(ANDROID_BUILD_TOP)/external/elfutils/libelf
++  MAKE_FLAGS := C_INCLUDE_PATH=$(ANDROID_BUILD_TOP)/external/elfutils/0.153/libelf/
+ endif
+ 
+ ifeq ($(TARGET_KERNEL_MODULES),)
+-- 
+2.5.0
+
