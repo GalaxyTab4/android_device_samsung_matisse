@@ -49,15 +49,13 @@ on init
     mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
     mkdir /storage/sdcard1 0700 root root
 
-    export EXTERNAL_STORAGE /sdcard
-    export SECONDARY_STORAGE /storage/sdcard1
-
-    # Support legacy paths
+   # Support legacy paths
     symlink /sdcard /mnt/sdcard
     symlink /sdcard /storage/sdcard0
-
 	symlink /system/vendor/lib/egl /egl
 
+    # By default, primary storage is physical
+    setprop ro.vold.primary_physical 1
 
 on fs
     mount_all fstab.qcom
@@ -601,20 +599,6 @@ service mpdecision /system/bin/mpdecision --avg_comp
     class main
     user root
     disabled
-
-# create virtual SD card at /mnt/sdcard, based on the /data/media directory
-# daemon will drop to user/group system/media_rw after initializing
-# underlying files in /data/media wil be created with user and group media_rw (1023)
-#service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
-#    class late_start
-
-#service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/sdcard1 /storage/sdcard1
-#    class late_start
-#    disabled
-
-#service fuse_usbdisk0 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/usbdisk0 /storage/usbdisk0
-#    class late_start
-#    disabled
 
 service qcamerasvr /system/bin/mm-qcamera-daemon
     class late_start
