@@ -1,0 +1,41 @@
+From ab030785ca2c9fae24e4e1d000eea066e6d61fe1 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Tue, 3 Nov 2015 00:51:02 +0100
+Subject: [PATCH] got own vendor blobs
+
+Change-Id: I94d49ed8a1cc7a078e9171c5312b7d4fba3c3cab
+---
+ BoardConfigCommon.mk | 3 +++
+ msm8226.mk           | 2 ++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
+index 2f4e3a0..d386cdc 100644
+--- a/BoardConfigCommon.mk
++++ b/BoardConfigCommon.mk
+@@ -12,6 +12,9 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
++# inherit from the proprietary version
++-include vendor/samsung/msm8226-common/BoardConfigVendor.mk
++
+ # Inherit from qcom-common
+ -include device/samsung/qcom-common/BoardConfigCommon.mk
+ 
+diff --git a/msm8226.mk b/msm8226.mk
+index 0c5de8f..f026c69 100644
+--- a/msm8226.mk
++++ b/msm8226.mk
+@@ -16,6 +16,8 @@ LOCAL_PATH := device/samsung/msm8226-common
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+ 
++$(call inherit-product, vendor/samsung/msm8226-common/msm8226-common-vendor.mk)
++
+ # Overlay
+ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+ 
+-- 
+2.5.0
+

@@ -1,0 +1,42 @@
+From 70e3efd3e2275d2c0196c916cdfec154129820b7 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sun, 25 Oct 2015 03:54:20 +0100
+Subject: [PATCH] overlays
+
+Change-Id: I64e16c1f6a53dbf7e89422af37466e4766120a11
+---
+ overlay/frameworks/base/core/res/res/values/cm_arrays.xml | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/overlay/frameworks/base/core/res/res/values/cm_arrays.xml b/overlay/frameworks/base/core/res/res/values/cm_arrays.xml
+index fe4a8d2..2be3c18 100644
+--- a/overlay/frameworks/base/core/res/res/values/cm_arrays.xml
++++ b/overlay/frameworks/base/core/res/res/values/cm_arrays.xml
+@@ -15,20 +15,21 @@
+      limitations under the License.
+ -->
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-    <!-- Defines the shutdown options shown in the reboot dialog. -->
++    <!-- Defines the shutdown options shown in the reboot dialog. 
+     <array name="shutdown_reboot_options" translatable="false">
+         <item>@string/reboot_reboot</item>
+         <item>@string/reboot_soft</item>
+         <item>@string/reboot_recovery</item>
+         <item>@string/reboot_download</item>
+     </array>
+-
++-->
+     <!-- Do not translate. Defines the shutdown actions passed to the kernel.
+-         The first item should be empty for regular reboot. -->
++         The first item should be empty for regular reboot.
+     <string-array name="shutdown_reboot_actions" translatable="false">
+         <item></item>
+         <item>soft_reboot</item>
+         <item>recovery</item>
+         <item>download</item>
+      </string-array>
++-->
+ </resources>
+-- 
+2.1.4
+
