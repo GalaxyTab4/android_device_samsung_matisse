@@ -1,0 +1,35 @@
+From 4626af5a184f1df36c85363bd85b9e9b6270510e Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Tue, 3 Nov 2015 00:43:30 +0100
+Subject: [PATCH] Dalvik VM config for 10' tablets
+
+Change-Id: I18a21471f452242a70e7391df54667e69a232a25
+---
+ msm8226.mk | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/msm8226.mk b/msm8226.mk
+index af7f8a6..0c5de8f 100644
+--- a/msm8226.mk
++++ b/msm8226.mk
+@@ -28,13 +28,13 @@ PRODUCT_LOCALES += mdpi
+ TARGET_SCREEN_HEIGHT := 800
+ TARGET_SCREEN_WIDTH := 1280
+ 
+-# Dalvik VM config for 1536MB (1.5GB) RAM devices
++# Dalvik VM config for 10" tablets
+ PRODUCT_PROPERTY_OVERRIDES += \
+-    dalvik.vm.heapstartsize=8m \
+-    dalvik.vm.heapgrowthlimit=128m \
++    dalvik.vm.heapstartsize=16m \
++    dalvik.vm.heapgrowthlimit=192m \
+     dalvik.vm.heapsize=512m \
+     dalvik.vm.heaptargetutilization=0.75 \
+-    dalvik.vm.heapminfree=2m \
++    dalvik.vm.heapminfree=512k \
+     dalvik.vm.heapmaxfree=8m
+ 
+ # Audio
+-- 
+2.5.0
+
