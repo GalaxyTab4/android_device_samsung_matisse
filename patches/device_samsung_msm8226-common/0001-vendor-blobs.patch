@@ -1,0 +1,26 @@
+From 6274e70eb53fe6414cff8de81185a342105dc416 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Tue, 3 Nov 2015 06:25:46 +0100
+Subject: [PATCH] vendor blobs
+
+Change-Id: I94737e603973dff37c9eb9077a3918c4aeda0efa
+---
+ msm8226.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/msm8226.mk b/msm8226.mk
+index f026c69..8cac8fb 100644
+--- a/msm8226.mk
++++ b/msm8226.mk
+@@ -16,7 +16,7 @@ LOCAL_PATH := device/samsung/msm8226-common
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+ 
+-$(call inherit-product, vendor/samsung/msm8226-common/msm8226-common-vendor.mk)
++$(call inherit-product-if-exists,vendor/samsung/msm8226-common/msm8226-common-vendor.mk)
+ 
+ # Overlay
+ DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+-- 
+2.5.0
+
