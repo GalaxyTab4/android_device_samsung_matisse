@@ -24,10 +24,22 @@
     "revision": "android-6.0"
   },
   {
-    "remote": "omnirom",
-    "repository": "android_kernel_oppo_msm8974",
-    "target_path": "kernel/oppo/msm8974",
-    "revision": "android-6.0"
+    "remote": "github",
+    "repository": "GalaxyTab4/bliss_kernel_samsung_s3ve3g",
+    "target_path": "kernel/samsung/s3ve3g",
+    "revision": "cm-13.0"
+  },
+    {
+    "remote": "github",
+    "repository": "GalaxyTab4/android_vendor_samsung_matisse",
+    "target_path": "vendor/samsung/matisse",
+    "revision": "cm-13.0"
+  },
+  {
+    "remote": "github",
+    "repository": "MSM8226-Samsung/android_vendor_samsung_msm8226-common",
+    "target_path": "vendor/samsung/msm8226-common",
+    "revision": "cm-13.0"
   },
   {
     "remote": "omnirom",
@@ -38,7 +50,7 @@
   {
     "remote": "omnirom",
     "repository": "android_frameworks_native",
-    "target_path": "frameworks/native-caf",
+    "target_path": "frameworks/native-caf"
     "revision": "android-6.0-caf"
   },
   {
