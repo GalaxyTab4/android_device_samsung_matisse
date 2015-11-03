@@ -19,8 +19,7 @@ TARGET_OTA_ASSERT_DEVICE := matissewifi,matissewifiue,matisse3g,matisselte,matis
 
 LOCAL_PATH := device/samsung/matisse
 
-# Audio
-#AUDIO_FEATURE_SAMSUNG_DUAL_SIM := true
+#TARGET_SUPPORTS_QSEECOM_APP_CHECK := true
 
 # Bluetooth
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
