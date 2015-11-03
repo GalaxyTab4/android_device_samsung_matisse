@@ -1,11 +1,11 @@
 # inherit common device tree
--include device/oppo/msm8974-common/BoardConfigCommon.mk
+-include device/samsung/msm8226-common/BoardConfigCommon.mk
 
-LOCAL_PATH := device/oppo/find7op
+LOCAL_PATH := device/samsung/matisse
 
 TARGET_NO_BOOTLOADER := true
-TARGET_BOOTLOADER_BOARD_NAME := find7op
-TARGET_OTA_ASSERT_DEVICE := bacon,A0001
+TARGET_BOOTLOADER_BOARD_NAME := MSM8226
+TARGET_OTA_ASSERT_DEVICE := matisse,matissewifi
 
 # Partition info
 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00F00000
@@ -17,10 +17,7 @@ BOARD_FLASH_BLOCK_SIZE := 131072
 # Bluetooth
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
 
-# NFC
-BOARD_NFC_CHIPSET := pn547
-
 # Recovery:Start
 
-TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/configs/fstab.find7op
+TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/configs/fstab.qcom
 RECOVERY_SDCARD_ON_DATA := true
