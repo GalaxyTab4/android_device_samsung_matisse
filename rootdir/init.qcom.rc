@@ -49,10 +49,11 @@ on init
     
     # Support legacy paths
     symlink /sdcard /mnt/sdcard
-    symlink /sdcard /storage/sd
+    symlink /sdcard /storage/sdcard0
+    symlink /system/vendor/lib/egl /egl
     
     # By default, primary storage is physical
-    setprop ro.vold.primary_physical 1
+    setprop ro.vold.primary_physical 0
 
 on fs
     mount_all fstab.qcom
