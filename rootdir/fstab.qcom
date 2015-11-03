@@ -13,17 +13,10 @@
 /dev/block/platform/msm_sdcc.1/by-name/modem        /firmware-modem vfat    ro,shortname=lower,uid=1000,gid=1026,dmask=227,fmask=337                                        wait
 /dev/block/platform/msm_sdcc.1/by-name/recovery     /recovery       emmc    defaults                                                                                        recoveryonly
 /dev/block/platform/msm_sdcc.1/by-name/boot         /boot           emmc    defaults                                                                                        recoveryonly
-#/dev/block/platform/msm_sdcc.1/by-name/userdata    /sdcard         ext4    recoveryonly
 
 # Vold managed volumes
-/devices/msm_sdcc.2/mmc_host/mmc1                   /storage/sdcard1    auto    nosuid,nodev                                                         wait,voldmanaged=sdcard1:auto,noemulatedsd
-/devices/platform/msm_hsusb                         /storage/usbdisk    auto    nosuid,nodev                                                         wait,voldmanaged=usbdisk:auto
+/devices/msm_sdcc.2/mmc_host*                       auto            auto    defaults                                                                                        voldmanaged=sdcard1:auto,encryptable=sdcard,noemulatedsd
+/devices/platform/msm_hsusb_host*                   auto            auto    defaults                                                                                        voldmanaged=usb:auto
 
-#/devices/msm_sdcc.1/mmc_host/mmc0                   auto            auto    defaults                                                                                        voldmanaged=sdcard0:1,nonremovable
-#/devices/msm_sdcc.2/mmc_host/mmc1                   auto            auto    defaults                                                                                        voldmanaged=sdcard1:auto,encryptable=sdcard,noemulatedsd
-#/devices/platform/msm_hsusb_host/usb*               auto            auto    defaults                                                                                        voldmanaged=usb:auto
-
-#vold.fstab
-#dev_mount sdcard /storage/sdcard1 auto /devices/msm_sdcc.2/mmc_host
-# MTP
-#dev_mount sdcard2 /mnt/sdcard/external_sd auto /devices/platform/msm_sdcc.3/mmc_host
+# USB /dev/block/vold/public:8,1 /mnt/media_rw/BBF0-6118
+# EXT /dev/block/vold/public:179,65 /mnt/media_rw/4DD0-F91F
