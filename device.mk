@@ -90,6 +90,8 @@ PRODUCT_COPY_FILES += \
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     sys.keymaster.loaded=true
 
+PRODUCT_PACKAGES += \
+    libxml2
 
 # Inherit from qcom-common
 $(call inherit-product, device/samsung/msm8226-common/msm8226.mk)
