@@ -29,15 +29,15 @@ TARGET_LIBINIT_DEFINES_FILE := $(LOCAL_PATH)/init/init_matisse.cpp
 TARGET_UNIFIED_DEVICE := true
 
 # Kernel
-BOARD_CUSTOM_BOOTIMG_MK := $(LOCAL_PATH)/mkbootimg.mk
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
+BOARD_DTBTOOL_ARGS   := -2
+TARGET_KERNEL_ARCH   := arm
 TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
 TARGET_KERNEL_CONFIG := cyanogenmod_s3ve3g_defconfig
-#TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig
 
 # Lights
 TARGET_PROVIDES_LIBLIGHT := true
