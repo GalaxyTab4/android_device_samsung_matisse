@@ -28,6 +28,8 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
 TARGET_LIBINIT_DEFINES_FILE := $(LOCAL_PATH)/init/init_matisse.cpp
 TARGET_UNIFIED_DEVICE := true
 
+USE_CLANG_PLATFORM_BUILD := true
+
 # Kernel
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
