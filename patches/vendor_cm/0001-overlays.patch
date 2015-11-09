@@ -1,0 +1,151 @@
+From 395e6d213d9ac0725a921e321e213db689406941 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sun, 25 Oct 2015 03:55:23 +0100
+Subject: [PATCH] overlays
+
+Change-Id: I586f8a6196de27a92132c9c69e14246584280edb
+---
+ .../common/frameworks/base/core/res/res/values/config.xml    | 12 ++++++------
+ .../base/packages/SettingsProvider/res/values/defaults.xml   | 11 ++++++-----
+ .../TelephonyProvider/res/values-mcc310-mnc260/config.xml    |  3 ++-
+ .../TelephonyProvider/res/values-mcc310-mnc410/config.xml    |  3 ++-
+ .../TelephonyProvider/res/values-mcc450-mnc08/config.xml     |  3 ++-
+ .../packages/services/Telecomm/res/values/cm_config.xml      |  7 ++++---
+ 6 files changed, 22 insertions(+), 17 deletions(-)
+
+diff --git a/overlay/common/frameworks/base/core/res/res/values/config.xml b/overlay/common/frameworks/base/core/res/res/values/config.xml
+index b33887a..66bb1a4 100644
+--- a/overlay/common/frameworks/base/core/res/res/values/config.xml
++++ b/overlay/common/frameworks/base/core/res/res/values/config.xml
+@@ -24,7 +24,7 @@
+ 
+     <bool name="config_cellBroadcastAppLinks">true</bool>
+ 
+-    <!-- Disable stock OTA components if installed -->
++    <!-- Disable stock OTA components if installed 
+     <string-array name="config_disabledComponents" translatable="false">
+         <item>com.google.android.gsf/com.google.android.gsf.update.SystemUpdateActivity</item>
+         <item>com.google.android.gsf/com.google.android.gsf.update.SystemUpdateService$Receiver</item>
+@@ -34,25 +34,25 @@
+         <item>com.google.android.gms/com.google.android.gms.update.SystemUpdateService$ActiveReceiver</item>
+         <item>com.google.android.gms/com.google.android.gms.update.SystemUpdateService$SecretCodeReceiver</item>
+     </string-array>
+-
+-    <!-- Force enabling of some services that could have been previously disabled -->
++-->
++    <!-- Force enabling of some services that could have been previously disabled
+     <string-array name="config_forceEnabledComponents" translatable="false">
+         <item>com.google.android.gsf/com.google.android.gsf.update.SystemUpdateService</item>
+         <item>com.google.android.gms/com.google.android.gms.update.SystemUpdateService</item>
+     </string-array>
+-
++-->
+     <string name="config_mms_user_agent">CyanogenMod</string>
+     <string name="config_mms_user_agent_profile_url">http://www.google.com/oha/rdf/ua-profile-kila.xml</string>
+ 
+     <!-- Automatic power profile management per app.
+          Each item should list the fully-qualified activity
+-         name and the power profile id, separated by a comma. -->
++         name and the power profile id, separated by a comma. 
+     <string-array name="config_auto_perf_activities" translatable="false">
+         <item>com.aurorasoftworks.quadrant.*BenchmarkExecutionActivity,2</item>
+         <item>com.antutu.ABenchMark.*,2</item>
+         <item>.*com.antutu.benchmark.*,2</item>
+     </string-array>
+-
++-->
+     <!-- Defines the default set of global actions. Actions may still be disabled or hidden based
+          on the current state of the device. -->
+     <string-array translatable="false" name="config_globalActionsList">
+diff --git a/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml b/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+index d0802f7..83d871f 100644
+--- a/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
++++ b/overlay/common/frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+@@ -19,12 +19,13 @@
+ <resources>
+     <string name="def_backup_transport">com.google.android.backup/.BackupTransportService</string>
+ 
+-    <!-- Enable notification counters in statusbar -->
++    <!-- Enable notification counters in statusbar 
+     <integer name="def_notif_count">1</integer>
+-
+-    <!-- Right QS pulldown -->
++-->
++    <!-- Right QS pulldown 
+     <integer name="def_qs_quick_pulldown">1</integer>
+-
+-    <!-- Default for Settings.Secure.STATS_COLLECTION. -->
++-->
++    <!-- Default for Settings.Secure.STATS_COLLECTION. 
+     <bool name="def_cm_stats_collection">true</bool>
++-->
+ </resources>
+diff --git a/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc260/config.xml b/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc260/config.xml
+index 1e4d855..f1d06cf 100644
+--- a/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc260/config.xml
++++ b/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc260/config.xml
+@@ -17,7 +17,8 @@
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
+     <!-- The preferred APN to use, in the format name,mcc,mnc
+-         Leave empty to choose automatically. -->
++         Leave empty to choose automatically. 
+     <string name="config_preferred_apn">fast.t-mobile.com,310,260</string>
++-->
+ </resources>
+ 
+diff --git a/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc410/config.xml b/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc410/config.xml
+index 9f82f18..9450b91 100644
+--- a/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc410/config.xml
++++ b/overlay/common/packages/providers/TelephonyProvider/res/values-mcc310-mnc410/config.xml
+@@ -17,7 +17,8 @@
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
+     <!-- The preferred APN to use, in the format name,mcc,mnc
+-         Leave empty to choose automatically. -->
++         Leave empty to choose automatically. 
+     <string name="config_preferred_apn">pta,310,410</string>
++-->
+ </resources>
+ 
+diff --git a/overlay/common/packages/providers/TelephonyProvider/res/values-mcc450-mnc08/config.xml b/overlay/common/packages/providers/TelephonyProvider/res/values-mcc450-mnc08/config.xml
+index afa0363..78e3b5e 100644
+--- a/overlay/common/packages/providers/TelephonyProvider/res/values-mcc450-mnc08/config.xml
++++ b/overlay/common/packages/providers/TelephonyProvider/res/values-mcc450-mnc08/config.xml
+@@ -17,7 +17,8 @@
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+ 
+     <!-- The preferred APN to use, in the format name,mcc,mnc
+-         Leave empty to choose automatically. -->
++         Leave empty to choose automatically. 
+     <string name="config_preferred_apn">lte.ktfwing.com,450,08</string>
++-->
+ </resources>
+ 
+diff --git a/overlay/common/packages/services/Telecomm/res/values/cm_config.xml b/overlay/common/packages/services/Telecomm/res/values/cm_config.xml
+index c208396..398bcba 100644
+--- a/overlay/common/packages/services/Telecomm/res/values/cm_config.xml
++++ b/overlay/common/packages/services/Telecomm/res/values/cm_config.xml
+@@ -15,15 +15,16 @@
+ -->
+ 
+ <resources>
+-    <!-- Class name for the default in-call UI Service [DO NOT TRANSLATE] -->
++    <!-- Class name for the default in-call UI Service [DO NOT TRANSLATE] 
+     <string-array name="incall_default_classes" translatable="false">
+         <item>com.android.dialer/com.android.incallui.InCallServiceImpl</item>
+         <item>com.cyngn.dialer/com.android.incallui.InCallServiceImpl</item>
+     </string-array>
+-
+-    <!-- Class name for the default main dialer activity [DO NOT TRANSLATE] -->
++-->
++    <!-- Class name for the default main dialer activity [DO NOT TRANSLATE] 
+     <string-array name="dialer_default_classes" translatable="false">
+         <item>com.android.dialer/com.android.dialer.DialtactsActivity</item>
+         <item>com.cyngn.dialer/com.android.dialer.DialtactsActivity</item>
+     </string-array>
++-->
+ </resources>
+-- 
+2.1.4
+
