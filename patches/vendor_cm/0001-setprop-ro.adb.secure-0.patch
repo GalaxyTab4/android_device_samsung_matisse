@@ -1,0 +1,26 @@
+From d482efd93ab1e4d212d25d8e532273c294170509 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Tue, 27 Oct 2015 21:27:30 +0100
+Subject: [PATCH] setprop ro.adb.secure=0
+
+Change-Id: I77014c023fffc48790e078cfe21ebf56435752b6
+---
+ config/common.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/common.mk b/config/common.mk
+index 163f6a6..0d9c497 100644
+--- a/config/common.mk
++++ b/config/common.mk
+@@ -70,7 +70,7 @@ endif
+ 
+ ifneq ($(TARGET_BUILD_VARIANT),eng)
+ # Enable ADB authentication
+-ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=1
++ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=0
+ endif
+ 
+ # Copy over the changelog to the device
+-- 
+2.1.4
+
