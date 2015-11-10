@@ -19,6 +19,12 @@ TARGET_OTA_ASSERT_DEVICE := matissewifi,matissewifiue,matisse3g,matisselte,matis
 
 LOCAL_PATH := device/samsung/matisse
 
+TARGET_SPECIFIC_HEADER_PATH := hardware/qcom/msm8x26/kernel-headers
+
+BOARD_VENDOR := samsung
+TARGET_BOARD_PLATFORM := msm8226
+TARGET_BOARD_PLATFORM_GPU := qcom-adreno305
+
 #TARGET_SUPPORTS_QSEECOM_APP_CHECK := true
 
 # Bluetooth
@@ -28,10 +34,10 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
 TARGET_LIBINIT_DEFINES_FILE := $(LOCAL_PATH)/init/init_matisse.cpp
 TARGET_UNIFIED_DEVICE := true
 
-USE_CLANG_PLATFORM_BUILD := true
+#USE_CLANG_PLATFORM_BUILD := true
 
 # Kernel
-TARGET_KERNEL_ARCH   := arm
+#TARGET_KERNEL_ARCH   := arm
 TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
 TARGET_KERNEL_CONFIG := cyanogenmod_s3ve3g_defconfig
 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.selinux=permissive
@@ -42,9 +48,6 @@ BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
 BOARD_RAMDISK_OFFSET     := 0x02000000
 BOARD_DTBTOOL_ARGS   := -2
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset BOARD_RAMDISK_OFFSET --tags_offset BOARD_KERNEL_TAGS_OFFSET
-
-# Lights
-TARGET_PROVIDES_LIBLIGHT := true
 
 # Partitions
 BOARD_FLASH_BLOCK_SIZE := 131072
@@ -62,32 +65,3 @@ TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/rootdir/fstab.qcom
 # Releasetools
 TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/matisse
 
-# Block_Build
-Bliss_Build_Block:=1
-
-# Blissful building options
-BLISSIFY := true
-BLISS_O3 := true
-BLISS_GRAPHITE := true
-BLISS_STRICT := true
-BLISS_KRAIT := true
-BLISS_PIPE := true
-FLOOP_NEST_OPTIMIZE := true
-ENABLE_GCCONLY := true
-TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
-FAST_MATH := true
-ENABLE_MODULAR_O3 := true
-ENABLE_LTO := true
-LINK_TIME_OPTIMIZATIONS := true
-#TARGET_USE_ION_COMPAT := true
-TARGET_USE_KRAIT_PLD_SET := true
-TARGET_TC_ROM := 4.9
-TARGET_TC_KERNEL := 4.8
-TARGET_GCC_VERSION_EXP := $(TARGET_TC_ROM)
-TARGET_KERNEL_CUSTOM_TOOLCHAIN := $(TARGET_TC_KERNEL)
-#TARGET_ENABLE_UKM := true
-
-WITH_LZMA_OTA := true
-
-#SaberMod
--include vendor/bliss/config/sm.mk
