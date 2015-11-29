@@ -1,0 +1,3 @@
+#git clone https://github.com/GalaxyTab4/android_vendor_samsung_millet-common
+#git branch https://github.com/morisbartyno/android_device_samsung_millet3g/tree/ 
+#git diff https://github.com/GalaxyTab4/android_vendor_samsung_millet-common
