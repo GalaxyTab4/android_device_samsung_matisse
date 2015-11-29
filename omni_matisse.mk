@@ -47,7 +47,8 @@ PRODUCT_MANUFACTURER := samsung
 PRODUCT_BUILD_PROP_OVERRIDES += \
     BUILD_PRODUCT=millet3g \
     TARGET_DEVICE=SM-T331 \
-    BUILD_FINGERPRINT="4.3/JLS36C/1390465867:user/release-keys" \
+    BUILD_FINGERPRINT="samsung/millet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys"
+     "millet3gxx-user 5.0.2 LRX22G T331XXU1BOD8 release" \
     PRIVATE_BUILD_DESC="msm8974-user 4.3 JLS36C eng.root.20140510.152835 release-keys"
 
 # Inline kernel
