@@ -16,7 +16,7 @@
 15	| Camera  | 3.15 MP, 2048 x 1536 pixels |
 16	
 
-18	![(http://cdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-tab-4-80-1.jpg "Galaxy Tab 4 8.0 3g")
+18	![(http://cdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-tab-4-80-1.jpg] "Galaxy Tab 4 8.0 3g")
 
 20	This branch is for building CyanogenMod 13.0 
 21	
