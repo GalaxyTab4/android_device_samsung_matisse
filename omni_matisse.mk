@@ -39,14 +39,14 @@ $(call inherit-product, device/samsung/matisse/device.mk)
 
 # Discard inherited values and use our own instead.
 PRODUCT_NAME := omni_matisse
-PRODUCT_DEVICE := matisse
+PRODUCT_DEVICE := millet3g
 PRODUCT_BRAND := samsung
-PRODUCT_MODEL := SM-T53X
+PRODUCT_MODEL := SM-T331
 PRODUCT_MANUFACTURER := samsung
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BUILD_PRODUCT=matisse \
-    TARGET_DEVICE=SM-T53X \
+    BUILD_PRODUCT=millet3g \
+    TARGET_DEVICE=SM-T331 \
     BUILD_FINGERPRINT="4.3/JLS36C/1390465867:user/release-keys" \
     PRIVATE_BUILD_DESC="msm8974-user 4.3 JLS36C eng.root.20140510.152835 release-keys"
 
