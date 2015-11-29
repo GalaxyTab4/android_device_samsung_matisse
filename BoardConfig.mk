@@ -1,11 +1,11 @@
 # inherit common device tree
 -include device/samsung/msm8226-common/BoardConfigCommon.mk
 
-LOCAL_PATH := device/samsung/matisse
+LOCAL_PATH := device/samsung/millet3g
 
 TARGET_NO_BOOTLOADER := true
 TARGET_BOOTLOADER_BOARD_NAME := MSM8226
-TARGET_OTA_ASSERT_DEVICE := matisse,matissewifi
+TARGET_OTA_ASSERT_DEVICE := millet3g,millet3gxx
 
 # Partition info
 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00F00000
