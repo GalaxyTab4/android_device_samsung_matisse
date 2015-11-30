@@ -35,10 +35,10 @@ TARGET_BOOTANIMATION_SIZE := 1280x800
 $(call inherit-product, vendor/omni/config/common.mk)
 
 # Inherit from hardware-specific part of the product configuration
-$(call inherit-product, device/samsung/matisse/device.mk)
+$(call inherit-product, device/samsung/millet3g/device.mk)
 
 # Discard inherited values and use our own instead.
-PRODUCT_NAME := omni_matisse
+PRODUCT_NAME := omni_millet3g
 PRODUCT_DEVICE := millet3g
 PRODUCT_BRAND := samsung
 PRODUCT_MODEL := SM-T331
@@ -52,9 +52,9 @@ PRODUCT_BUILD_PROP_OVERRIDES += \
     PRIVATE_BUILD_DESC="msm8974-user 4.3 JLS36C eng.root.20140510.152835 release-keys"
 
 # Inline kernel
-TARGET_KERNEL_SOURCE := kernel/samsung/msm8974
-TARGET_KERNEL_CONFIG := msm8974_matisse_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/msm8226
+TARGET_KERNEL_CONFIG := msm8226_millet_defconfig
 
 # Inherit from proprietary blobs
-$(call inherit-product, vendor/samsung/matisse/matisse-vendor.mk)
+$(call inherit-product, vendor/samsung/millet/-vendor.mk)
 
