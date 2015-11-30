@@ -31,8 +31,8 @@
   },
     {
     "remote": "github",
-    "repository": "GalaxyTab4/android_vendor_samsung_matisse",
-    "target_path": "vendor/samsung/matisse",
+    "repository": "GalaxyTab4/android_vendor_samsung_millet3g",
+    "target_path": "vendor/samsung/millet3g",
     "revision": "cm-13.0"
   },
   {
