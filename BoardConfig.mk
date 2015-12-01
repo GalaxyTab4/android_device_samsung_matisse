@@ -21,3 +21,10 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
 
 TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/configs/fstab.qcom
 RECOVERY_SDCARD_ON_DATA := true
+!property_set("ro.build.fingerprint", "samsung/millet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys");
+        property_set("ro.build.description", "millet3gxx-user 5.0.2 LRX22G T331XXU1BOD8 release-keys");
+        property_set("ro.product.model", "SM-T331");
+        property_set("ro.product.device", "millet3g");
+		property_set("ro.telephony.ril_class", "SamsungMSM8226RIL");
+		property_set("telephony.lteOnGsmDevice", "0");
+		property_set("ro.telephony.default_network", "0")
