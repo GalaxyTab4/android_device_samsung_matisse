@@ -72,10 +72,17 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     libsecril-client \
     libsecril-client-sap
+    ro.telephony.ril_class=SamsungMSM8226RIL\
+    ro.telephony.lteOnGsmDevice=0\
+    ro.telephony.default_network=0\
 
 ADDITIONAL_DEFAULT_PROPERTIES += \
     ro.secure=0 \
-    ro.adb.secure=0
+    ro.adb.secure=0\
+  ro.build.fingerprint=samsung/millet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys\
+    ro.build.description=millet3gxx-user 5.0.2 LRX22G T331XXU1BOD8 release-keys\
+    ro.product.model=SM-T331\
+    ro.product.device=millet3g\
 
 # Common build.props
 PRODUCT_PROPERTY_OVERRIDES += \
