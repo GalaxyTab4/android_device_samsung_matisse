@@ -1,7 +1,7 @@
 From 409d531a13c80867d6d695bd3cec6352d8033ae3 Mon Sep 17 00:00:00 2001
 From: sub77 <sub77@ymail.com>
 Date: Sun, 1 Nov 2015 07:16:36 +0100
-Subject: [PATCH 18/18] matisse: fix recoverybuilding with custom mkbootimg
+Subject: [PATCH 18/18] millet: fix recoverybuilding with custom mkbootimg
 
 ---
  core/Makefile | 4 ++--
