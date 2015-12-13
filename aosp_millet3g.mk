@@ -1,7 +1,7 @@
 #
 # Copyright 2013 The Android Open Source Project
 # Copyright 2015 The CyanogenMod Project
-#
+#millet3g
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -19,10 +19,10 @@
 PRODUCT_COPY_FILES := device/sample/etc/apns-full-conf.xml:system/etc/apns-conf.xml
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
-$(call inherit-product, device/samsung/matisse/device_matisse.mk)
+$(call inherit-product, device/samsung/milletdevice_millet3g.mk)
 
 # Overlay and packages usually set by vendor/cm
-DEVICE_PACKAGE_OVERLAYS += device/samsung/matisse/overlay2
+DEVICE_PACKAGE_OVERLAYS += device/samsung/millet/overlay2
 
 PRODUCT_PACKAGES += \
     Galaxy4 \
@@ -57,11 +57,11 @@ ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure=0
 endif
 
 # Set parameters
-PRODUCT_DEVICE := matisse
-PRODUCT_NAME := aosp_matisse
+PRODUCT_DEVICE := millet3g
+PRODUCT_NAME := aosp_millet
 PRODUCT_BRAND := samsung
 PRODUCT_MANUFACTURER := samsung
-PRODUCT_MODEL := SM-T53X
+PRODUCT_MODEL := SM-T331
 
 # Set build fingerprint / ID / Product Name etc.
-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=matisse TARGET_DEVICE=matisse BUILD_FINGERPRINT=samsung/matisse/matisse:4.1.2/JZO54K/matisse:user/release-keys PRIVATE_BUILD_DESC="matisse-user 4.1.2 JZO54K matisse release-keys"
+PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=millet TARGET_DEVICE=millet BUILD_FINGERPRINT=samsung/millet/millet:4.1.2/JZO54K/millet:user/release-keys PRIVATE_BUILD_DESC="millet-user 4.1.2 JZO54K millet release-keys"
