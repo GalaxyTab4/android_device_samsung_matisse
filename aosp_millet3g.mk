@@ -49,7 +49,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.setupwizard.enterprise_mode=1 \
     ro.com.android.dateformat=MM-dd-yyyy \
     ro.com.android.dataroaming=false \
-    ro.build.selinux=1
+    ro.build.selinux=0
 
 ifneq ($(TARGET_BUILD_VARIANT),eng)
 # Enable ADB authentication
@@ -64,4 +64,4 @@ PRODUCT_MANUFACTURER := samsung
 PRODUCT_MODEL := SM-T331
 
 # Set build fingerprint / ID / Product Name etc.
-PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=millet TARGET_DEVICE=millet BUILD_FINGERPRINT=samsung/millet/millet:4.1.2/JZO54K/millet:user/release-keys PRIVATE_BUILD_DESC="millet-user 4.1.2 JZO54K millet release-keys"
+PRODUCT_BUILD_PROP_OVERRIDES += PRODUCT_NAME=millet3g TARGET_DEVICE=millet3g BUILD_FINGERPRINT=samsung/millet/millet3g:4.1.2/JZO54K/millet:user/release-keys PRIVATE_BUILD_DESC="millet3g-user 4.1.2 JZO54K millet release-keys"
