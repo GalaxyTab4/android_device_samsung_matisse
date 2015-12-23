@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #
 # Copyright (C) 2015 The AOSParadox Project
 #
@@ -67,3 +68,13 @@ $(shell mkdir -p $(TARGET_OUT_ETC)/firmware/wlan/prima; \
         rm $(TARGET_OUT_ETC)/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin; \
         ln -sf /persist/WCNSS_qcom_wlan_factory_nv.bin \
         $(TARGET_OUT_ETC)/firmware/wlan/prima/WCNSS_qcom_wlan_factory_nv.bin;)
+=======
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+ALL_PREBUILT += $(INSTALLED_KERNEL_TARGET)
+
+# include the non-open-source counterpart to this file
+-include /storage/extSdCard/Download/android_kernel_samsung_millet-millet.zip
+>>>>>>> refs/remotes/origin/android-6.0

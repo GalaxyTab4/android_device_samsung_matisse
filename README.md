@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 # samsung_millet3g
 Device Tree For Samsung Galaxy Tab 4 8.0 3g
+=======
+#Samsung Galaxy Tab 4 8.0 3g
+>>>>>>> refs/remotes/origin/android-6.0
 =========================================
 
 | Basic   | Spec Sheet                  |

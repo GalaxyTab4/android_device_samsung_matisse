@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
+<<<<<<< HEAD
 ** Copyright 2009, The Android Open Source Project
+=======
+** Copyright 2012, The Android Open Source Project
+>>>>>>> refs/remotes/origin/android-6.0
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -17,6 +21,7 @@
 */
 -->
 
+<<<<<<< HEAD
 <!-- These resources are around just to allow their values to be customized
      for different hardware and product builds. -->
 <resources>
@@ -218,4 +223,10 @@
         don't support RIL_REQUEST_GET_RADIO_CAPABILITY
         format is UMTS|LTE|... -->
    <string translatable="false" name="config_radio_access_family">GSM | WCDMA</string>
+=======
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Does the battery LED support multiple colors? Used to decide if the user can change the colors -->
+    <bool name="config_multiColorBatteryLed">true</bool>
+>>>>>>> refs/remotes/origin/android-6.0
 </resources>
