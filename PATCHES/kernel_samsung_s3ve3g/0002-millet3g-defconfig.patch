@@ -1,0 +1,12 @@
+From 8f8b1abf789ed3d45358be32c8f0aa97928cedc2 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Mon, 26 Oct 2015 06:40:25 +0100
+Subject: [PATCH] millet3g defconfig
+
+Change-Id: Ic11efc31682ddc4e72cde0edef3462d60b73fe58
+---
+ arch/arm/configs/cyanogenmod_millet3g_defconfig | 4153 ++++++++++++++++++++++
+ 1 file changed, 4153 insertions(+)
+ create mode 100644 arch/arm/configs/cyanogenmod_millet3g_defconfig
+
+diff --git a/arch/arm/configs/cyanogenmod_millet3g_defconfig b/arch/arm/configs/cyanogenmod_millet3g_defconfig

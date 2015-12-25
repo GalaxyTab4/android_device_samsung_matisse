@@ -1,0 +1,77 @@
+From 0a9b9b63b473510f9fc5950facfa1e70e2ad1c28 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sun, 1 Nov 2015 02:51:08 +0100
+Subject: [PATCH 8/8] Revert "stagefright: CAPRI_HWC: fix for miracast"
+
+This reverts commit 11bf342c66ab6b3ee81f40b21a1be15b5791258a.
+---
+ media/libstagefright/ACodec.cpp | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index a06e35e..0dcc13f 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -3162,13 +3162,7 @@ static OMX_U32 setPFramesSpacing(int32_t iFramesInterval, int32_t frameRate) {
+     return ret;
+ }
+ 
+-static OMX_VIDEO_CONTROLRATETYPE getBitrateMode(const sp<AMessage> &msg, const AString &name) {
+-#ifdef CAPRI_HWC
+-    // vc4 encoder only supports VBR
+-    if (strncmp(name.c_str(), "OMX.BRCM.vc4.encoder.", 21) == 0) {
+-        return OMX_Video_ControlRateVariable;
+-    }
+-#endif
++static OMX_VIDEO_CONTROLRATETYPE getBitrateMode(const sp<AMessage> &msg) {
+     int32_t tmp;
+     if (!msg->findInt32("bitrate-mode", &tmp)) {
+         return OMX_Video_ControlRateVariable;
+@@ -3184,7 +3178,7 @@ status_t ACodec::setupMPEG4EncoderParameters(const sp<AMessage> &msg) {
+         return INVALID_OPERATION;
+     }
+ 
+-    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg, mComponentName);
++    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg);
+ 
+     float frameRate;
+     if (!msg->findFloat("frame-rate", &frameRate)) {
+@@ -3265,7 +3259,7 @@ status_t ACodec::setupH263EncoderParameters(const sp<AMessage> &msg) {
+         return INVALID_OPERATION;
+     }
+ 
+-    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg, mComponentName);
++    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg);
+ 
+     float frameRate;
+     if (!msg->findFloat("frame-rate", &frameRate)) {
+@@ -3393,7 +3387,7 @@ status_t ACodec::setupAVCEncoderParameters(const sp<AMessage> &msg) {
+         return INVALID_OPERATION;
+     }
+ 
+-    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg, mComponentName);
++    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg);
+ 
+     float frameRate;
+     if (!msg->findFloat("frame-rate", &frameRate)) {
+@@ -3501,7 +3495,7 @@ status_t ACodec::setupHEVCEncoderParameters(const sp<AMessage> &msg) {
+         return INVALID_OPERATION;
+     }
+ 
+-    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg, mComponentName);
++    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg);
+ 
+     float frameRate;
+     if (!msg->findFloat("frame-rate", &frameRate)) {
+@@ -3568,7 +3562,7 @@ status_t ACodec::setupVPXEncoderParameters(const sp<AMessage> &msg) {
+     }
+     msg->findInt32("i-frame-interval", &iFrameInterval);
+ 
+-    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg, mComponentName);
++    OMX_VIDEO_CONTROLRATETYPE bitrateMode = getBitrateMode(msg);
+ 
+     float frameRate;
+     if (!msg->findFloat("frame-rate", &frameRate)) {
+-- 
+2.5.0
+

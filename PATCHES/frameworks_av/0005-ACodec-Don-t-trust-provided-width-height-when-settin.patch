@@ -1,0 +1,37 @@
+From 4c7ece6a449f5c229c5d57b217f422fdc0a67322 Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Sun, 23 Nov 2014 17:27:20 +0700
+Subject: [PATCH 5/8] ACodec: Don't trust provided width/height when setting
+ input buffer size
+
+They are bogus
+
+Change-Id: I202b291a84d2f9a8c29aa2177ba52a0465f39deb
+---
+ media/libstagefright/ACodec.cpp | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index f9eb50e..0dcc13f 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -1674,13 +1674,9 @@ status_t ACodec::configureCodec(
+ // Capri's OMX fail to set a reasonable default size from width and height
+ #ifdef CAPRI_HWC
+     else if (!strncmp(mComponentName.c_str(), "OMX.BRCM.vc4.decoder.", 21)) {
+-        int32_t width;
+-        int32_t height;
+-        if (msg->findInt32("width", &width) && msg->findInt32("height", &height)) {
+-            setMinBufferSize(kPortIndexInput, (width * height * 3) / 2);
+-        } else {
+-            ALOGE("Failed to set min buffer size");
+-        }
++        // We cannot trust the width/height from the message
++        // so just use 1920x1080
++        setMinBufferSize(kPortIndexInput, (1920 * 1080 * 3) / 2);
+     }
+ #endif
+ 
+-- 
+2.5.0
+

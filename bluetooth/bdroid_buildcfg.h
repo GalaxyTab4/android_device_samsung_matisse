@@ -17,7 +17,11 @@
 #ifndef _BDROID_BUILDCFG_H
 #define _BDROID_BUILDCFG_H
 
+<<<<<<< HEAD
+#define BTM_DEF_LOCAL_NAME   "Samsung Galaxy Tab 4"
+=======
 #define BTM_DEF_LOCAL_NAME   "Oppo Find 7 OnePlus Edition"
 #define BTA_DISABLE_DELAY 1000 /* in milliseconds */
+>>>>>>> refs/remotes/origin/android-6.0
 
 #endif

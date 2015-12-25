@@ -1,0 +1,56 @@
+From 5672db58a75ace5388c0902ad15bb73450eafa87 Mon Sep 17 00:00:00 2001
+From: Brandon McAnsh <brandon.mcansh@gmail.com>
+Date: Sat, 10 Oct 2015 10:20:38 -0400
+Subject: [PATCH 17/18] Set kernel gcc version to 4.8 for ARM targets
+
+* This causes the check during path setup for an arm-eabi-4.9 toolchain to fail,
+      thus only leaving the arm-linux-androideabi- to exist.
+* This is only temporary as Google is building with 4.9 and 4.8 gcc's
+       have been removed in their next release
+
+Was updated to 4.9 here: https://github.com/CyanogenMod/android_build/commit/bf8346e90c5a6d5d809fa7166d50714b2b6bc30d
+Toolchain check here: https://github.com/CyanogenMod/android_build/blob/cm-13.0/envsetup.sh#L189
+
+Change-Id: I24bff10e392a6cdced1797870e523144e83d611d
+Signed-off-by: Brandon McAnsh <brandon.mcansh@gmail.com>
+---
+ core/combo/TARGET_linux-arm.mk | 1 +
+ envsetup.sh                    | 3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/core/combo/TARGET_linux-arm.mk b/core/combo/TARGET_linux-arm.mk
+index 3651c39..5020865 100644
+--- a/core/combo/TARGET_linux-arm.mk
++++ b/core/combo/TARGET_linux-arm.mk
+@@ -39,6 +39,7 @@ $(combo_2nd_arch_prefix)TARGET_NDK_GCC_VERSION := 4.9
+ 
+ ifeq ($(strip $(TARGET_GCC_VERSION_EXP)),)
+ $(combo_2nd_arch_prefix)TARGET_GCC_VERSION := 4.9
++$(combo_2nd_arch_prefix)TARGET_LEGACY_GCC_VERSION := 4.8
+ else
+ $(combo_2nd_arch_prefix)TARGET_GCC_VERSION := $(TARGET_GCC_VERSION_EXP)
+ endif
+diff --git a/envsetup.sh b/envsetup.sh
+index dba64ee..5d0696d 100644
+--- a/envsetup.sh
++++ b/envsetup.sh
+@@ -129,6 +129,7 @@ function setpaths()
+     # defined in core/config.mk
+     targetgccversion=$(get_build_var TARGET_GCC_VERSION)
+     targetgccversion2=$(get_build_var 2ND_TARGET_GCC_VERSION)
++    targetlegacygccversion=$(get_build_var TARGET_LEGACY_GCC_VERSION)
+     export TARGET_GCC_VERSION=$targetgccversion
+ 
+     # The gcc toolchain does not exists for windows/cygwin. In this case, do not reference it.
+@@ -164,7 +165,7 @@ function setpaths()
+     case $ARCH in
+         arm)
+             # Legacy toolchain configuration used for ARM kernel compilation
+-            toolchaindir=arm/arm-eabi-$targetgccversion/bin
++            toolchaindir=arm/arm-eabi-$targetlegacygccversion/bin
+             if [ -d "$gccprebuiltdir/$toolchaindir" ]; then
+                  export ARM_EABI_TOOLCHAIN="$gccprebuiltdir/$toolchaindir"
+                  ANDROID_KERNEL_TOOLCHAIN_PATH="$ARM_EABI_TOOLCHAIN":
+-- 
+2.5.0
+

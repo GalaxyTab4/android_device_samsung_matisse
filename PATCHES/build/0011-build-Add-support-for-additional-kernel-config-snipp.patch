@@ -1,0 +1,54 @@
+From 966b3b0a076533899b83f4cf8633b5bcd8bdc02f Mon Sep 17 00:00:00 2001
+From: Steve Kondik <steve@cyngn.com>
+Date: Mon, 9 Mar 2015 15:07:08 +0000
+Subject: [PATCH 11/18] build: Add support for additional kernel config snippet
+
+ * Add support for TARGET_KERNEL_ADDITIONAL_CONFIG which will append a
+   config snippet from arch/$ARCH/configs/ to the main defconfig.
+ * This can be used for various things, such as including DIAG support
+   into debuggable builds.
+
+Change-Id: Ifa48688a3f951dd8ecc9a13a27de3a476e7bf633
+---
+ core/tasks/kernel.mk | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/core/tasks/kernel.mk b/core/tasks/kernel.mk
+index 2c49271..764532c 100644
+--- a/core/tasks/kernel.mk
++++ b/core/tasks/kernel.mk
+@@ -72,6 +72,9 @@ ifeq ($(KERNEL_ARCH),arm64)
+   endif
+ endif
+ 
++ifneq ($(TARGET_KERNEL_ADDITIONAL_CONFIG),)
++KERNEL_ADDITIONAL_CONFIG := $(TARGET_KERNEL_ADDITIONAL_CONFIG)
++endif
+ 
+ ## Do be discontinued in a future version. Notify builder about target
+ ## kernel format requirement
+@@ -204,6 +207,10 @@ $(KERNEL_CONFIG): $(KERNEL_OUT)
+ 			echo "Overriding kernel config with '$(KERNEL_CONFIG_OVERRIDE)'"; \
+ 			echo $(KERNEL_CONFIG_OVERRIDE) >> $(KERNEL_OUT)/.config; \
+ 			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) oldconfig; fi
++	$(hide) if [ ! -z "$(KERNEL_ADDITIONAL_CONFIG)" ]; then \
++			echo "Using additional config '$(KERNEL_ADDITIONAL_CONFIG)'"; \
++			cat $(KERNEL_SRC)/arch/$(KERNEL_ARCH)/configs/$(KERNEL_ADDITIONAL_CONFIG) >> $(KERNEL_OUT)/.config; \
++			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) oldconfig; fi
+ 
+ TARGET_KERNEL_BINARIES: $(KERNEL_OUT) $(KERNEL_CONFIG) $(KERNEL_HEADERS_INSTALL)
+ 	$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) $(TARGET_PREBUILT_INT_KERNEL_TYPE)
+@@ -232,6 +239,10 @@ $(KERNEL_HEADERS_INSTALL): $(KERNEL_OUT) $(KERNEL_CONFIG)
+ 			echo "Overriding kernel config with '$(KERNEL_CONFIG_OVERRIDE)'"; \
+ 			echo $(KERNEL_CONFIG_OVERRIDE) >> $(KERNEL_OUT)/.config; \
+ 			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) oldconfig; fi
++	$(hide) if [ ! -z "$(KERNEL_ADDITIONAL_CONFIG)" ]; then \
++			echo "Using additional config '$(KERNEL_ADDITIONAL_CONFIG)'"; \
++			cat $(KERNEL_SRC)/arch/$(KERNEL_ARCH)/configs/$(KERNEL_ADDITIONAL_CONFIG) >> $(KERNEL_OUT)/.config; \
++			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) oldconfig; fi
+ 
+ kerneltags: $(KERNEL_OUT) $(KERNEL_CONFIG)
+ 	$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) tags
+-- 
+2.5.0
+

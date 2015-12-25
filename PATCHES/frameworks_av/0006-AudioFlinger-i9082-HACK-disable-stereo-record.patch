@@ -1,0 +1,34 @@
+From 5c2bd725793d9eda16d8b12b926c2477582835c2 Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Fri, 28 Nov 2014 21:07:59 +0700
+Subject: [PATCH 6/8] AudioFlinger: i9082: HACK: disable stereo record
+
+Stereo record causes audio to speed up x2 for some reason.
+Record in mono and let AudioFlinger resample to stereo
+(we only have one mic anyway)
+
+Change-Id: I59236addc022186fa35bd3b3914f42709c2318de
+---
+ services/audioflinger/AudioFlinger.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
+index 9ec5802..f00e211 100644
+--- a/services/audioflinger/AudioFlinger.cpp
++++ b/services/audioflinger/AudioFlinger.cpp
+@@ -2049,6 +2049,12 @@ sp<AudioFlinger::RecordThread> AudioFlinger::openInput_l(audio_module_handle_t m
+     audio_config_t halconfig = *config;
+     audio_hw_device_t *inHwHal = inHwDev->hwDevice();
+     audio_stream_in_t *inStream = NULL;
++
++#ifdef CAPRI_HWC
++    ALOGD("Forcing channel mask to mono on capri");
++    halconfig.channel_mask = AUDIO_CHANNEL_IN_MONO;
++#endif
++
+     status_t status = inHwHal->open_input_stream(inHwHal, *input, devices, &halconfig,
+                                         &inStream, flags, address.string(), source);
+     ALOGV("openInput_l() openInputStream returned input %p, SamplingRate %d"
+-- 
+2.5.0
+

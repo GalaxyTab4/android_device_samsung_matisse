@@ -54,7 +54,7 @@ void init_msm_properties(unsigned long msm_id, unsigned long msm_ver, char *boar
 
     property_get("ro.bootloader", bootloader);
 
-    if (strstr(bootloader, "T331")) {
+    if (strstr(bootloader, "T531")) {
         	/* millet3g */
         property_set("ro.build.fingerprint", "samsung/mmillet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys");
         property_set("ro.build.description", "millet3gxx-user 5.0.2 LRX22G T331XXU1BOD8 release-keys");

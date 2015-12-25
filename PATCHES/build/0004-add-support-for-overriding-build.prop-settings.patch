@@ -1,0 +1,53 @@
+From 36af87fc5d4e45cd30443f87abe56d2cf5da25ae Mon Sep 17 00:00:00 2001
+From: Koushik Dutta <koushd@gmail.com>
+Date: Sat, 26 Jun 2010 22:53:55 -0700
+Subject: [PATCH 04/18] add support for overriding build.prop settings.
+
+Change-Id: Ie4224d608b7bcb0c2087bd77bc954f8f5f9b6495
+---
+ core/Makefile          | 1 +
+ core/product.mk        | 1 +
+ core/product_config.mk | 3 +++
+ 3 files changed, 5 insertions(+)
+
+diff --git a/core/Makefile b/core/Makefile
+index 417f7c1..7890695 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -221,6 +221,7 @@ endif
+ 			TARGET_CPU_ABI="$(TARGET_CPU_ABI)" \
+ 			TARGET_CPU_ABI2="$(TARGET_CPU_ABI2)" \
+ 			TARGET_AAPT_CHARACTERISTICS="$(TARGET_AAPT_CHARACTERISTICS)" \
++			$(PRODUCT_BUILD_PROP_OVERRIDES) \
+ 	        bash $(BUILDINFO_SH) >> $@
+ 	$(hide) $(foreach file,$(system_prop_file), \
+ 		if [ -f "$(file)" ]; then \
+diff --git a/core/product.mk b/core/product.mk
+index 4e8bff1..83e64be 100644
+--- a/core/product.mk
++++ b/core/product.mk
+@@ -65,6 +65,7 @@ endef
+ #
+ 
+ _product_var_list := \
++    PRODUCT_BUILD_PROP_OVERRIDES \
+     PRODUCT_NAME \
+     PRODUCT_MODEL \
+     PRODUCT_LOCALES \
+diff --git a/core/product_config.mk b/core/product_config.mk
+index 5240ae7..a87d0c6 100644
+--- a/core/product_config.mk
++++ b/core/product_config.mk
+@@ -343,6 +343,9 @@ PRODUCT_PROPERTY_OVERRIDES := \
+ PRODUCT_DEFAULT_PROPERTY_OVERRIDES := \
+     $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_DEFAULT_PROPERTY_OVERRIDES))
+ 
++PRODUCT_BUILD_PROP_OVERRIDES := \
++	$(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_BUILD_PROP_OVERRIDES))
++
+ # Should we use the default resources or add any product specific overlays
+ PRODUCT_PACKAGE_OVERLAYS := \
+     $(strip $(PRODUCTS.$(INTERNAL_PRODUCT).PRODUCT_PACKAGE_OVERLAYS))
+-- 
+2.5.0
+
