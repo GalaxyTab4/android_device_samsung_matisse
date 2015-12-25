@@ -1,5 +1,5 @@
 #
-# system.prop for MATISSE
+# system.prop for millet3g
 #
 
 rild.libpath=/system/lib/libsec-ril.so
