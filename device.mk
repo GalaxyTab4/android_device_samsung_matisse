@@ -12,11 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+PRODUCT_CHARACTERISTICS := tablet
+
+ifeq ($(TARGET_PREBUILT_KERNEL),)
+	LOCAL_KERNEL := $(LOCAL_PATH)/kernel
+else
+	LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
+endif
+
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/kernel:kernel
+
 # Overlay
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 
 # Proprietary files
-$(call inherit-product, vendor/samsung/s3ve3g/s3ve3g-vendor.mk)
+$(call inherit-product, vendor/samsung/matisse/matisse-vendor.mk)
 
 # Audio configuration
 PRODUCT_COPY_FILES += \
@@ -59,6 +70,11 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/wifi/WCNSS_cfg.dat:system/etc/firmware/wlan/prima/WCNSS_cfg.dat \
     $(LOCAL_PATH)/wifi/WCNSS_qcom_cfg.ini:system/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini \
     $(LOCAL_PATH)/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
+
+PRODUCT_COPY_FILES += \
+		    $(LOCAL_PATH)/prebuilt/boot_matissewifi.img:install/kernel/boot_matissewifi.img \
+		    $(LOCAL_PATH)/prebuilt/boot_matisse3g.img:install/kernel/boot_matisse3g.img \
+		    $(LOCAL_PATH)/prebuilt/boot_matisselte.img:install/kernel/boot_matisselte.img
 
 # Inherit from qcom-common
 $(call inherit-product, device/samsung/msm8226-common/msm8226.mk)

@@ -15,9 +15,9 @@
 # Inherit from msm8226-common
 -include device/samsung/msm8226-common/BoardConfigCommon.mk
 
-TARGET_OTA_ASSERT_DEVICE := s3ve3g,s3ve3gds,s3ve3gjv
+TARGET_OTA_ASSERT_DEVICE := matissewifi,matissewifiue,matisse3g,matisselte
 
-DEVICE_PATH := device/samsung/s3ve3g
+DEVICE_PATH := device/samsung/matisse
 
 # Audio
 #AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
@@ -27,18 +27,18 @@ DEVICE_PATH := device/samsung/s3ve3g
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(DEVICE_PATH)/bluetooth
 
 # Init
-TARGET_LIBINIT_DEFINES_FILE := $(DEVICE_PATH)/init/init_s3ve3g.cpp
+TARGET_LIBINIT_DEFINES_FILE := $(DEVICE_PATH)/init/init_matisse.cpp
 TARGET_UNIFIED_DEVICE := true
 
 # Kernel
-BOARD_CUSTOM_BOOTIMG_MK := $(DEVICE_PATH)/mkbootimg.mk
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.bootdevice=msm_sdcc.1
 BOARD_KERNEL_PAGESIZE := 2048
-BOARD_KERNEL_SEPARATED_DT := true
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000 --dt device/samsung/matisse/dt.img
 TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
-TARGET_KERNEL_CONFIG := cyanogenmod_s3ve3g_defconfig
+TARGET_PREBUILT_KERNEL := device/samsung/matisse/kernel
+
+#TARGET_KERNEL_CONFIG := cyanogenmod_matisse_defconfig
 
 # Lights
 TARGET_PROVIDES_LIBLIGHT := true
