@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+ 
+  		<remote name="sub"
+		fetch="ssh://git@github.com" />
+
+        <project path="device/samsung/matisse"
+        remote="sub"
+        name="GalaxyTab4/android_device_samsung_matisse"
+        revision="cm-13.0"/>
+
+        <project path="device/samsung/msm8226-common"
+        remote="github"
+        name="MSM8226-Samsung/android_device_samsung_msm8226-common"
+        revision="cm-13.0"/>
+
+        <project path="kernel/samsung/s3ve3g"
+        remote="github"
+        name="MSM8226-Samsung/android_kernel_samsung_s3ve3g"
+        revision="cm-13.0"/>
+
+        <project path="vendor/samsung/matisse"
+        remote="sub"
+        name="GalaxyTab4/android_vendor_samsung_matisse"
+        revision="cm-13.0"/>
+
+        <project path="device/samsung/qcom-common"
+        remote="github"
+        name="CyanogenMod/android_device_samsung_qcom-common"
+        revision="cm-13.0"/>
+
+        <project path="external/sony/boringssl-compat"
+        remote="github"
+        name="CyanogenMod/android_external_sony_boringssl-compat"
+        revision="cm-13.0"/>
+
+        <project path="device/qcom/common"
+        remote="github"
+        name="CyanogenMod/android_device_qcom_common"
+        revision="cm-13.0"/>
+
+        <project path="external/stlport"
+        remote="github"
+        name="CyanogenMod/android_external_stlport"
+        revision="cm-13.0"/>
+
+        <project path="hardware/samsung"
+        remote="github"
+        name="CyanogenMod/android_hardware_samsung"
+        revision="cm-13.0"/>
+
+        <project path="hardware/qcom/fm"
+        remote="github"
+        name="CyanogenMod/android_hardware_qcom_fm"
+        revision="cm-13.0"/>
+
+</manifest>

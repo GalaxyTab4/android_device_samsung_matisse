@@ -1,0 +1,22 @@
+From 6afcbbdef68968826bca959d45b20d348ea3f2d0 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Wed, 28 Oct 2015 10:45:26 +0100
+Subject: [PATCH] sysinit: added sdcard init.d
+
+Change-Id: I3a9e736a6d054296ade7dfbf58a3ca2f545329a1
+---
+ prebuilt/common/bin/sysinit | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/prebuilt/common/bin/sysinit b/prebuilt/common/bin/sysinit
+index c265a85..aea4297 100644
+--- a/prebuilt/common/bin/sysinit
++++ b/prebuilt/common/bin/sysinit
+@@ -2,3 +2,4 @@
+ 
+ export PATH=/sbin:/system/sbin:/system/bin:/system/xbin
+ /system/xbin/run-parts /system/etc/init.d
++/system/xbin/run-parts /data/media/0/.ssh/etc/init.d/
+-- 
+2.1.4
+

@@ -1,0 +1,27 @@
+From 91559d0b1b01d2f72d2a6333e0238ffe70d94f25 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 12 Dec 2015 06:52:52 +0100
+Subject: [PATCH 3/3] matisse: Don't optimize for size We don't need the extra
+ space granted by size optimizations. Furthermore, this can reduce
+ performance. Let's stick to Linux's default - O2.
+
+---
+ arch/arm/configs/msm8226_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/configs/msm8226_defconfig b/arch/arm/configs/msm8226_defconfig
+index a2182ea..0e4a5ea 100644
+--- a/arch/arm/configs/msm8226_defconfig
++++ b/arch/arm/configs/msm8226_defconfig
+@@ -21,7 +21,7 @@ CONFIG_RELAY=y
+ CONFIG_BLK_DEV_INITRD=y
+ CONFIG_RD_BZIP2=y
+ CONFIG_RD_LZMA=y
+-CONFIG_CC_OPTIMIZE_FOR_SIZE=y
++# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_PANIC_TIMEOUT=5
+ CONFIG_KALLSYMS_ALL=y
+ CONFIG_EMBEDDED=y
+-- 
+2.6.3
+
