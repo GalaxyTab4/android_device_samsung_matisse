@@ -63,7 +63,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
 
 PRODUCT_COPY_FILES += \
-		    $(LOCAL_PATH)/prebuilt/boot_matissewifi.img:install/kernel/boot_matissewifi.img \
 		    $(LOCAL_PATH)/prebuilt/boot_matisse3g.img:install/kernel/boot_matisse3g.img \
 		    $(LOCAL_PATH)/prebuilt/boot_matisselte.img:install/kernel/boot_matisselte.img
 
