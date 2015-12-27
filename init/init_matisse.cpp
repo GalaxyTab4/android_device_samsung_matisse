@@ -59,8 +59,6 @@ void init_msm_properties(unsigned long msm_id, unsigned long msm_ver, char *boar
       property_set("ro.build.description", "matissewifixx-user 5.0.2 LRX22G T530XXU1BOD8 release-keys");
       property_set("ro.product.model", "SM-T530");
       property_set("ro.product.device", "matissewifi");
-      property_set("ro.carrier", "wifi-only");
-      property_set("ro.radio.noril", "1");
     } else if (strstr(bootloader, "T531")) {
       property_set("ro.build.fingerprint", "samsung/matisse3gxx/matisse3g:5.0.2/LRX22G/T531XXU1BOD8:user/release-keys");
       property_set("ro.build.description", "matisse3gxx-user 5.0.2 LRX22G T531XXU1BOD8 release-keys");

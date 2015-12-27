@@ -1,3 +1,7 @@
-# Radio
-ro.telephony.default_network=0
-telephony.lteOnGsmDevice=0
+# Radio 3g
+# ro.telephony.default_network=0
+# telephony.lteOnGsmDevice=0
+
+# Radio wifi
+ro.carrier=wifi-only
+ro.radio.noril=1
