@@ -20,6 +20,9 @@ def FullOTA_InstallEnd(info):
   
   info.script.AppendExtra('ifelse(is_substring("T530", getprop("ro.bootloader")), run_program("/sbin/sh", "-c", "busybox rm -rf /system/priv-app/Dialer"));')
   info.script.AppendExtra('ifelse(is_substring("T530", getprop("ro.bootloader")), run_program("/sbin/sh", "-c", "busybox rm -rf /system/priv-app/Mms"));')
+  info.script.AppendExtra('ifelse(is_substring("T530", getprop("ro.bootloader")), run_program("/sbin/sh", "-c", "busybox rm -rf /system/priv-app/TeleService"));')
+  info.script.AppendExtra('ifelse(is_substring("T530", getprop("ro.bootloader")), run_program("/sbin/sh", "-c", "busybox rm -rf /system/priv-app/Telecom"));')
+  info.script.AppendExtra('ifelse(is_substring("T530", getprop("ro.bootloader")), run_program("/sbin/sh", "-c", "busybox rm -rf /system/priv-app/TelephonyProvider"));')
   info.script.AppendExtra('ifelse(is_substring("T530", getprop("ro.bootloader")), run_program("/sbin/sh", "-c", "busybox rm -rf /system/app/InCallUI"));')
 
   info.script.AppendExtra('ifelse(is_substring("T531", getprop("ro.bootloader")), package_extract_file("install/kernel/boot_matisse3g.img", "/dev/block/platform/msm_sdcc.1/by-name/boot"));')
