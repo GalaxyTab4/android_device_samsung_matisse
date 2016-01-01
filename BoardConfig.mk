@@ -31,6 +31,9 @@ TARGET_LIBINIT_DEFINES_FILE := $(DEVICE_PATH)/init/init_matisse.cpp
 TARGET_UNIFIED_DEVICE := true
 
 # Kernel
+#TARGET_KERNEL_ARCH := arm
+#KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arch/arm-linux-androideabi-4.9/bin
+#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
 TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
 TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
 #TARGET_KERNEL_CONFIG := cyanogenmod_matisse3g_defconfig
@@ -64,3 +67,25 @@ TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/fstab.qcom
 
 # Releasetools
 TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
+
+# Block_Build
+# Bliss_Build_Block := 1
+
+# BlissPop Configs
+BLISS_BUILDTYPE := OFFICIAL
+BLISS_DEVELOPER := sub77
+BLISS_WIPE_CACHES := 0
+BLISSIFY := true
+BLISS_O3 := true
+BLISS_GRAPHITE := true
+BLISS_STRICT := true
+BLISS_KRAIT := true
+BLISS_PIPE := true
+TARGET_TC_ROM := 4.9
+TARGET_TC_KERNEL := 4.9
+TARGET_GCC_VERSION_EXP := $(TARGET_TC_ROM)
+TARGET_KERNEL_CUSTOM_TOOLCHAIN := $(TARGET_TC_KERNEL)
+WITH_LZMA_OTA := false
+
+#SaberMod
+# -include vendor/bliss/config/sm.mk

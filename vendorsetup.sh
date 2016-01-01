@@ -1,2 +1,2 @@
-add_lunch_combo cm_matisse-eng
-add_lunch_combo cm_matisse-userdebug
+add_lunch_combo bliss_matisse-eng
+add_lunch_combo bliss_matisse-userdebug
