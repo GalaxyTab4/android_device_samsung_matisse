@@ -15,9 +15,9 @@
 # Inherit from msm8226-common
 -include device/samsung/msm8226-common/BoardConfigCommon.mk
 
-TARGET_OTA_ASSERT_DEVICE := matissewifi,matissewifiue,matisse3g,matisselte
+TARGET_OTA_ASSERT_DEVICE := matissewifiwifi,matissewifiwifiue
 
-DEVICE_PATH := device/samsung/matisse
+DEVICE_PATH := device/samsung/matissewifi
 
 # Audio
 #AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
@@ -35,9 +35,9 @@ TARGET_UNIFIED_DEVICE := true
 #KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arch/arm-linux-androideabi-4.9/bin
 #KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
 TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
-TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
-#TARGET_KERNEL_CONFIG := cyanogenmod_matisse3g_defconfig
-#TARGET_KERNEL_CONFIG := cyanogenmod_matisselte_defconfig
+TARGET_KERNEL_CONFIG := twrp_matissewifi_defconfig
+#TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi3g_defconfig
+#TARGET_KERNEL_CONFIG := cyanogenmod_matissewifilte_defconfig
 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.bootdevice=msm_sdcc.1
 BOARD_KERNEL_SEPARATED_DT := true
 BOARD_KERNEL_BASE := 0x00000000
@@ -59,14 +59,43 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2097152000
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 12562627584
 TARGET_USERIMAGES_USE_F2FS := true
 
+# Releasetools
+TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
+
 # Properties
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 
 # Recovery
-TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/fstab.qcom
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/twrp.fstab
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+TARGET_RECOVERY_QCOM_RTC_FIX := true
+TARGET_RECOVERY_DEVICE_DIRS += $(DEVICE_PATH)
+TARGET_USERIMAGES_USE_EXT4 := true
+TARGET_USERIMAGES_USE_F2FS := true
+BOARD_RECOVERY_SWIPE := true
+BOARD_HAS_LARGE_FILESYSTEM := true
+BOARD_SUPPRESS_SECURE_ERASE := true
+BOARD_HAS_NO_MISC_PARTITION := true
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+RECOVERY_SDCARD_ON_DATA := true
+COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
 
-# Releasetools
-TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
+# TWRP-Specific
+RECOVERY_VARIANT := twrp
+TW_THEME := landscape_mdpi
+TW_HAS_DOWNLOAD_MODE := true
+TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
+TW_INTERNAL_STORAGE_PATH := "/data/media"
+TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
+TW_EXTERNAL_STORAGE_PATH := "/external_sd"
+TW_EXTERNAL_STORAGE_MOUNT_POINT := "external_sd"
+TW_DEFAULT_EXTERNAL_STORAGE := true
+TW_NO_REBOOT_BOOTLOADER := true
+TW_IGNORE_MAJOR_AXIS_0 := true
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_L_CRYPTO := true
+#TW_TARGET_USES_QCOM_BSP := true
+HAVE_SELINUX := true
 
 # Block_Build
 # Bliss_Build_Block := 1

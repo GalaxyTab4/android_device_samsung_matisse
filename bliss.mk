@@ -16,8 +16,8 @@
 $(call inherit-product, vendor/bliss/config/common_full_phone.mk)
 
 # Inherit device configuration
-$(call inherit-product, device/samsung/matisse/full_matisse.mk)
+$(call inherit-product, device/samsung/matissewifi/full_matissewifi.mk)
 
 # Release name
-PRODUCT_RELEASE_NAME := SM-T53X
-PRODUCT_NAME := bliss_matisse
+PRODUCT_RELEASE_NAME := SM-T530
+PRODUCT_NAME := bliss_matissewifi
