@@ -1,0 +1,37 @@
+From 467ae99daf3a8104d256388b8ddb1f496f28dd74 Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sun, 1 Nov 2015 00:36:58 +0100
+Subject: [PATCH 02/18] build: Add option to disable block-based ota
+
+---
+ core/Makefile | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index 22dcee1..417f7c1 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -1550,6 +1550,11 @@ ifeq ($(TARGET_BUILD_TYPE),debug)
+ endif
+ name := $(name)-ota-$(FILE_NAME_TAG)
+ 
++ifneq ($(BLOCK_BASED_OTA),false)
++    $(INTERNAL_OTA_PACKAGE_TARGET): block_based := --block
++endif
++
++
+ INTERNAL_OTA_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
+ 
+ $(INTERNAL_OTA_PACKAGE_TARGET): KEY_CERT_PAIR := $(DEFAULT_KEY_CERT_PAIR)
+@@ -1558,7 +1563,7 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
+ 	@echo "Package OTA: $@"
+ 	$(hide) PATH=$(foreach p,$(INTERNAL_USERIMAGES_BINARY_PATHS),$(p):)$$PATH MKBOOTIMG=$(MKBOOTIMG) \
+ 	   ./build/tools/releasetools/ota_from_target_files -v \
+-	   --block \
++	   $(block_based) \
+ 	   -p $(HOST_OUT) \
+ 	   -k $(KEY_CERT_PAIR) \
+ 	   $(if $(OEM_OTA_CONFIG), -o $(OEM_OTA_CONFIG)) \
+-- 
+2.5.0
+

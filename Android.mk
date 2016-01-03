@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+ifeq ($(TARGET_DEVICE),matisse)
+    include $(all-subdir-makefiles)
+=======
 #
 # Copyright (C) 2012 The CyanogenMod Project
 #
@@ -22,8 +26,9 @@
 
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(TARGET_DEVICE),matisse)
+ifeq ($(TARGET_DEVICE),millet3g)
 
 include $(call all-makefiles-under,$(LOCAL_PATH))
 
+>>>>>>> refs/remotes/origin/android-6.0
 endif
