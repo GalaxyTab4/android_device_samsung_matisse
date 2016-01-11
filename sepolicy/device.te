@@ -1,2 +1,0 @@
-# Swap device
-type swap_block_device, dev_type;
