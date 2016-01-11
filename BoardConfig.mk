@@ -29,10 +29,11 @@ BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01E00000
-TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/matissewifi
-KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
-KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilt/$(HOST_OS)-x86/arm-linux-androideabi-4.9-linaro/bin/"
+TARGET_KERNEL_CONFIG := slim_matisse_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/mondrianwifi
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
+# KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-linux-androideabi-4.9-linaro/bin"
 
 # External apps on SD
 TARGET_EXTERNAL_APPS = sdcard1
