@@ -110,26 +110,6 @@ TARGET_RECOVERY_FSTAB := device/samsung/matissewifi/rootdir/etc/fstab.qcom
 include device/qcom/sepolicy/sepolicy.mk
 BOARD_SEPOLICY_DIRS += device/samsung/matissewifi/sepolicy
 
-BOARD_SEPOLICY_UNION += \
-  file_contexts \
-  file.te \
-  init.te \
-  init_shell.te \
-  keystore.te \
-  mediaserver.te \
-  mm-pp-daemon.te \
-  mm-qcamerad.te \
-  mpdecision.te \
-  rmt_storage.te \
-  system_app.te \
-  system_server.te \
-  tee.te \
-  thermal-engine.te \
-  time_daemon.te \
-  ueventd.te \
-  vold.te \
-  wcnss-service.te \
-
 # Wifi
 BOARD_HAS_QCOM_WLAN := true
 BOARD_HAVE_SAMSUNG_WIFI := true
