@@ -12,109 +12,135 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Inherit from msm8226-common
+# inherit from common msm8226
 -include device/samsung/msm8226-common/BoardConfigCommon.mk
 
-TARGET_OTA_ASSERT_DEVICE := matissewifiwifi,matissewifiwifiue
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/matissewifi/include
 
-DEVICE_PATH := device/samsung/matissewifi
+TARGET_OTA_ASSERT_DEVICE := matissewifi,matissewifiue,matissewifixx
 
-# Audio
-#AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
-#AUDIO_FEATURE_SAMSUNG_DUAL_SIM := true
-
-# Bluetooth
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(DEVICE_PATH)/bluetooth
-
-# Init
-TARGET_LIBINIT_DEFINES_FILE := $(DEVICE_PATH)/init/init_matisse.cpp
-TARGET_UNIFIED_DEVICE := true
+# Bootloader
+TARGET_BOOTLOADER_BOARD_NAME := MSM8226
 
 # Kernel
-# TARGET_KERNEL_ARCH := arm
-#KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arch/arm-linux-androideabi-4.9/bin
-#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
-TARGET_KERNEL_SOURCE := kernel/samsung/mondrianwifi
-TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
-#TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi3g_defconfig
-#TARGET_KERNEL_CONFIG := cyanogenmod_matissewifilte_defconfig
-BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.bootdevice=msm_sdcc.1
-BOARD_KERNEL_SEPARATED_DT := true
+BOARD_CUSTOM_BOOTIMG_MK := device/samsung/matissewifi/mkbootimg.mk
 BOARD_KERNEL_BASE := 0x00000000
-BOARD_KERNEL_PAGESIZE :=  2048
-BOARD_KERNEL_TAGS_OFFSET := 0x01E00000
-BOARD_RAMDISK_OFFSET     := 0x02000000
-BOARD_DTBTOOL_ARGS   := --force-v2
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
+BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm_rtb.filter=0x37 ehci-hcd.park=3
+BOARD_KERNEL_PAGESIZE := 2048
+BOARD_KERNEL_SEPARATED_DT := true
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01E00000
+TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/matissewifi
+KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilt/$(HOST_OS)-x86/arm-linux-androideabi-4.9-linaro/bin/"
+
+# External apps on SD
+TARGET_EXTERNAL_APPS = sdcard1
+
+# Audio
+BOARD_HAVE_NEW_QCOM_CSDCLIENT := true
+BOARD_HAVE_SAMSUNG_AUDIO := true
+BOARD_USES_FLUENCE_INCALL := true
+BOARD_USES_FLUENCE_FOR_VOIP := true
+BOARD_USES_SEPERATED_AUDIO_INPUT := true
+AUDIO_FEATURE_DISABLED_MULTI_VOICE_SESSIONS := true
+AUDIO_FEATURE_DISABLED_FM := true
+AUDIO_FEATURE_DISABLED_ANC_HEADSET := true
+
+# Bluetooth
+BLUETOOTH_HCI_USE_MCT := true
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/matissewifi/bluetooth
+BOARD_HAVE_BLUETOOTH_QCOM := true
+QCOM_BT_USE_SMD_TTY := true
+
+# Camera
+TARGET_PROVIDES_CAMERA_HAL := true
+USE_DEVICE_SPECIFIC_CAMERA := true
+
+# Charger
+BOARD_CHARGER_SHOW_PERCENTAGE := true
+
+# GPS
+TARGET_NO_RPC := true
+TARGET_GPS_HAL_PATH := device/samsung/matissewifi/gps
+TARGET_PROVIDES_GPS_LOC_API := true
+
+# Hardware
+BOARD_HARDWARE_CLASS += device/samsung/matissewifi/cmhw
+
+# Init
+TARGET_INIT_VENDOR_LIB := libinit_msm
+TARGET_LIBINIT_DEFINES_FILE := device/samsung/matissewifi/init/init_matissewifi.c
+TARGET_UNIFIED_DEVICE := true
+
+# Graphics
+TARGET_HAVE_NEW_GRALLOC := true
+BOARD_USES_LEGACY_MMAP := true
 
 # Lights
 TARGET_PROVIDES_LIBLIGHT := true
 
 # Partitions
+BOARD_BOOTIMAGE_PARTITION_SIZE := 10485760
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 13631488
+# Use a conservative size to make sure don't run out of space
+# US variant is: 2569011200
+# EU variant is: 2411724800
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2400000000
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 12661537792
 BOARD_FLASH_BLOCK_SIZE := 131072
-BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00A00000
-BOARD_CACHEIMAGE_PARTITION_SIZE := 721420288
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x02A7DEA0
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2097152000
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 12562627584
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 
-# Releasetools
-TARGET_RELEASETOOLS_EXTENSIONS := $(DEVICE_PATH)
-
-# Properties
-TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
+# PowerHAL
+TARGET_POWERHAL_VARIANT := qcom
+TARGET_POWERHAL_SET_INTERACTIVE_EXT := device/samsung/matissewifi/power/power_ext.c
 
 # Recovery
-TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/twrp.fstab
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-TARGET_RECOVERY_QCOM_RTC_FIX := true
-TARGET_RECOVERY_DEVICE_DIRS += $(DEVICE_PATH)
-BOARD_RECOVERY_SWIPE := false
-BOARD_HAS_LARGE_FILESYSTEM := true
-BOARD_SUPPRESS_SECURE_ERASE := true
-BOARD_HAS_NO_MISC_PARTITION := true
-RECOVERY_GRAPHICS_USE_LINELENGTH := true
-RECOVERY_SDCARD_ON_DATA := true
 COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
+BOARD_HAS_LARGE_FILESYSTEM := true
+BOARD_HAS_NO_MISC_PARTITION := true
+BOARD_HAS_NO_SELECT_BUTTON := true
+BOARD_RECOVERY_SWIPE := true
+BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_23x41.h\"
+BOARD_USES_MMCUTILS := true
+TARGET_RECOVERY_FSTAB := device/samsung/matissewifi/rootdir/etc/fstab.qcom
 
-# TWRP-Specific
-RECOVERY_VARIANT := twrp
-TW_THEME := landscape_mdpi
-DEVICE_RESOLUTION := 1280x800
-TW_HAS_DOWNLOAD_MODE := true
-TW_BRIGHTNESS_PATH := /sys/class/leds/lcd-backlight/brightness
-TW_INTERNAL_STORAGE_PATH := "/data/media"
-TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
-TW_EXTERNAL_STORAGE_PATH := "/external_sd"
-TW_EXTERNAL_STORAGE_MOUNT_POINT := "external_sd"
-TW_DEFAULT_EXTERNAL_STORAGE := true
-TW_NO_REBOOT_BOOTLOADER := true
-TW_IGNORE_MAJOR_AXIS_0 := true
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_L_CRYPTO := true
-TW_TARGET_USES_QCOM_BSP := true
-HAVE_SELINUX := true
+# SELinux
+include device/qcom/sepolicy/sepolicy.mk
+BOARD_SEPOLICY_DIRS += device/samsung/matissewifi/sepolicy
 
-# Block_Build
-# Bliss_Build_Block := 1
+BOARD_SEPOLICY_UNION += \
+  file_contexts \
+  file.te \
+  init.te \
+  init_shell.te \
+  keystore.te \
+  mediaserver.te \
+  mm-pp-daemon.te \
+  mm-qcamerad.te \
+  mpdecision.te \
+  rmt_storage.te \
+  system_app.te \
+  system_server.te \
+  tee.te \
+  thermal-engine.te \
+  time_daemon.te \
+  ueventd.te \
+  vold.te \
+  wcnss-service.te \
 
-# BlissPop Configs
-BLISS_BUILDTYPE := OFFICIAL
-BLISS_DEVELOPER := sub77
-BLISS_WIPE_CACHES := 0
-BLISSIFY := true
-BLISS_O3 := true
-BLISS_GRAPHITE := true
-BLISS_STRICT := true
-BLISS_KRAIT := true
-BLISS_PIPE := true
-TARGET_TC_ROM := 4.8
-TARGET_TC_KERNEL := 4.8
-TARGET_GCC_VERSION_EXP := $(TARGET_TC_ROM)
-TARGET_KERNEL_CUSTOM_TOOLCHAIN := $(TARGET_TC_KERNEL)
-WITH_LZMA_OTA := false
-
-#SaberMod
-# -include vendor/bliss/config/sm.mk
+# Wifi
+BOARD_HAS_QCOM_WLAN := true
+BOARD_HAVE_SAMSUNG_WIFI := true
+BOARD_WLAN_DEVICE := qcwcn
+BOARD_HOSTAPD_DRIVER := NL80211
+BOARD_HOSTAPD_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
+TARGET_USES_QCOM_WCNSS_QMI := true
+TARGET_USES_WCNSS_CTRL := true
+WPA_SUPPLICANT_VERSION := VER_0_8_X
+WIFI_BAND := 802_11_ABG
+WIFI_DRIVER_FW_PATH_STA   := "sta"
+WIFI_DRIVER_FW_PATH_AP    := "ap"

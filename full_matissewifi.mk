@@ -1,4 +1,4 @@
-# Copyright (C) 2014 The CyanogenMod Project
+# Copyright (C) 2011 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# This file is the build configuration for a full Android
+# build for matissewifi hardware. This cleanly combines a set of
+# device-specific aspects (drivers) with a device-agnostic
+# product configuration (apps). Except for a few implementation
+# details, it only fundamentally contains two inherit-product
+# lines, full and matissewifi, hence its name.
+#
+
+
 # Inherit from those products. Most specific first.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
+$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base.mk)
 
-# Inherit from matisse device
-$(call inherit-product, device/samsung/matissewifi/device.mk)
-
-# Device identifier. This must come after all inclusions
+# Set those variables here to overwrite the inherited values.
+PRODUCT_NAME := matissewifi
 PRODUCT_DEVICE := matissewifi
-PRODUCT_NAME := full_matissewifi
 PRODUCT_BRAND := samsung
-PRODUCT_MODEL := SM-T530
 PRODUCT_MANUFACTURER := samsung
+PRODUCT_MODEL := SM-T530
+
+$(call inherit-product, device/samsung/matissewifi/device.mk)
+$(call inherit-product-if-exists, vendor/samsung/matissewifi/matissewifi-vendor.mk)
