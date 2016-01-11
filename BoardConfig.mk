@@ -70,7 +70,7 @@ BOARD_HARDWARE_CLASS += device/samsung/matissewifi/cmhw
 
 # Init
 TARGET_INIT_VENDOR_LIB := libinit_msm
-TARGET_LIBINIT_DEFINES_FILE := device/samsung/matissewifi/init/init_matissewifi.c
+TARGET_LIBINIT_DEFINES_FILE := device/samsung/matissewifi/init/init_matissewifi.cpp
 TARGET_UNIFIED_DEVICE := true
 
 # Graphics
