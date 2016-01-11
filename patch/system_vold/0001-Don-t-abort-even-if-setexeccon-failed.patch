@@ -1,0 +1,46 @@
+From ca57bc6ef935d4991055959bc10eacf56e15e26d Mon Sep 17 00:00:00 2001
+From: sub77 <sub77@ymail.com>
+Date: Sat, 9 Jan 2016 15:57:40 +0100
+Subject: [PATCH] Don't abort even if setexeccon failed
+
+---
+ Utils.cpp | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Utils.cpp b/Utils.cpp
+index 655e6c5..3f8a605 100644
+--- a/Utils.cpp
++++ b/Utils.cpp
+@@ -270,12 +270,12 @@ status_t ForkExecvp(const std::vector<std::string>& args, security_context_t con
+ 
+     if (setexeccon(context)) {
+         LOG(ERROR) << "Failed to setexeccon";
+-        abort();
++//      abort();
+     }
+     status_t res = android_fork_execvp(argc, argv, NULL, false, true);
+     if (setexeccon(nullptr)) {
+         LOG(ERROR) << "Failed to setexeccon";
+-        abort();
++//      abort();
+     }
+ 
+     free(argv);
+@@ -302,12 +302,12 @@ status_t ForkExecvp(const std::vector<std::string>& args,
+ 
+     if (setexeccon(context)) {
+         LOG(ERROR) << "Failed to setexeccon";
+-        abort();
++//      abort();
+     }
+     FILE* fp = popen(cmd.c_str(), "r");
+     if (setexeccon(nullptr)) {
+         LOG(ERROR) << "Failed to setexeccon";
+-        abort();
++//      abort();
+     }
+ 
+     if (!fp) {
+-- 
+2.5.0
+
