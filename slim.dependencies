@@ -23,5 +23,10 @@
     "repository": "SlimRoms/hardware_samsung",
     "target_path": "hardware/samsung",
     "branch": "mm6.0"
+  },
+  {
+    "repository": "cyanogenmod/android_external_stlport",
+    "target_path": "external_stlport",
+    "branch": "cm-13.0"
   }
 ]
