@@ -31,6 +31,7 @@ BOARD_KERNEL_SEPARATED_DT := true
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01E00000
 TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
 TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
+TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
 
 # SlimToolchain
 #KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
