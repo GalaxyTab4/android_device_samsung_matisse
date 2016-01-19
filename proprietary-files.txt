@@ -6,7 +6,7 @@ bin/rfs_access
 #bin/prepare_param.sh
 
 # Thermal
-bin/thermald
+#bin/thermald
 bin/thermal-engine
 vendor/lib/libthermalclient.so
 
@@ -14,21 +14,21 @@ vendor/lib/libthermalclient.so
 bin/btnvtool
 bin/hci_qcomm_init
 etc/init.qcom.bt.sh
-lib/libbtnv.so
+#lib/libbtnv.so
 
 # GPS
 lib/libloc_api_v02.so
 vendor/lib/libgeofence.so
 vendor/lib/libizat_core.so
 vendor/lib/liblbs_core.so
-vendor/lib/liblocationservice.so
+#vendor/lib/liblocationservice.so
 
 # Audio
 vendor/lib/libacdbloader.so
 # Stock would be: vendor/lib/libacdbloader.so:lib/libacdbloader.so
-lib/libacdbloader.so
+#lib/libacdbloader.so
 vendor/lib/libaudcal.so
-vendor/lib/libcsd-client.so
+#vendor/lib/libcsd-client.so
 vendor/lib/libacdbrtac.so
 vendor/lib/libadiertac.so
 vendor/lib/soundfx/libqcbassboost.so
@@ -65,7 +65,7 @@ vendor/lib/egl/libGLESv1_CM_adreno.so
 vendor/lib/egl/libGLESv2_adreno.so
 vendor/lib/egl/libq3dtools_adreno.so
 vendor/lib/libadreno_utils.so
-vendor/lib/libbccQTI.so
+#vendor/lib/libbccQTI.so
 vendor/lib/libC2D2.so
 vendor/lib/libc2d30-a3xx.so
 vendor/lib/libCB.so
@@ -84,17 +84,17 @@ etc/firmware/a330_pm4.fw
 vendor/lib/libmm-color-convertor.so
 
 # Sensors
-lib/libinvensense_hal.so
-lib/libmllite.so
-lib/libmplmpu.so
-lib/hw/sensors.msm8974.so
+#lib/libinvensense_hal.so
+#lib/libmllite.so
+#lib/libmplmpu.so
+lib/hw/sensors.msm8226.so
 
 #  Radio
-bin/ds_fmc_appd
-bin/efsks
-bin/ks
+#bin/ds_fmc_appd
+#bin/efsks
+#bin/ks
 #vendor/bin/sec-ril
-bin/qcks
+#bin/qcks
 bin/qmuxd
 bin/rild
 bin/rmt_storage
@@ -102,7 +102,7 @@ lib/libatparser.so
 lib/libcordon.so
 vendor/lib/libdiag.so
 # Stock would be: vendor/lib/libdsutils.so:lib/libdsutils.so
-lib/libdsutils.so
+#lib/libdsutils.so
 lib/libfactoryutil.so
 vendor/lib/libidl.so
 lib/libomission_avoidance.so
@@ -126,74 +126,31 @@ bin/time_daemon
 bin/mm-qcamera-daemon
 cameradata/datapattern_420sp.yuv
 cameradata/datapattern_front_420sp.yuv
-etc/imx134_module_info.xml
-etc/imx135_module_info.xml
-# Stock would be: lib/hw/camera.msm8974.so:lib/hw/camera.vendor.msm8974.so
-lib/hw/camera.vendor.msm8974.so
+#etc/imx134_module_info.xml
+#etc/imx135_module_info.xml
+# Stock would be: lib/hw/camera.msm8226.so:lib/hw/camera.vendor.msm8226.so
+lib/hw/camera.msm8226.so:lib/hw/camera.vendor.msm8226.so
+#lib/hw/camera.vendor.msm8226.so
 lib/libTsAe.so
 lib/libTsAf.so
 lib/libTs_J_Accm.so
 lib/libTs_J_Awb.so
 lib/libmmcamera_interface.so
 lib/libqomx_core.so
-lib/libqomx_jpegenc.so
-lib/libliveframework.so
-lib/libarcsoft_nighthawk.so
-lib/libchromatix_imx134_common.so
-lib/libchromatix_imx134_common_720p_b.so
-lib/libchromatix_imx134_common_720p_s.so
-lib/libchromatix_imx134_common_res0.so
-lib/libchromatix_imx134_common_res1.so
-lib/libchromatix_imx134_common_res2.so
-lib/libchromatix_imx134_common_res3.so
-lib/libchromatix_imx134_default_video.so
-lib/libchromatix_imx134_golfshot.so
-lib/libchromatix_imx134_hfr_120.so
-lib/libchromatix_imx134_hfr_60.so
-lib/libchromatix_imx134_hfr_720p_b.so
-lib/libchromatix_imx134_hfr_720p_s.so
-lib/libchromatix_imx134_liveshot.so
-lib/libchromatix_imx134_pip.so
-lib/libchromatix_imx134_preview.so
-lib/libchromatix_imx134_snapshot.so
-lib/libchromatix_imx134_zslshot.so
-lib/libchromatix_imx135_common.so
-lib/libchromatix_imx135_common_1080p_b.so
-lib/libchromatix_imx135_common_1080p_s.so
-lib/libchromatix_imx135_common_res0.so
-lib/libchromatix_imx135_common_res1.so
-lib/libchromatix_imx135_common_res2.so
-lib/libchromatix_imx135_common_res3.so
-lib/libchromatix_imx135_default_video.so
-lib/libchromatix_imx135_golfshot.so
-lib/libchromatix_imx135_hfr_1080p_b.so
-lib/libchromatix_imx135_hfr_1080p_s.so
-lib/libchromatix_imx135_hfr_120.so
-lib/libchromatix_imx135_liveshot.so
-lib/libchromatix_imx135_pip.so
-lib/libchromatix_imx135_preview.so
-lib/libchromatix_imx135_snapshot.so
-lib/libchromatix_imx135_uhd_video.so
-lib/libchromatix_imx135_zslshot.so
-lib/libchromatix_s5k6b2yx_common.so
-lib/libchromatix_s5k6b2yx_default_video.so
-lib/libchromatix_s5k6b2yx_pip.so
-lib/libchromatix_s5k6b2yx_preview.so
-lib/libchromatix_s5k6b2yx_smart_stay.so
-lib/libchromatix_s5k6b2yx_vt.so
-lib/libchromatix_s5k6b2yx_vt_hd.so
-lib/libchromatix_s5k6b2yx_zslshot.so
+#lib/libqomx_jpegenc.so
+#lib/libliveframework.so
+#lib/libarcsoft_nighthawk.so
 lib/libmmcamera2_stats_algorithm.so
 lib/libmmcamera_cac2_lib.so
 lib/libmmcamera_fidelix_eeprom.so
-lib/libmmqjpeg_codec.so
-lib/libmmjpeg.so
+#lib/libmmqjpeg_codec.so
+#lib/libmmjpeg.so
 lib/libmmjpeg_interface.so
-lib/libmmcamera_s5k6b2yx.so
+#lib/libmmcamera_s5k6b2yx.so
 lib/libsecnativefeature.so
-lib/libvdis.so
+#lib/libvdis.so
 vendor/lib/libthermalclient.so
-vendor/lib/libmmcamera_imx134.so
+#vendor/lib/libmmcamera_imx134.so
 vendor/lib/libmmcamera_imx135.so
 vendor/lib/libmmcamera_faceproc.so
 vendor/lib/libsensor1.so
@@ -212,35 +169,30 @@ vendor/lib/libmmcamera2_vpe_module.so
 vendor/lib/libadsprpc.so
 vendor/lib/libactuator_ak7345_camcorder.so
 vendor/lib/libactuator_ak7345_camera.so
-vendor/lib/libactuator_dw9714_camcorder.so
-vendor/lib/libactuator_dw9714_camera.so
-vendor/lib/libactuator_dw9716_camcorder.so
-vendor/lib/libactuator_dw9716_camera.so
-vendor/lib/libactuator_wv560_camcorder.so
-vendor/lib/libactuator_wv560_camera.so
-vendor/lib/libchromatix_imx134_vt.so
-vendor/lib/libchromatix_imx134_vt_hd.so
-vendor/lib/libchromatix_imx135_vt.so
-vendor/lib/libchromatix_imx135_vt_hd.so
+#vendor/lib/libactuator_dw9714_camcorder.so
+#vendor/lib/libchromatix_imx134_vt.so
+#vendor/lib/libchromatix_imx134_vt_hd.so
+#vendor/lib/libchromatix_imx135_vt.so
+#vendor/lib/libchromatix_imx135_vt_hd.so
 vendor/lib/liboemcamera.so
 
 # Perf
-vendor/lib/libqc-opt.so
+#vendor/lib/libqc-opt.so
 
 # DRM
 bin/qseecomd
 framework/com.google.widevine.software.drm.jar
 lib/libdrmdecrypt.so
-vendor/lib/drm/libdrmwvmplugin.so
+#vendor/lib/drm/libdrmwvmplugin.so
 vendor/lib/libdrmdiag.so
 vendor/lib/libdrmfs.so
 vendor/lib/libdrmtime.so
 vendor/lib/libQSEEComAPI.so
 vendor/lib/librpmb.so
 vendor/lib/libssd.so
-vendor/lib/libwvdrm_L3.so
-vendor/lib/libwvm.so
-vendor/lib/libWVStreamControlAPI_L3.so
+vendor/lib/libwvdrm_L1.so
+#vendor/lib/libwvm.so
+vendor/lib/libWVStreamControlAPI_L1.so
 vendor/lib/mediadrm/libwvdrmengine.so
 
 # IPC router security

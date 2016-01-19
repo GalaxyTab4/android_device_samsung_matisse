@@ -29,11 +29,23 @@ BOARD_KERNEL_CMDLINE := console=null androidboot.hardware=qcom user_debug=31 msm
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x01E00000
-TARGET_KERNEL_CONFIG := slim_matisse_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/mondrianwifi
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
-# KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
-KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-linux-androideabi-4.9-linaro/bin"
+TARGET_KERNEL_CONFIG := cyanogenmod_matissewifi_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/s3ve3g
+
+# SlimToolchain
+#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+#KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilt/$(HOST_OS)-x86/toolchain/linaro-4.9-14.06/bin/"
+
+#TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
+#KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+#KERNEL_TOOLCHAIN := /mnt/sdc1/home/sub77/android/slim/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/
+
+# BlissToolchain
+# TARGET_KERNEL_CROSS_COMPILE_PREFIX := arm-linux-androideabi-
+## KERNEL_TOOLCHAIN_PREFIX := arm-linux-androideabi-
+#KERNEL_TOOLCHAIN := "$(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-linux-androideabi-4.9-linaro/bin"
+
+
 
 # External apps on SD
 TARGET_EXTERNAL_APPS = sdcard1
@@ -109,8 +121,8 @@ TARGET_RECOVERY_FSTAB := device/samsung/matissewifi/rootdir/etc/fstab.qcom
 
 # SELinux
 include device/qcom/sepolicy/sepolicy.mk
-BOARD_SEPOLICY_DIRS += device/samsung/matissewifi/sepolicy
-
+BOARD_SEPOLICY_DIRS += device/samsung/mondrianwifi/sepolicy
+  
 # Wifi
 BOARD_HAS_QCOM_WLAN := true
 BOARD_HAVE_SAMSUNG_WIFI := true

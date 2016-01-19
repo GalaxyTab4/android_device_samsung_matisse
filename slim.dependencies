@@ -1,0 +1,27 @@
+[
+  {
+    "repository": "GalaxyTab4/android_device_samsung_qcom-common",
+    "target_path": "device/samsung/qcom-common",
+    "branch": "mm6.0"
+  },
+  {
+    "repository": "GalaxyTab4/android_device_samsung_msm8226-common",
+    "target_path": "device/samsung/msm8226-common",
+    "branch": "mm6.0"
+  },
+  {
+    "repository": "GalaxyTab4/android_kernel_samsung_matissewifi",
+    "target_path": "kernel/samsung/matissewifi",
+    "branch": "mm6.0"
+  },
+  {
+    "repository": "SlimRoms/device_qcom_common",
+    "target_path": "device/qcom/common",
+    "branch": "mm6.0"
+  },
+  {
+    "repository": "SlimRoms/hardware_samsung",
+    "target_path": "hardware/samsung",
+    "branch": "mm6.0"
+  }
+]
