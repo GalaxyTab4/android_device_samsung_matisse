@@ -1,0 +1,1565 @@
+assert(getprop("ro.product.device") == "millet" || getprop("ro.build.product") == "millet" || 
+       getprop("ro.product.device") == "milletwifi" || getprop("ro.build.product") == "milletwifi" || 
+       getprop("ro.product.device") == "millet3g" || getprop("ro.build.product") == "millet3g" || 
+       getprop("ro.product.device") == "milletlte" || getprop("ro.build.product") == "milletlte" || 
+       getprop("ro.product.device") == "milletwifiue" || getprop("ro.build.product") == "milletwifiue");
+
+ui_print("Installing MultiROM for millet milletwifi millet3g milletlte milletwifiue");
+
+# Assert check for appropriate device is added during build,
+# see ../make_updater_script.sh and ../Android.mk
+
+show_progress(1.00000, 10);
+
+ui_print("Extracting binaries...");
+run_program("/sbin/busybox", "mount", "/data");
+
+delete_recursive("/tmp/multirom");
+run_program("/sbin/busybox", "mkdir", "/tmp/multirom");
+package_extract_dir("multirom", "/tmp/multirom/");
+package_extract_dir("scripts", "/tmp/");
+
+set_perm(0, 0, 0777, "/tmp/multirom/busybox");
+set_perm(0, 0, 0777, "/tmp/bbootimg");
+set_perm(0, 0, 0777, "/tmp/extract_multirom.sh");
+set_perm(0, 0, 0777, "/tmp/inject_boot.sh");
+
+assert(run_program("/tmp/extract_multirom.sh") == 0);
+ui_print("Injecting boot image...");
+assert(run_program("/tmp/inject_boot.sh") == 0);
+
+ui_print("Cleaning up...");
+delete_recursive("/tmp/boot");
+delete_recursive("/tmp/multirom");
+delete("/tmp/bbootimg");
+delete("/tmp/bootimg.cfg");
+delete("/tmp/initrd.img");
+delete("/tmp/zImage");
+delete("/tmp/boot.img");
+delete("/tmp/dtb.img");
+delete("/tmp/second.img");
+delete("/tmp/newboot.img");
+delete("/tmp/extract_multirom.sh");
+delete("/tmp/inject_boot.sh");
+delete("/tmp/bootdev");
+delete("/tmp/rd_addr");
+delete("/tmp/use_mrom_fstab");
+
+ui_print("Installation complete!");
+
+    if (strstr(bootloader, "T330")) {
+ +      property_set("ro.build.fingerprint", "samsung/milletwifixx/milletwifi:5.0.2/LRX22G/T330XXU1BOD8:user/release-keys");
+ +      property_set("ro.build.description", "milletwifixx-user 5.0.2 LRX22G T330XXU1BOD8 release-keys");
+ +      property_set("ro.product.model", "SM-T330");
+ +      property_set("ro.product.device", "milletwifi");
+ +      property_set("ro.carrier", "wifi-only");
+ +      property_set("ro.radio.noril", "1");
+ +    } else if (strstr(bootloader, "T331")) {
+ +      property_set("ro.build.fingerprint", "samsung/millet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys");
+ +      property_set("ro.build.description", "millet3gxx-user 5.0.2 LRX22G T331XXU1BOD8 release-keys");
+ +      property_set("ro.product.model", "SM-T331");
+ +      property_set("ro.product.device", "millet3g");
+ +    } else if (strstr(bootloader, "T335")) {
+ +      property_set("ro.build.fingerprint", "samsung/milletltexx/milletlte:5.0.2/LRX22G/T335XXU1BOD8:user/release-keys");
+ +      property_set("ro.build.description", "milletltexx-user 5.0.2 LRX22G T335XXU1BOD8 release-keys");
+ +      property_set("ro.product.model", "SM-T335");
+ +      property_set("ro.product.device", "milletlte");
+      }
+  
+      property_get("ro.product.device", device);
+View BIN  kernel
+Skip to content
+This repository  
+Search
+Pull requests
+Issues
+Gist
+ @morisbartyno
+ Unwatch 1
+  Star 0
+  Fork 22 morisbartyno/Refactorator
+forked from johnno1962/Refactorator
+ Code  Pull requests 0  Wiki  Pulse  Graphs  Settings
+Branch: master Find file Copy pathRefactorator/refactord/Refactorator.swift
+ee8f1d4  23 days ago
+@johnno1962 johnno1962 Back to original name.
+1 contributor
+RawBlameHistory    323 lines (252 sloc)  12.3 KB
+//
+//  Refactorator.swift
+//  refactord
+//
+//  Created by John Holdsworth on 19/12/2015.
+//  Copyright © 2015 John Holdsworth. All rights reserved.
+//
+//  $Id: //depot/Refactorator/refactord/Refactorator.swift#23 $
+//
+//  Repo: https://github.com/johnno1962/Refactorator
+//
+
+import Foundation
+
+/** request types */
+private let requestID = sourcekitd_uid_get_from_cstr("key.request")
+private let cursorRequestID = sourcekitd_uid_get_from_cstr("source.request.cursorinfo")
+private let indexRequestID = sourcekitd_uid_get_from_cstr("source.request.indexsource")
+
+/** request arguments */
+private let offsetID = sourcekitd_uid_get_from_cstr("key.offset")
+private let sourceFileID = sourcekitd_uid_get_from_cstr("key.sourcefile")
+private let compilerArgsID = sourcekitd_uid_get_from_cstr("key.compilerargs")
+
+/** sub entity lists */
+private let depedenciesID = sourcekitd_uid_get_from_cstr("key.dependencies")
+private let overridesID = sourcekitd_uid_get_from_cstr("key.overrides")
+private let entitiesID = sourcekitd_uid_get_from_cstr("key.entities")
+
+/** entity attributes */
+private let isSystemID = sourcekitd_uid_get_from_cstr("key.is_system")
+private let moduleID = sourcekitd_uid_get_from_cstr("key.modulename")
+private let kindID = sourcekitd_uid_get_from_cstr("key.kind")
+private let nameID = sourcekitd_uid_get_from_cstr("key.name")
+private let lineID = sourcekitd_uid_get_from_cstr("key.line")
+private let colID = sourcekitd_uid_get_from_cstr("key.column")
+private let usrID = sourcekitd_uid_get_from_cstr("key.usr")
+
+/** kinds */
+private let clangID = sourcekitd_uid_get_from_cstr("source.lang.swift.import.module.clang")
+
+/** prepare compiler arguments for sourcekit */
+private func args( argv: [String] ) -> sourcekitd_object_t {
+    let objects = argv.map { sourcekitd_request_string_create( $0 ) }
+    return sourcekitd_request_array_create( objects, argv.count )
+}
+
+private let isTTY = isatty( STDERR_FILENO ) != 0
+
+/** occurrence of a matching "Unified Symbol Resolution" */
+private struct Entity {
+
+    let file: String
+    let line: Int32
+    let col: Int32
+
+    /** char based regex to find line, column and text in source */
+    func regex( text: String ) -> ByteRegex {
+        var pattern = "^"
+        var line = self.line
+        while line > 100 {
+            pattern += "(?:[^\n]*\n){100}"
+            line -= 100
+        }
+        pattern += "(?:[^\n]*\n){\(line-1)}(.{\(col-1)}[^\n]*?)(\(text))([^\n]*)"
+        return ByteRegex( pattern: pattern )
+    }
+
+    /** text logged to refactoring console */
+    func patchText( contents: NSData, value: String ) -> String? {
+        if let matches = regex( value ).match( contents ) {
+            let out = NSMutableData()
+            out.appendData( contents.subdataWithRange( matches[1].range ) )
+            out.appendString( "<b>" )
+            out.appendData( contents.subdataWithRange( matches[2].range ) )
+            out.appendString( "</b>" )
+            out.appendData( contents.subdataWithRange( matches[3].range ) )
+            return String.fromData( out )
+        }
+        return "MATCH FAILED line:\(line) column:\(col)"
+    }
+}
+
+var xcode: RefactoratorResponse!
+
+@objc public class Refactorator: NSObject, RefactoratorRequest {
+
+    private var usrToPatch: String!
+    private var overrideUSR: String?
+    private var modules = Set<String>()
+
+    private var patches = [Entity]()
+    private var patched = [String:NSMutableData]()
+
+    public func refactorFile( filePath: String, byteOffset: Int32, oldValue: String, logDir: String, plugin: RefactoratorResponse ) -> Int32 {
+        NSLog( "refactord -- refactorFile: \(filePath) \(byteOffset) \(logDir)")
+        xcode = plugin
+
+        /** find command line arguments for file from build logs */
+        let xcodeBuildLogs = LogParser( logDir: logDir )
+        guard let argv = xcodeBuildLogs.compilerArgumentsMatching( { line in
+                line.containsString( " -primary-file \(filePath) " ) ||
+                line.containsString( " -primary-file \"\(filePath)\" " ) } ) else {
+            xcode.error( "Could not find compiler arguments in \(logDir). Have you built the project?" )
+            return -1
+        }
+
+        sourcekitd_initialize()
+        patches.removeAll()
+
+        /** prepare request to find entity at current selection */
+        let req = sourcekitd_request_dictionary_create( nil, nil, 0 )
+
+        sourcekitd_request_dictionary_set_uid( req, requestID, cursorRequestID )
+        sourcekitd_request_dictionary_set_string( req, sourceFileID, filePath )
+        sourcekitd_request_dictionary_set_int64( req, offsetID, Int64(byteOffset) )
+        sourcekitd_request_dictionary_set_value( req, compilerArgsID, args( argv ) )
+
+        if isTTY {
+            sourcekitd_request_description_dump( req )
+        }
+
+        let resp = sourcekitd_send_request_sync( req )
+        if sourcekitd_response_is_error( resp ) {
+            xcode.error( "Cursor fetch error: \(String.fromCString( sourcekitd_response_error_get_description( resp ) )!)" )
+            exit(1)
+        }
+
+        if isTTY {
+            sourcekitd_response_description_dump_filedesc( resp, STDERR_FILENO )
+        }
+
+        let dict = sourcekitd_response_get_value( resp )
+        var usr = sourcekitd_variant_dictionary_get_string( dict, usrID )
+        if usr == nil {
+            xcode.error( "Unable to locate public or internal symbol associated with selection. " )
+            return -1
+        }
+
+        let overrides = sourcekitd_variant_dictionary_get_value( dict, overridesID )
+        sourcekitd_variant_array_apply( overrides ) { (_,dict) in
+            self.overrideUSR = String.fromCString( usr )
+            usr = sourcekitd_variant_dictionary_get_string( dict, usrID )
+            return false
+        }
+
+        usrToPatch = String.fromCString( usr )
+        xcode.foundUSR( usrToPatch )
+
+        /** index all sources included in selection's module */
+        processModuleSources( argv, oldValue: oldValue )
+
+        /** if entity is in a framework, index each source of that module as well */
+        let module = sourcekitd_variant_dictionary_get_string( dict, moduleID )
+        if module != nil {
+            modules.insert( String.fromCString( module )! )
+        }
+
+        for module in modules {
+            xcode.log( "<br><b>Framework '\(module)':</b><br>" )
+
+            if let argv = xcodeBuildLogs.compilerArgumentsMatching( { line in
+                line.containsString( " -module-name \(module) " ) && line.containsString( " -primary-file " ) } ) {
+                    processModuleSources( argv, oldValue: oldValue )
+            }
+        }
+
+        return Int32(patches.count)
+    }
+
+    private func processModuleSources( argv: [String], oldValue: String ) {
+
+        let compilerArgs = args( argv )
+
+        for file in argv.filter( { $0.hasSuffix( ".swift" ) } ) {
+            let req = sourcekitd_request_dictionary_create( nil, nil, 0 
+            sourcekitd_request_dictionary_set_uid( req, requestID, indexRequestID )
+            sourcekitd_request_dictionary_set_string( req, sourceFileID, file )
+            sourcekitd_request_dictionary_set_value( req, compilerArgsID, compilerArgs )
+
+            if isTTY {
+                sourcekitd_request_description_dump( req )
+            }
+            
+            let resp = sourcekitd_send_request_sync( req )
+            if sourcekitd_response_is_error( resp ) {
+                let error = String.fromCString( sourcekitd_response_error_get_description( resp ) )!
+                xcode.error( "Source index error for \(file): \(error)" )
+                sourcekitd_initialize()
+                continue
+            }
+
+            if isTTY {
+                sourcekitd_response_description_dump_filedesc( resp, STDERR_FILENO )
+            }
+
+            let dict = sourcekitd_response_get_value( resp )
+            if overrideUSR != nil  {
+                /** ideally override would give us the module */
+                traceDependencies( dict )
+            }
+            traceEntities( dict, oldValue: oldValue, file: file, contents: NSMutableData( contentsOfFile: file ) )
+        }
+    }
+
+    private func traceDependencies( resp: sourcekitd_variant_t ) {
+
+        let dependencies = sourcekitd_variant_dictionary_get_value( resp, depedenciesID )
+
+        sourcekitd_variant_array_apply( dependencies ) { (_,dict) in
+
+            if sourcekitd_variant_dictionary_get_uid( dict, kindID ) == clangID &&
+                    !sourcekitd_variant_dictionary_get_bool( dict, isSystemID ) {
+                self.modules.insert( String.fromCString( sourcekitd_variant_dictionary_get_string( dict, nameID ) )! )
+            }
+
+            self.traceDependencies( dict )
+            return true
+        }
+    }
+
+    private func traceEntities( resp: sourcekitd_variant_t, oldValue: String, file: String, contents: NSMutableData? ) {
+
+        let entities = sourcekitd_variant_dictionary_get_value( resp, entitiesID )
+
+        sourcekitd_variant_array_apply( entities ) { (_,dict) in
+
+            let entityUSR = String.fromCString( sourcekitd_variant_dictionary_get_string( dict, usrID ) )
+
+            /** if entity == current selection's entity, log and store for patching later */
+            if entityUSR == self.usrToPatch || entityUSR == self.overrideUSR {
+
+                let entity = Entity( file: file,
+                    line: Int32(sourcekitd_variant_dictionary_get_int64( dict, lineID )),
+                    col: Int32(sourcekitd_variant_dictionary_get_int64( dict, colID )) )
+
+                if isTTY {
+                    let kind = sourcekitd_variant_dictionary_get_uid( dict, kindID )
+                    print( "\(String.fromCString( sourcekitd_uid_get_string_ptr( kind) )!) " +
+                        "\(String.fromCString( sourcekitd_variant_dictionary_get_string( dict, nameID) )!) " +
+                        "\(entityUSR!) \(entity.line) \(entity.col)" )
+                }
+
+                if let contents = contents, patch = entity.patchText( contents, value: oldValue ) {
+                    xcode.willPatchFile( file, line:entity.line, col: entity.col, text: patch )
+                    self.patches.append( entity )
+                }
+           }
+
+            self.traceEntities( dict, oldValue: oldValue, file: file, contents: contents )
+            return true
+        }
+    }
+
+    public func refactorFrom( oldValue: String, to newValue: String ) -> Int32 {
+        NSLog( "refactorFrom( \(oldValue) to: \(newValue) )")
+        patched.removeAll()
+
+        typealias Closure = () -> ()
+        var blocks = [Closure]()
+
+        /** patches performed in reverse in case offsets changed */
+        for entity in patches.reverse() {
+            if patched[entity.file] == nil {
+                patched[entity.file] = NSMutableData( contentsOfFile: entity.file )!
+            }
+
+            if let contents = patched[entity.file], matches = entity.regex( oldValue ).match( contents ) {
+
+                /** apply patch, substituting newValue for entity reference */
+                let out = NSMutableData()
+                out.appendData( contents.subdataWithRange( NSMakeRange( 0, Int(matches[2].rm_so) ) ) )
+                out.appendString( newValue )
+                out.appendData( contents.subdataWithRange( NSMakeRange( Int(matches[2].rm_eo),
+                                                        contents.length-Int(matches[2].rm_eo) ) ) )
+
+                /** log and update in-memory version of source file */
+                if let patch = entity.patchText( out, value: newValue ) {
+                    blocks.append( { xcode.willPatchFile( entity.file, line:entity.line, col: entity.col, text: patch ) } )
+                    patched[entity.file] = out
+                }
+            }
+        }
+
+        for block in blocks.reverse() {
+            block()
+        }
+
+        return Int32(patches.count)
+    }
+
+    public func confirmRefactor() -> Int32 {
+        for (file,data) in patched {
+            if !data.writeToFile( file, atomically: true ) {
+                xcode.error( "Could not save to file: \(file)" )
+            }
+        }
+        patched.removeAll()
+        return Int32(patched.count)
+    }
+
+}
+
+extension String  {
+
+    static func fromData( data: NSData ) -> String? {
+        return NSString( data: data, encoding: NSUTF8StringEncoding ) as? String
+    }
+
+}
+
+extension NSMutableData {
+
+    func appendString( str: String ) -> NSMutableData {
+        str.withCString { bytes in
+            appendBytes( bytes, length: Int(strlen(bytes)) )
+        }
+        return self
+    }
+
+}
+
+
+sampling         5000
+
+[CPU0-1_MONITOR]
+algo_type        monitor
+sensor           cpu0-1
+sampling         1000
+thresholds       120000
+thresholds_clr   115000
+actions          shutdown
+action_info      5000
+
+[CPU2-3_MONITOR]
+algo_type        monitor
+sensor           cpu2-3
+sampling         1000
+thresholds       120000
+thresholds_clr   115000
+actions          shutdown
+action_info      5000
+
+Skip to content
+This repository  
+Search
+Pull requests
+Issues
+Gist
+ @morisbartyno
+ Unwatch 1
+  Unstar 1
+  Fork 4 morisbartyno/bliss_device_samsung_millet-common
+forked from GalaxyTab4/android_device_samsung_millet-common
+ Code  Issues 0  Pull requests 0  Wiki  Pulse  Graphs  Settings
+Browse files
+inital update
+ millet
+1 parent 9663254 commit 07f3121f2453a2f5e09e20bb1adeccb30b964be5 @sub77 sub77 committed on 1 Aug 2015
+Unified Split
+Showing  13 changed files  with 24 additions and 914 deletions.
+View 2  Android.mk
+@@ -1,20 +1,20 @@
+ # Copyright (C) 2014 The CyanogenMod Project		 # Copyright (C) 2014 The CyanogenMod Project
+ #		 #
+ # Licensed under the Apache License, Version 2.0 (the "License");		 # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.		 # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at		 # You may obtain a copy of the License at
+ #		 #
+ #      http://www.apache.org/licenses/LICENSE-2.0		 #      http://www.apache.org/licenses/LICENSE-2.0
+ #		 #
+ # Unless required by applicable law or agreed to in writing, software		 # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,		 # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and		 # See the License for the specific language governing permissions and
+ # limitations under the License.		 # limitations under the License.
+  		  
+  LOCAL_PATH := $(call my-dir)		  LOCAL_PATH := $(call my-dir)
+  		  
+ -ifeq ($(TARGET_DEVICE),milletwifi)		 +ifneq ($(filter milletwifi milletlte millet3g,$(TARGET_DEVICE)),)
+  		  
+  include $(call all-makefiles-under,$(LOCAL_PATH))		  include $(call all-makefiles-under,$(LOCAL_PATH))
+  		  
+ endif		 endif
+View 14  BoardConfigCommon.mk
+@@ -1,28 +1,25 @@
+ # Copyright (C) 2014 The CyanogenMod Project		 # Copyright (C) 2014 The CyanogenMod Project
+ #		 #
+ # Licensed under the Apache License, Version 2.0 (the "License");		 # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.		 # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at		 # You may obtain a copy of the License at
+ #		 #
+ #      http://www.apache.org/licenses/LICENSE-2.0		 #      http://www.apache.org/licenses/LICENSE-2.0
+ #		 #
+ # Unless required by applicable law or agreed to in writing, software		 # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,		 # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and		 # See the License for the specific language governing permissions and
+ # limitations under the License.		 # limitations under the License.
+ 		 
+ # Inherit from msm8226-common		 # Inherit from msm8226-common
+ -include device/samsung/msm8226-common/BoardConfigCommon.mk		 -include device/samsung/msm8226-common/BoardConfigCommon.mk
+ 		 
+  # Bluetooth		  # Bluetooth
+  BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/millet-common/bluetooth		  BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/millet-common/bluetooth
+  		  
+ -TARGET_BOARD_INFO_FILE := device/samsung/millet-common/board-info.txt		
+ -		
+  # Init		  # Init
+ -TARGET_INIT_VENDOR_LIB := libinit_msm		 +TARGET_LIBINIT_DEFINES_FILE := device/samsung/millet-common/init/init_millet.c
+ -TARGET_LIBINIT_DEFINES_FILE := device/samsung/millet-common/init/init_matisse.c		
+  TARGET_UNIFIED_DEVICE := true		  TARGET_UNIFIED_DEVICE := true
+  		  
+  # Kernel		  # Kernel
+ BOARD_KERNEL_BASE := 0x00000000		 BOARD_KERNEL_BASE := 0x00000000
+ BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.bootdevice=msm_sdcc.1		 BOARD_KERNEL_CMDLINE := console=null androidboot.console=null androidboot.hardware=qcom user_debug=23 msm_rtb.filter=0x37 androidboot.bootdevice=msm_sdcc.1
+ BOARD_KERNEL_PAGESIZE := 2048		 BOARD_KERNEL_PAGESIZE := 2048
+  BOARD_KERNEL_SEPARATED_DT := true		  BOARD_KERNEL_SEPARATED_DT := true
+  BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000		  BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x02000000 --tags_offset 0x1e00000
+  TARGET_KERNEL_SOURCE := kernel/samsung/matisse		  TARGET_KERNEL_SOURCE := kernel/samsung/matisse
+ -TARGET_KERNEL_CONFIG := msm8226-unsec_defconfig		 +TARGET_KERNEL_CONFIG := msm8226-sec_defconfig
+  TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig		  TARGET_KERNEL_SELINUX_CONFIG := selinux_defconfig
+  		  
+  # Lights		  # Lights
+ TARGET_PROVIDES_LIBLIGHT := true		 TARGET_PROVIDES_LIBLIGHT := true
+ 		 
+ # Partitions		 # Partitions
+ BOARD_FLASH_BLOCK_SIZE := 131072		 BOARD_FLASH_BLOCK_SIZE := 131072
+ BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00A00000		 BOARD_BOOTIMAGE_PARTITION_SIZE := 0x00A00000
+ BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x10A7DEA0		 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x10A7DEA0
+ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2097152000		 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2097152000
+ BOARD_USERDATAIMAGE_PARTITION_SIZE := 12562627584		 BOARD_USERDATAIMAGE_PARTITION_SIZE := 12562627584
+ TARGET_USERIMAGES_USE_EXT4 := true		 TARGET_USERIMAGES_USE_EXT4 := true
+ 		 
+ # Recovery		 # Recovery
+  TARGET_RECOVERY_FSTAB := device/samsung/millet-common/rootdir/fstab.qcom		  TARGET_RECOVERY_FSTAB := device/samsung/millet-common/rootdir/fstab.qcom
+  		  
+  # Block_Build		  # Block_Build
+ -Bliss_Build_Block := 0		 +Bliss_Build_Block := 1
+  		  
+  # BlissPop Configs		  # BlissPop Configs
+  BLISS_WIPE_CACHES := 0		  BLISS_WIPE_CACHES := 0
+  BLISSIFY := true		  BLISSIFY := true
+  BLISS_O3 := true		  BLISS_O3 := true
+  BLISS_GRAPHITE := true		  BLISS_GRAPHITE := true
+ +BLISS_STRICT := true
+ +BLISS_KRAIT := true
+  BLISS_PIPE := true		  BLISS_PIPE := true
+  TARGET_TC_ROM := 4.9-sm		  TARGET_TC_ROM := 4.9-sm
+  TARGET_TC_KERNEL := 4.9-sm		  TARGET_TC_KERNEL := 4.9-sm
+ TARGET_GCC_VERSION_EXP := $(TARGET_TC_ROM)		 TARGET_GCC_VERSION_EXP := $(TARGET_TC_ROM)
+  TARGET_KERNEL_CUSTOM_TOOLCHAIN := $(TARGET_TC_KERNEL)		  TARGET_KERNEL_CUSTOM_TOOLCHAIN := $(TARGET_TC_KERNEL)
+  WITH_LZMA_OTA := true		  WITH_LZMA_OTA := true
+  		  
+ +# LOCAL_DISABLE_GRAPHITE := libncurses
+ +
+ +
+  #SaberMod		  #SaberMod
+  -include vendor/bliss/config/sm.mk		  -include vendor/bliss/config/sm.mk
+ View 2  README.md
+@@ -1,4 +1,4 @@
+ -Device Tree For Samsung Galaxy Tab 4 10.1		 +Device Tree For Samsung Galaxy Tab 4 8
+  =========================================		  =========================================
+  		  
+  | Basic   | Spec Sheet                  |		  | Basic   | Spec Sheet                  |
+ | -------:|:--------------------------- |		 | -------:|:--------------------------- |
+ | CPU     | Quad-core 1.2 GHz Cortex-A7 |		 | CPU     | Quad-core 1.2 GHz Cortex-A7 |
+ | CHIPSET | Qualcomm Snapdragon 400 |		 | CHIPSET | Qualcomm Snapdragon 400 |
+ | GPU     | Adreno 305 |		 | GPU     | Adreno 305 |
+ | Memory  | 1.5GB RAM |		 | Memory  | 1.5GB RAM |
+ | Shipped Android Version | 4.4.2 |		 | Shipped Android Version | 4.4.2 |
+ | Storage | 16GB |		 | Storage | 16GB |
+ | MicroSD | Up to 64GB |		 | MicroSD | Up to 64GB |
+ | Battery | 4000 mAh |		 | Battery | 4000 mAh |
+ | Display | 1280 x 800 (~149 ppi) |		 | Display | 1280 x 800 (~149 ppi) |
+ | Camera  | 3.15 MP, 2048 x 1536 pixels |		 | Camera  | 3.15 MP, 2048 x 1536 pixels |
+ 		 
+ 		 
+ ![Galaxy Tab 4 10.1](http://cdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-tab-4-101-1.jpg "Galaxy Tab 4 10.1")		 ![Galaxy Tab 4 10.1](http://cdn2.gsmarena.com/vv/pics/samsung/samsung-galaxy-tab-4-101-1.jpg "Galaxy Tab 4 10.1")
+ 		 
+ This branch is for building CyanogenMod 12.0 Firmware.		 This branch is for building CyanogenMod 12.0 Firmware.
+ 		 
+ TODO:		 TODO:
+ =======		 =======
+View 0  audio/audio_policy.conf 100755 → 100644
+File mode changed
+View 1  board-info.txt
+@@ -1 +0,0 @@
+ -require version-bootloader=T530XXU1B|T531XXU1B|T535XXU1B		
+View 59  extract-files.sh
+@@ -1,59 +0,0 @@
+ -#!/bin/sh		
+ -		
+ -set -e		
+ -		
+ -export DEVICE=matissewifi		
+ -export VENDOR=samsung		
+ -		
+ -function extract() {		
+ -    for FILE in `egrep -v '(^#|^$)' $1`; do		
+ -        OLDIFS=$IFS IFS=":" PARSING_ARRAY=($FILE) IFS=$OLDIFS		
+ -        FILE=`echo ${PARSING_ARRAY[0]} | sed -e "s/^-//g"`		
+ -        DEST=${PARSING_ARRAY[1]}		
+ -        if [ -z $DEST ]; then		
+ -            DEST=$FILE		
+ -        fi		
+ -        DIR=`dirname $FILE`		
+ -        if [ ! -d $2/$DIR ]; then		
+ -            mkdir -p $2/$DIR		
+ -        fi		
+ -        if [ "$SRC" = "adb" ]; then		
+ -            # Try CM target first		
+ -            adb pull /system/$DEST $2/$DEST		
+ -            # if file does not exist try OEM target		
+ -            if [ "$?" != "0" ]; then		
+ -                adb pull /system/$FILE $2/$DEST		
+ -            fi		
+ -        else		
+ -            cp $SRC/system/$FILE $2/$DEST		
+ -            # if file dot not exist try destination		
+ -            if [ "$?" != "0" ]		
+ -                then		
+ -                cp $SRC/system/$DEST $2/$DEST		
+ -            fi		
+ -        fi		
+ -    done		
+ -}		
+ -		
+ -if [ $# -eq 0 ]; then		
+ -  SRC=adb		
+ -else		
+ -  if [ $# -eq 1 ]; then		
+ -    SRC=$1		
+ -  else		
+ -    echo "$0: bad number of arguments"		
+ -    echo ""		
+ -    echo "usage: $0 [PATH_TO_EXPANDED_ROM]"		
+ -    echo ""		
+ -    echo "If PATH_TO_EXPANDED_ROM is not specified, blobs will be extracted from"		
+ -    echo "the device using adb pull."		
+ -    exit 1		
+ -  fi		
+ -fi		
+ -		
+ -DEVBASE=../../../vendor/$VENDOR/$DEVICE/proprietary		
+ -rm -rf $DEVBASE/*		
+ -		
+ -extract ../../$VENDOR/$DEVICE/proprietary-files.txt $DEVBASE		
+ -		
+ -./setup-makefiles.sh		
+View 26  init/init_matisse.c → init/init_millet.c
+ @@ -53,38 +53,14 @@ void init_msm_properties(unsigned long msm_id, unsigned long msm_ver, char *boar
+      if (!rc || !ISMATCH(platform, ANDROID_TARGET))		      if (!rc || !ISMATCH(platform, ANDROID_TARGET))
+          return;		          return;
+  		  
+ -		
+      if (strstr(bootloader, "T531")) {		      if (strstr(bootloader, "T531")) {
+ -            /* matisse3g */		
+ -        property_set("ro.build.fingerprint", "samsung/matisse3gxx/matisse3g:5.0.2/LRX22G/T531XXU1BOD8:user/release-keys");		
+ -        property_set("ro.build.description", "matisse3gxx-user 5.0.2 LRX22G T531XXU1BOD8 release-keys");		
+ -        property_set("ro.product.model", "SM-T531");		
+ -        property_set("ro.product.device", "matisse3g");		
+ -		property_set("ro.telephony.ril_class", "SamsungMSM8226RIL");		
+ -		property_set("telephony.lteOnGsmDevice", "0");		
+ -		property_set("ro.telephony.default_network", "0");		
+ -        } else if (strstr(bootloader, "T530")) {		
+ -            /* matissewifi */		
+ -        property_set("ro.build.fingerprint", "samsung/matissewifixx/matissewifi:5.0.2/LRX22G/T530XXU1BOD8:user/release-keys");		
+ -        property_set("ro.build.description", "matissewifixx-user 5.0.2 LRX22G T530XXU1BOD8 release-keys");		
+ -        property_set("ro.product.model", "SM-T530");		
+ -        property_set("ro.product.device", "matissewifi");		
+ -        property_set("ro.carrier", "wifi-only");		
+ -        property_set("ro.radio.noril", "yes");		
+ -        } else if (strstr(bootloader, "T535")) {		
+ -            /* matisselte */		
+ -        property_set("ro.build.fingerprint", "samsung/matisseltexx/matisselte:5.0.2/LRX22G/T535XXU1BOD8:user/release-keys");		
+ -        property_set("ro.build.description", "matisseltexx-user 5.0.2 LRX22G T535XXU1BOD8 release-keys");		
+ -        property_set("ro.product.model", "SM-T535");		
+ -        property_set("ro.product.device", "matisselte");		
+ -        } else if (strstr(bootloader, "T330")) {		
+              /* milletwifi */		              /* milletwifi */
+          property_set("ro.build.fingerprint", "samsung/milletwifixx/milletwifi:5.0.2/LRX22G/T330XXU1BOD8:user/release-keys");		          property_set("ro.build.fingerprint", "samsung/milletwifixx/milletwifi:5.0.2/LRX22G/T330XXU1BOD8:user/release-keys");
+          property_set("ro.build.description", "milletwifixx-user 5.0.2 LRX22G T330XXU1BOD8 release-keys");		          property_set("ro.build.description", "milletwifixx-user 5.0.2 LRX22G T330XXU1BOD8 release-keys");
+          property_set("ro.product.model", "SM-T330");		          property_set("ro.product.model", "SM-T330");
+          property_set("ro.product.device", "milletwifi");		          property_set("ro.product.device", "milletwifi");
+          property_set("ro.carrier", "wifi-only");		          property_set("ro.carrier", "wifi-only");
+ -        property_set("ro.radio.noril", "yes");		 +        property_set("ro.radio.noril", "1");
+          } else if (strstr(bootloader, "T331")) {		          } else if (strstr(bootloader, "T331")) {
+              /* millet3g */		              /* millet3g */
+          property_set("ro.build.fingerprint", "samsung/millet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys");		          property_set("ro.build.fingerprint", "samsung/millet3gxx/millet3g:5.0.2/LRX22G/T331XXU1BOD8:user/release-keys");
+View 12  millet-common.mk
+ @@ -22,7 +22,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
+  DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay		  DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+  		  
+  # Proprietary files		  # Proprietary files
+ -$(call inherit-product, vendor/samsung/matisse-common/matisse-common-vendor.mk)		 +$(call inherit-product, vendor/samsung/matisse-matisse/millet-common-vendor.mk)
+  		  
+  # Audio configuration		  # Audio configuration
+  PRODUCT_COPY_FILES += \		  PRODUCT_COPY_FILES += \
+ @@ -34,10 +34,6 @@ PRODUCT_COPY_FILES += \
+  PRODUCT_COPY_FILES += \		  PRODUCT_COPY_FILES += \
+      $(LOCAL_PATH)/keylayout/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl		      $(LOCAL_PATH)/keylayout/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl
+  		  
+ -# Mine		
+ -PRODUCT_PACKAGES += \		
+ -    openssh		
+ -		
+  # Doze		  # Doze
+  PRODUCT_PACKAGES += \		  PRODUCT_PACKAGES += \
+      SamsungDoze		      SamsungDoze
+ @@ -60,14 +56,16 @@ PRODUCT_COPY_FILES += \
+      $(LOCAL_PATH)/configs/thermal-engine-8226.conf:system/etc/thermal-engine-8226.conf		      $(LOCAL_PATH)/configs/thermal-engine-8226.conf:system/etc/thermal-engine-8226.conf
+  		  
+  # Wifi		  # Wifi
+ +PRODUCT_COPY_FILES += \
+ +    kernel/samsung/matisse/drivers/staging/prima/firmware_bin/WCNSS_cfg.dat:system/etc/firmware/wlan/prima/WCNSS_cfg.dat \
+ +    kernel/samsung/matisse/drivers/staging/prima/firmware_bin/WCNSS_qcom_cfg.ini:system/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini
+ +
+  PRODUCT_PACKAGES += \		  PRODUCT_PACKAGES += \
+      hostapd_default.conf \		      hostapd_default.conf \
+      p2p_supplicant_overlay.conf \		      p2p_supplicant_overlay.conf \
+      wpa_supplicant_overlay.conf		      wpa_supplicant_overlay.conf
+  		  
+  PRODUCT_COPY_FILES += \		  PRODUCT_COPY_FILES += \
+ -    $(LOCAL_PATH)/wifi/WCNSS_cfg.dat:system/etc/firmware/wlan/prima/WCNSS_cfg.dat \		
+ -    $(LOCAL_PATH)/wifi/WCNSS_qcom_cfg.ini:system/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini \		
+      $(LOCAL_PATH)/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin		      $(LOCAL_PATH)/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
+  		  
+  # Radio (needed for audio controls even on wifi-only)		  # Radio (needed for audio controls even on wifi-only)
+View 254  proprietary-files.txt
+@@ -1,254 +0,0 @@
+ -# ADSP		
+ -bin/adsprpcd		
+ -vendor/lib/libadsprpc.so		
+ -vendor/lib/libfastcvadsp_stub.so		
+ -vendor/lib/libfastcvopt.so		
+ -vendor/lib/libscve.so		
+ -vendor/lib/rfsa/adsp/libadsp_denoise_skel.so		
+ -vendor/lib/rfsa/adsp/libdspCV_skel.so		
+ -vendor/lib/rfsa/adsp/libfastcvadsp.so		
+ -vendor/lib/rfsa/adsp/libfastcvadsp_skel.so		
+ -		
+ -# Audio		
+ -etc/Bluetooth_cal.acdb		
+ -etc/General_cal.acdb		
+ -etc/Global_cal.acdb		
+ -etc/Handset_cal.acdb		
+ -etc/Hdmi_cal.acdb		
+ -etc/Headset_cal.acdb		
+ -etc/Speaker_cal.acdb		
+ -vendor/lib/libacdbloader.so		
+ -vendor/lib/libacdbrtac.so		
+ -vendor/lib/libadiertac.so		
+ -vendor/lib/libaudcal.so		
+ -vendor/lib/libcsd-client.so		
+ -		
+ -# Bluetooth		
+ -bin/btnvtool		
+ -bin/hci_qcomm_init		
+ -vendor/lib/libbtnv.so		
+ -		
+ -# Camera		
+ -bin/mm-qcamera-daemon		
+ -lib/hw/camera.msm8226.so:lib/hw/camera.vendor.msm8226.so		
+ -lib/libarcsoft_flawlessface.so		
+ -lib/libarcsoft_night_shot.so		
+ -lib/libarcsoft_panorama_burstcapture.so		
+ -lib/libarcsoft_picaction.so		
+ -lib/libarcsoft_sensorndk.so		
+ -lib/libarcsoft_skin_soften.so		
+ -lib/libmmcamera_cac.so		
+ -lib/libmmcamera_cac2_lib.so		
+ -lib/libmmcamera_fidelix_eeprom.so		
+ -lib/libmmcamera_interface.so		
+ -lib/libmmcamera_wavelet_lib.so		
+ -lib/libmmcamera2_stats_algorithm.so		
+ -lib/libmmjpeg_interface.so		
+ -lib/libqomx_core.so		
+ -vendor/lib/libactuator_ak7345_camcorder.so		
+ -vendor/lib/libactuator_ak7345_camera.so		
+ -vendor/lib/libactuator_dw9804_camcorder.so		
+ -vendor/lib/libactuator_dw9804_camera.so		
+ -vendor/lib/libjpegdhw.so		
+ -vendor/lib/libjpegehw.so		
+ -vendor/lib/libmmcamera_faceproc.so		
+ -vendor/lib/libmmcamera_hdr_gb_lib.so		
+ -vendor/lib/libmmcamera_image_stab.so		
+ -vendor/lib/libmmcamera_imglib.so		
+ -vendor/lib/libmmcamera_imx175.so		
+ -vendor/lib/libmmcamera_s5k4h5yb.so		
+ -vendor/lib/libmmcamera_s5k6a3yx.so		
+ -vendor/lib/libmmcamera2_c2d_module.so		
+ -vendor/lib/libmmcamera2_cpp_module.so		
+ -vendor/lib/libmmcamera2_iface_modules.so		
+ -vendor/lib/libmmcamera2_imglib_modules.so		
+ -vendor/lib/libmmcamera2_isp_modules.so		
+ -vendor/lib/libmmcamera2_pproc_modules.so		
+ -vendor/lib/libmmcamera2_sensor_modules.so		
+ -vendor/lib/libmmcamera2_stats_modules.so		
+ -vendor/lib/libmmcamera2_vpe_module.so		
+ -vendor/lib/libmmcamera2_wnr_module.so		
+ -vendor/lib/libmmipl.so		
+ -vendor/lib/libmmjpeg.so		
+ -vendor/lib/libmmqjpeg_codec.so		
+ -vendor/lib/liboemcamera.so		
+ -vendor/lib/libqomx_jpegdec.so		
+ -vendor/lib/libqomx_jpegenc.so		
+ -vendor/lib/libsensor1.so		
+ -		
+ -# Camera chromatix		
+ -lib/B08QT_libTsAe.so		
+ -lib/B08QT_libTsAf.so		
+ -lib/B08QT_libTs_J_Accm.so		
+ -lib/B08QT_libTs_J_Awb.so		
+ -lib/libAfSingle.so		
+ -lib/libchromatix_s5k6a3yx_smart_stay.so		
+ -lib/libchromatix_s5k6a3yx_vt.so		
+ -lib/libchromatix_s5k6a3yx_vt_hd.so		
+ -lib/libTsAe.so		
+ -lib/libTsAf.so		
+ -lib/libTs_J_Accm.so		
+ -lib/libTs_J_Awb.so		
+ -vendor/lib/B08QT_libchromatix_imx175_common.so		
+ -vendor/lib/B08QT_libchromatix_imx175_common_res0.so		
+ -vendor/lib/B08QT_libchromatix_imx175_common_res1.so		
+ -vendor/lib/B08QT_libchromatix_imx175_default_video.so		
+ -vendor/lib/B08QT_libchromatix_imx175_liveshot.so		
+ -vendor/lib/B08QT_libchromatix_imx175_panorama.so		
+ -vendor/lib/B08QT_libchromatix_imx175_preview.so		
+ -vendor/lib/B08QT_libchromatix_imx175_snapshot.so		
+ -vendor/lib/B08QT_libchromatix_imx175_video_hd.so		
+ -vendor/lib/B08QT_libchromatix_imx175_zsl.so		
+ -vendor/lib/B08QT_libchromatix_imx175_zslshot.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_common.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_common_res0.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_common_res1.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_default_video.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_liveshot.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_panorama.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_preview.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_snapshot.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_video_hd.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_zsl.so		
+ -vendor/lib/E08QL_libchromatix_s5k4h5yb_zslshot.so		
+ -vendor/lib/libchromatix_imx175_common.so		
+ -vendor/lib/libchromatix_imx175_preview.so		
+ -vendor/lib/libchromatix_s5k6a3yx_common.so		
+ -vendor/lib/libchromatix_s5k6a3yx_default_video.so		
+ -vendor/lib/libchromatix_s5k6a3yx_preview.so		
+ -vendor/lib/libchromatix_s5k6a3yx_snapshot.so		
+ -vendor/lib/libchromatix_s5k6a3yx_video_hd.so		
+ -vendor/lib/libchromatix_s5k6a3yx_zsl.so		
+ -		
+ -# Camera firmware		
+ -etc/B08QT_imx175_module_info.xml		
+ -etc/E08QL_s5k4h5yb_module_info.xml		
+ -etc/firmware/cpp_firmware_v1_1_1.fw		
+ -etc/firmware/cpp_firmware_v1_1_6.fw		
+ -etc/firmware/cpp_firmware_v1_2_0.fw		
+ -cameradata/datapattern_420sp.yuv		
+ -cameradata/datapattern_front_420sp.yuv		
+ -		
+ -# DRM		
+ -bin/qseecomd		
+ -framework/com.google.widevine.software.drm.jar		
+ -vendor/libdrmdecrypt.so		
+ -vendor/lib/drm/libdrmwvmplugin.so		
+ -vendor/lib/mediadrm/libwvdrmengine.so		
+ -vendor/lib/libdrmdiag.so		
+ -vendor/lib/libdrmfs.so		
+ -vendor/lib/libdrmtime.so		
+ -vendor/lib/libQSEEComAPI.so		
+ -vendor/lib/librpmb.so		
+ -vendor/lib/libssd.so		
+ -vendor/lib/libwvdrm_L3.so		
+ -vendor/lib/libwvm.so		
+ -vendor/lib/libWVStreamControlAPI_L3.so		
+ -		
+ -# GPS		
+ --app/com.qualcomm.location/com.qualcomm.location.apk		
+ -etc/permissions/com.qualcomm.location.xml		
+ -lib/hw/flp.default.so		
+ -lib/libloc_api_v02.so		
+ -vendor/lib/libgeofence.so		
+ -vendor/lib/libizat_core.so		
+ -vendor/lib/liblbs_core.so		
+ -vendor/lib/liblocationservice.so		
+ -		
+ -# Graphics		
+ -vendor/lib/egl/eglsubAndroid.so		
+ -vendor/lib/egl/libEGL_adreno.so		
+ -vendor/lib/egl/libGLESv1_CM_adreno.so		
+ -vendor/lib/egl/libGLESv2_adreno.so		
+ -vendor/lib/egl/libq3dtools_adreno.so		
+ -vendor/lib/libadreno_utils.so		
+ -vendor/lib/libbccQTI.so		
+ -vendor/lib/libC2D2.so		
+ -vendor/lib/libc2d30-a3xx.so		
+ -vendor/lib/libCB.so		
+ -vendor/lib/libgsl.so		
+ -vendor/lib/libllvm-qcom.so		
+ -vendor/lib/libOpenCL.so		
+ -vendor/lib/libRSDriver_adreno.so		
+ -vendor/lib/librs_adreno.so		
+ -vendor/lib/librs_adreno_sha1.so		
+ -vendor/lib/libsc-a3xx.so		
+ -vendor/lib/libscale.so		
+ -		
+ -# Graphics firmware		
+ -etc/firmware/a300_pfp.fw		
+ -etc/firmware/a300_pm4.fw		
+ -etc/firmware/a330_pfp.fw		
+ -etc/firmware/a330_pm4.fw		
+ -		
+ -# IPC router security		
+ -bin/irsc_util		
+ -etc/sec_config		
+ -		
+ -# Media		
+ -vendor/lib/libDivxDrm.so		
+ -vendor/lib/libExtendedExtractor.so		
+ -vendor/lib/libI420colorconvert.so		
+ -vendor/lib/libmmosal.so		
+ -vendor/lib/libmmparser.so		
+ -vendor/lib/libmm-color-convertor.so		
+ -vendor/lib/libOmxAacDec.so		
+ -vendor/lib/libOmxAmrwbplusDec.so		
+ -vendor/lib/libOmxEvrcDec.so		
+ -vendor/lib/libOmxQcelp13Dec.so		
+ -vendor/lib/libOmxWmaDec.so		
+ -vendor/lib/libSHIMDivxDrm.so		
+ --vendor/lib/libHevcSwDecoder.so		
+ -		
+ -# Perf		
+ -bin/mpdecision		
+ -vendor/lib/libqc-opt.so		
+ -		
+ -# Qualcomm framework		
+ -vendor/lib/libdiag.so		
+ -vendor/lib/libdsnetutils.so		
+ -vendor/lib/libdsucsd.so		
+ -vendor/lib/libdsutils.so		
+ -vendor/lib/libidl.so		
+ -vendor/lib/libqcci_legacy.so		
+ -vendor/lib/libqmi.so		
+ -vendor/lib/libqmi_cci.so		
+ -vendor/lib/libqmi_client_qmux.so		
+ -vendor/lib/libqmi_common_so.so		
+ -vendor/lib/libqmi_csi.so		
+ -vendor/lib/libqmi_csvt_srvc.so		
+ -vendor/lib/libqmi_encdec.so		
+ -vendor/lib/libqmiservices.so		
+ -		
+ -# Radio		
+ -bin/ds_fmc_appd		
+ -bin/qmuxd		
+ -bin/radish		
+ -bin/rfs_access		
+ -bin/rild		
+ -bin/rmt_storage		
+ -lib/libatparser.so		
+ -lib/libcordon.so		
+ -lib/libfactoryutil.so		
+ -lib/libomission_avoidance.so		
+ -lib/libreference-ril.so		
+ -lib/libril.so		
+ -lib/libsecnativefeature.so		
+ -vendor/lib/libconfigdb.so		
+ -vendor/lib/libril-qcril-hook-oem.so		
+ -vendor/lib/libxml.so		
+ -		
+ -# Sensors		
+ -lib/hw/sensors.msm8226.so		
+ -lib/libyasalgo.so		
+ -		
+ -# Thermal		
+ -bin/thermal-engine		
+ -vendor/lib/libthermalclient.so		
+ -vendor/lib/libthermalioctl.so		
+ -		
+ -# Time services		
+ --app/TimeService/TimeService.apk		
+ -bin/time_daemon		
+ -vendor/lib/libtime_genoff.so		
+ -vendor/lib/libTimeService.so		
+View 141  setup-makefiles.sh
+@@ -1,141 +0,0 @@
+ -OUTDIR=vendor/$VENDOR/$DEVICE		
+ -MAKEFILE=../../../$OUTDIR/$DEVICE-vendor-blobs.mk		
+ -		
+ -(cat << EOF) > $MAKEFILE		
+ -# Copyright (C) 2014 The CyanogenMod Project		
+ -#		
+ -# Licensed under the Apache License, Version 2.0 (the "License");		
+ -# you may not use this file except in compliance with the License.		
+ -# You may obtain a copy of the License at		
+ -#		
+ -# http://www.apache.org/licenses/LICENSE-2.0		
+ -#		
+ -# Unless required by applicable law or agreed to in writing, software		
+ -# distributed under the License is distributed on an "AS IS" BASIS,		
+ -# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		
+ -# See the License for the specific language governing permissions and		
+ -# limitations under the License.		
+ -		
+ -# This file is generated by device/$VENDOR/$DEVICE/setup-makefiles.sh		
+ -		
+ -PRODUCT_COPY_FILES += \\		
+ -EOF		
+ -		
+ -LINEEND=" \\"		
+ -COUNT=`wc -l proprietary-files.txt | awk {'print $1'}`		
+ -DISM=`egrep -c '(^#|^$)' device-proprietary-files.txt`		
+ -COUNT=`expr $COUNT - $DISM`		
+ -for FILE in `egrep -v '(^#|^$)' ../$DEVICE/proprietary-files.txt`; do		
+ -  COUNT=`expr $COUNT - 1`		
+ -  if [ $COUNT = "0" ]; then		
+ -    LINEEND=""		
+ -  fi		
+ -      # Split the file from the destination (format is "file[:destination]")		
+ -  OLDIFS=$IFS IFS=":" PARSING_ARRAY=($FILE) IFS=$OLDIFS		
+ -  FILE=${PARSING_ARRAY[0]}		
+ -  DEST=${PARSING_ARRAY[1]}		
+ -  if [ -n "$DEST" ]; then		
+ -    FILE=$DEST		
+ -  fi		
+ -  echo "	$OUTDIR/proprietary/$FILE:system/$FILE$LINEEND" >> $MAKEFILE		
+ -done		
+ -		
+ -(cat << EOF) > ../../../$OUTDIR/$DEVICE-vendor.mk		
+ -# Copyright (C) 2014 The CyanogenMod Project		
+ -#		
+ -# Licensed under the Apache License, Version 2.0 (the "License");		
+ -# you may not use this file except in compliance with the License.		
+ -# You may obtain a copy of the License at		
+ -#		
+ -# http://www.apache.org/licenses/LICENSE-2.0		
+ -#		
+ -# Unless required by applicable law or agreed to in writing, software		
+ -# distributed under the License is distributed on an "AS IS" BASIS,		
+ -# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		
+ -# See the License for the specific language governing permissions and		
+ -# limitations under the License.		
+ -		
+ -# This file is generated by device/$VENDOR/$DEVICE/setup-makefiles.sh		
+ -		
+ -# Pick up overlay for features that depend on non-open-source files		
+ -PRODUCT_PACKAGES += \\		
+ -    com.qualcomm.location \\		
+ -    libHevcSwDecoder \\		
+ -    TimeService		
+ -		
+ -\$(call inherit-product, vendor/$VENDOR/$DEVICE/$DEVICE-vendor-blobs.mk)		
+ -EOF		
+ -		
+ -(cat << EOF) > ../../../$OUTDIR/Android.mk		
+ -# Copyright (C) 2014 The CyanogenMod Project		
+ -#		
+ -# Licensed under the Apache License, Version 2.0 (the "License");		
+ -# you may not use this file except in compliance with the License.		
+ -# You may obtain a copy of the License at		
+ -#		
+ -#      http://www.apache.org/licenses/LICENSE-2.0		
+ -#		
+ -# Unless required by applicable law or agreed to in writing, software		
+ -# distributed under the License is distributed on an "AS IS" BASIS,		
+ -# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		
+ -# See the License for the specific language governing permissions and		
+ -# limitations under the License.		
+ -		
+ -# This file is generated by device/$VENDOR/$DEVICE/setup-makefiles.sh		
+ -		
+ -LOCAL_PATH := \$(call my-dir)		
+ -		
+ -ifeq (\$(TARGET_DEVICE),$DEVICE)		
+ -		
+ -include \$(CLEAR_VARS)		
+ -LOCAL_MODULE := com.qualcomm.location		
+ -LOCAL_MODULE_OWNER := $VENDOR		
+ -LOCAL_SRC_FILES := proprietary/app/$(LOCAL_MODULE)/$(LOCAL_MODULE).apk		
+ -LOCAL_MODULE_TAGS := optional		
+ -LOCAL_MODULE_SUFFIX := \$(COMMON_ANDROID_PACKAGE_SUFFIX)		
+ -LOCAL_MODULE_CLASS := APPS		
+ -LOCAL_CERTIFICATE := platform		
+ -include \$(BUILD_PREBUILT)		
+ -		
+ -include \$(CLEAR_VARS)		
+ -LOCAL_MODULE := libHevcSwDecoder		
+ -LOCAL_MODULE_OWNER := $VENDOR		
+ -LOCAL_SRC_FILES := proprietary/vendor/lib/libHevcSwDecoder.so		
+ -LOCAL_MODULE_PATH := \$(TARGET_OUT_VENDOR_SHARED_LIBRARIES)		
+ -LOCAL_MODULE_TAGS := optional		
+ -LOCAL_MODULE_SUFFIX := .so		
+ -LOCAL_MODULE_CLASS := SHARED_LIBRARIES		
+ -include \$(BUILD_PREBUILT)		
+ -		
+ -include \$(CLEAR_VARS)		
+ -LOCAL_MODULE := TimeService		
+ -LOCAL_MODULE_OWNER := $VENDOR		
+ -LOCAL_SRC_FILES := proprietary/app/$(LOCAL_MODULE)/$(LOCAL_MODULE).apk		
+ -LOCAL_MODULE_TAGS := optional		
+ -LOCAL_MODULE_SUFFIX := \$(COMMON_ANDROID_PACKAGE_SUFFIX)		
+ -LOCAL_MODULE_CLASS := APPS		
+ -LOCAL_CERTIFICATE := platform		
+ -include \$(BUILD_PREBUILT)		
+ -		
+ -endif		
+ -		
+ -EOF		
+ -		
+ -(cat << EOF) > ../../../$OUTDIR/BoardConfigVendor.mk		
+ -# Copyright (C) 2014 The CyanogenMod Project		
+ -#		
+ -# Licensed under the Apache License, Version 2.0 (the "License");		
+ -# you may not use this file except in compliance with the License.		
+ -# You may obtain a copy of the License at		
+ -#		
+ -# http://www.apache.org/licenses/LICENSE-2.0		
+ -#		
+ -# Unless required by applicable law or agreed to in writing, software		
+ -# distributed under the License is distributed on an "AS IS" BASIS,		
+ -# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.		
+ -# See the License for the specific language governing permissions and		
+ -# limitations under the License.		
+ -		
+ -# This file is generated by device/$VENDOR/$DEVICE/setup-makefiles.sh		
+ -EOF		
+ -		
+View 8  wifi/Android.mk
+ @@ -45,4 +45,12 @@ LOCAL_SRC_FILES    := $(LOCAL_MODULE)
+  LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/wifi		  LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/wifi
+  include $(BUILD_PREBUILT)		  include $(BUILD_PREBUILT)
+  		  
+ +include $(CLEAR_VARS)
+ +LOCAL_MODULE       := WCNSS_qcom_wlan_nv.bin
+ +LOCAL_MODULE_TAGS  := optional
+ +LOCAL_MODULE_CLASS := ETC
+ +LOCAL_SRC_FILES    := $(LOCAL_MODULE)
+ +LOCAL_MODULE_PATH  := $(TARGET_OUT_ETC)/firmware/wlan/prima
+ +include $(BUILD_PREBUILT)
+ +
+  endif		  endif
+View BIN  wifi/WCNSS_cfg.dat
+Binary file not shown
+View 419  wifi/WCNSS_qcom_cfg.ini
+@@ -1,419 +0,0 @@
+ -# This file allows user to override the factory		
+ -		
+ -# defaults for the WLAN Driver		
+ -		
+ -		
+ -# Enable IMPS or not		
+ -gEnableImps=1		
+ -		
+ -# Enable/Disable Idle Scan		
+ -		
+ -gEnableIdleScan=0		
+ -		
+ -		
+ -# Enable/Disable vsta based on MAX Assoc limit		
+ -gEnableVSTASupport=1		
+ -		
+ -		
+ -# Increase sleep duration (seconds) during IMPS		
+ -# 0 implies no periodic wake up from IMPS. Periodic wakeup is		
+ -# unnecessary if Idle Scan is disabled.		
+ -gImpsModSleepTime=0		
+ -		
+ -		
+ -# Enable BMPS or not		
+ -gEnableBmps=1		
+ -		
+ -# Enable suspend or not		
+ -		
+ -# 1: Enable standby, 2: Enable Deep sleep, 3: Enable Mcast/Bcast Filter		
+ -		
+ -gEnableSuspend=3		
+ -		
+ -# Phy Mode (auto, b, g, n, etc)		
+ -# Valid values are 0-9, with 0 = Auto, 4 = 11n, 9 = 11ac		
+ -gDot11Mode=0		
+ -		
+ -		
+ -# CSR Roaming Enable(1) Disable(0)		
+ -		
+ -gRoamingTime=0		
+ -		
+ -		
+ -# Assigned MAC Addresses - This will be used until NV items are in place		
+ -		
+ -# Each byte of MAC address is represented in Hex format as XX		
+ -		
+ -Intf0MacAddress=000AF58989FF		
+ -Intf1MacAddress=000AF58989FE		
+ -Intf2MacAddress=000AF58989FD		
+ -		
+ -Intf3MacAddress=000AF58989FC		
+ -		
+ -		
+ -# UAPSD service interval for VO,VI, BE, BK traffic		
+ -		
+ -InfraUapsdVoSrvIntv=0		
+ -		
+ -InfraUapsdViSrvIntv=0		
+ -		
+ -InfraUapsdBeSrvIntv=0		
+ -		
+ -InfraUapsdBkSrvIntv=0		
+ -		
+ -# Flag to allow STA send AddTspec even when ACM is Off		
+ -gAddTSWhenACMIsOff=1		
+ -		
+ -# Make 1x1 the default antenna configuration		
+ -		
+ -gNumRxAnt=1		
+ -		
+ -		
+ -# Beacon filtering frequency (unit in beacon intervals)		
+ -		
+ -gNthBeaconFilter=50		
+ -		
+ -		
+ -# Enable WAPI or not		
+ -		
+ -# WAPIIsEnabled=0		
+ -		
+ -		
+ -# Flags to filter Mcast abd Bcast RX packets.		
+ -		
+ -# Value 0: No filtering, 1: Filter all Multicast.		
+ -		
+ -# 2: Filter all Broadcast. 3: Filter all Mcast abd Bcast		
+ -		
+ -McastBcastFilter=3		
+ -		
+ -		
+ -#Flag to enable HostARPOffload feature or not		
+ -		
+ -hostArpOffload=1		
+ -		
+ -		
+ -#Flag to enable HostNSOffload feature or not		
+ -		
+ -hostNSOffload=0		
+ -		
+ -#SoftAP Related Parameters		
+ -		
+ -# AP MAc addr		
+ -		
+ -gAPMacAddr=000AF589dcab		
+ -		
+ -		
+ -# 802.11n Protection flag		
+ -		
+ -gEnableApProt=1		
+ -		
+ -		
+ -#Enable OBSS protection		
+ -		
+ -gEnableApOBSSProt=1		
+ -		
+ -		
+ -#Enable/Disable UAPSD for SoftAP		
+ -		
+ -gEnableApUapsd=0		
+ -		
+ -		
+ -# Fixed Rate		
+ -		
+ -gFixedRate=0		
+ -		
+ -		
+ -# Maximum Tx power		
+ -		
+ -# gTxPowerCap=30		
+ -		
+ -		
+ -# Fragmentation Threshold		
+ -		
+ -# gFragmentationThreshold=2346		
+ -		
+ -		
+ -# RTS threshold		
+ -		
+ -RTSThreshold=2347		
+ -		
+ -		
+ -# Intra-BSS forward		
+ -		
+ -gDisableIntraBssFwd=0		
+ -		
+ -		
+ -# WMM Enable/Disable		
+ -		
+ -WmmIsEnabled=0		
+ -		
+ -		
+ -# 802.11d support		
+ -		
+ -g11dSupportEnabled=1		
+ -		
+ -# 802.11h support		
+ -		
+ -g11hSupportEnabled=1		
+ -		
+ -# CCX Support and fast transition		
+ -CcxEnabled=0		
+ -FastTransitionEnabled=1		
+ -ImplicitQosIsEnabled=0		
+ -gNeighborScanTimerPeriod=200		
+ -		
+ -gNeighborLookupThreshold=76		
+ -gNeighborReassocThreshold=81		
+ -		
+ -gNeighborScanChannelMinTime=20		
+ -gNeighborScanChannelMaxTime=30		
+ -gMaxNeighborReqTries=3		
+ -		
+ -# Legacy (non-CCX, non-802.11r) Fast Roaming Support		
+ -# To enable, set FastRoamEnabled=1		
+ -# To disable, set FastRoamEnabled=0		
+ -FastRoamEnabled=1		
+ -		
+ -#Check if the AP to which we are roaming is better than current AP in terms of RSSI.		
+ -#Checking is disabled if set to Zero.Otherwise it will use this value as to how better 		
+ -#the RSSI of the new/roamable AP should be for roaming		
+ -RoamRssiDiff=3		
+ -		
+ -# If the RSSI of any available candidate is better than currently associated		
+ -# AP by at least gImmediateRoamRssiDiff, then being to roam immediately (without		
+ -# registering for reassoc threshold).		
+ -# NOTE: Value of 0 means that we would register for reassoc threshold.		
+ -gImmediateRoamRssiDiff=10		
+ -		
+ -# To enable, set gRoamIntraBand=1 (Roaming within band)		
+ -# To disable, set gRoamIntraBand=0 (Roaming across band)		
+ -		
+ -gRoamIntraBand=0		
+ -		
+ -#SAP Country code		
+ -		
+ -# Default Country Code is 2 bytes, 3rd byte is optional indoor or out door.		
+ -		
+ -# Example		
+ -		
+ -#   US Indoor, USI		
+ -		
+ -#   Korea Outdoor, KRO		
+ -		
+ -#   Japan without optional byte, JP		
+ -		
+ -#   France without optional byte, FR		
+ -		
+ -#gAPCntryCode=USI		
+ -		
+ -		
+ -#Short Guard Interval Enable/disable		
+ -		
+ -gShortGI20Mhz=1		
+ -		
+ -gShortGI40Mhz=1		
+ -		
+ -		
+ -#Auto Shutdown  Value in seconds. A value of 0 means Auto shutoff is disabled		
+ -		
+ -gAPAutoShutOff=0		
+ -		
+ -		
+ -# SAP auto channel selection configuration		
+ -		
+ -# 0 = disable auto channel selection		
+ -		
+ -# 1 = enable auto channel selection, channel provided by supplicant will be ignored		
+ -		
+ -gApAutoChannelSelection=0		
+ -		
+ -		
+ -# Listen Energy Detect Mode Configuration		
+ -		
+ -# Valid values 0-128		
+ -		
+ -# 128 means disable Energy Detect feature		
+ -		
+ -# 0-9 are threshold code and 7 is recommended value from system if feature is to be enabled.		
+ -		
+ -# 10-128 are reserved.		
+ -		
+ -# The EDET threshold mapping is as follows in 3dB step:		
+ -		
+ -# 0 = -60 dBm		
+ -		
+ -# 1 = -63 dBm		
+ -		
+ -# 2 = -66 dBm		
+ -		
+ -# ...		
+ -		
+ -# 7 = -81 dBm		
+ -		
+ -# 8 = -84 dBm		
+ -		
+ -# 9 = -87 dBm		
+ -		
+ -# Note: Any of these settings are valid. Setting 0 would yield the highest power saving (in a noisy environment) at the cost of more range. The range impact is approximately #calculated as:		
+ -		
+ -#		
+ -		
+ -#  Range Loss  (dB)  =  EDET threshold level (dBm) + 97 dBm.		
+ -		
+ -#		
+ -		
+ -gEnablePhyAgcListenMode=128		
+ -		
+ -		
+ -#Preferred channel to start BT AMP AP mode (0 means, any channel)		
+ -		
+ -BtAmpPreferredChannel=0		
+ -		
+ -		
+ -#Preferred band (both or 2.4 only or 5 only)		
+ -		
+ -BandCapability=0		
+ -		
+ -		
+ -#Beacon Early Termination (1 = enable the BET feature, 0 = disable)		
+ -		
+ -enableBeaconEarlyTermination=0		
+ -		
+ -beaconEarlyTerminationWakeInterval=3		
+ -		
+ -		
+ -#Bluetooth Alternate Mac Phy (1 = enable the BT AMP feature, 0 = disable)		
+ -		
+ -gEnableBtAmp=0		
+ -		
+ -		
+ -#SOFTAP Channel Range selection 		
+ -		
+ -gAPChannelSelectStartChannel=1		
+ -		
+ -gAPChannelSelectEndChannel=11		
+ -		
+ -		
+ -#SOFTAP Channel Range selection Operating band		
+ -		
+ -# 0:2.4GHZ 1: LOW-5GHZ 2:MID-5GHZ 3:HIGH-5GHZ 4: 4.9HZ BAND		
+ -		
+ -gAPChannelSelectOperatingBand=0		
+ -		
+ -		
+ -#Channel Bonding		
+ -gChannelBondingMode5GHz=1		
+ -		
+ -		
+ -#Enable Keep alive with non-zero period value		
+ -		
+ -#gStaKeepAlivePeriod = 30		
+ -		
+ -#AP LINK MONITOR TIMEOUT is used for both SAP and GO mode.		
+ -#It is used to change the frequency of keep alive packets in the AP Link Monitor period which is by		
+ -#default 20s. Currently the keep alive packets are sent as an interval of 3s but after this change		
+ -#the keep alive packet frequency can be changed.		
+ -		
+ -#gApLinkMonitorPeriod = 3		
+ -		
+ -		
+ -#If set will start with active scan after driver load, otherwise will start with		
+ -		
+ -#passive scan to find out the domain		
+ -		
+ -gEnableBypass11d=1		
+ -		
+ -		
+ -#If set to 0, will not scan DFS channels		
+ -		
+ -gEnableDFSChnlScan=1		
+ -		
+ -		
+ -gVhtChannelWidth=2		
+ -gEnableLogp=1		
+ -		
+ -		
+ -# Enable Automatic Tx Power control		
+ -		
+ -gEnableAutomaticTxPowerControl=1		
+ -		
+ -# 0 for OLPC 1 for CLPC and SCPC		
+ -gEnableCloseLoop=1		
+ -		
+ -#Data Inactivity Timeout when in powersave (in ms)		
+ -gDataInactivityTimeout=200		
+ -		
+ -# VHT Tx/Rx MCS values		
+ -# Valid values are 0,1,2. If commented out, the default value is 0.		
+ -# 0=MCS0-7, 1=MCS0-8, 2=MCS0-9		
+ -gVhtRxMCS=2		
+ -gVhtTxMCS=2		
+ -		
+ -# Enable CRDA regulatory support by settings default country code		
+ -#gCrdaDefaultCountryCode=TW		
+ -		
+ -# Scan Timing Parameters		
+ -# gPassiveMaxChannelTime=110		
+ -# gPassiveMinChannelTime=60		
+ -# gActiveMaxChannelTime=40		
+ -# gActiveMinChannelTime=20		
+ -		
+ -#If set to 0, MCC is not allowed.		
+ -gEnableMCCMode=1		
+ -		
+ -# 1=enable STBC; 0=disable STBC 		
+ -gEnableRXSTBC=1		
+ -		
+ -# Enable Active mode offload		
+ -gEnableActiveModeOffload=1		
+ -		
+ -#Enable Scan Results Aging based on timer 		
+ -#Timer value is in seconds		
+ -#If Set to 0 it will not enable the feature		
+ -gScanAgingTime=0		
+ -		
+ -#Enable Power saving mechanism Based on Android Framework		
+ -#If set to 0 Driver internally control the Power saving mechanism		
+ -#If set to 1 Android Framwrok control the Power saving mechanism		
+ -isAndroidPsEn=0		
+ -		
+ -#disable LDPC in STA mode if the AP is TXBF capable		
+ -gDisableLDPCWithTxbfAP=1		
+ -		
+ -#Enable thermal mitigation		
+ -gThermalMitigationEnable=1		
+ -		
+ -gEnableFastRoamInConcurrency=1		
+ -		
+ -#List of Country codes for which 11ac needs to be disabled		
+ -#Each country code must be delimited by comma(,)		
+ -gListOfNon11acCountryCode=RU,UA,ZA		
+ -		
+ -#Maxium Channel time in msec		
+ -gMaxMediumTime = 6000		
+ -		
+ -# 802.11K support		
+ -gRrmEnable=1		
+ -gRrmOperChanMax=8		
+ -gRrmNonOperChanMax=8		
+ -gRrmRandIntvl=100		
+ -		
+ -#Scan offload		
+ -gEnableDirectedScanOffload=0		
+ -		
+ -# Oxygen network (prop IE for IBSS)		
+ -gEnableOxygenNwk=0		
+ -		
+ -#FlexConnect Power Factor		
+ -#Default is set to 0 (disable)		
+ -gFlexConnectPowerFactor=0		
+ -		
+ -#SAP/P2P-GO mode traffic monitor		
+ -gEnableTrafficMonitor=1		
+ -gTrafficIdleTimeout=3000		
+ -		
+ -END		
+ -		
+ -# Note: Configuration parser would not read anything past the END marker		
+ -		
+ Lock conversation
+0 comments on commit 07f3121
+@morisbartyno
+ Styling with Markdown is supported
+Write Preview
+
+Leave a comment
+Attach files by dragging & dropping,  Выбрать файлы selecting them, or pasting from the clipboard.
+Comment on this commit
+   Unsubscribe  You’re receiving notifications because you’re subscribed to this repository.
+Status API Training Shop Blog About Pricing
+© 2016 GitHub, Inc. Terms Privacy Security Contact Help
+
