@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #
 # system.prop for millet3g
 #
@@ -20,3 +21,6 @@ debug.hwui.render_dirty_regions=false
 ro.ril.hsxpa=1
 ro.ril.gprsclass=10
 ro.com.google.gmsversion=4.1_r4
+=======
+# matisse
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0

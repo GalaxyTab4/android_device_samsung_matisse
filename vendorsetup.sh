@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 add_lunch_combo aosp_matisse-userdebug
 =======
 #
@@ -26,3 +27,7 @@ add_lunch_combo aosp_matisse-userdebug
 add_lunch_combo omni_millet3gxx-userdebug
 add_lunch_combo omni_millet3g-eng
 >>>>>>> refs/remotes/origin/android-6.0
+=======
+add_lunch_combo cm_matisse-eng
+add_lunch_combo cm_matisse-userdebug
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0

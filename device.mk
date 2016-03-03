@@ -12,17 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 LOCAL_PATH := device/samsung/millet-common
 
 PRODUCT_CHARACTERISTICS := tablet
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
+=======
+PRODUCT_CHARACTERISTICS := tablet
+
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 # Overlay
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
 
 # Proprietary files
+<<<<<<< HEAD
 $(call inherit-product, vendor/samsung/matisse-matisse/millet-common-vendor.mk)
+=======
+$(call inherit-product, vendor/samsung/matisse/matisse-vendor.mk)
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 
 # Audio configuration
 PRODUCT_COPY_FILES += \
@@ -30,10 +39,13 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
     $(LOCAL_PATH)/audio/mixer_paths.xml:system/etc/mixer_paths.xml
 
+<<<<<<< HEAD
 # Keylayouts
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/sec_touchscreen.kl:system/usr/keylayout/sec_touchscreen.kl
 
+=======
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 # Doze
 PRODUCT_PACKAGES += \
     SamsungDoze
@@ -48,24 +60,37 @@ PRODUCT_COPY_FILES += \
 
 # Permissions
 PRODUCT_COPY_FILES += \
+<<<<<<< HEAD
 	frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
 	frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml
+=======
+    frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml
+
+# Ramdisk
+PRODUCT_PACKAGES += \
+    fstab.qcom \
+    init.target.rc
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 
 # Thermal
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/thermal-engine-8226.conf:system/etc/thermal-engine-8226.conf
 
 # Wifi
+<<<<<<< HEAD
 PRODUCT_COPY_FILES += \
     kernel/samsung/matisse/drivers/staging/prima/firmware_bin/WCNSS_cfg.dat:system/etc/firmware/wlan/prima/WCNSS_cfg.dat \
     kernel/samsung/matisse/drivers/staging/prima/firmware_bin/WCNSS_qcom_cfg.ini:system/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini
 
+=======
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 PRODUCT_PACKAGES += \
     hostapd_default.conf \
     p2p_supplicant_overlay.conf \
     wpa_supplicant_overlay.conf
 
 PRODUCT_COPY_FILES += \
+<<<<<<< HEAD
     $(LOCAL_PATH)/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
 
 # Radio (needed for audio controls even on wifi-only)
@@ -116,6 +141,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.qc.sdk.camera.facialproc=false \
 	ro.qc.sdk.sensors.gestures=true \
 	wifi.interface=wlan0
+=======
+    $(LOCAL_PATH)/wifi/WCNSS_cfg.dat:system/etc/firmware/wlan/prima/WCNSS_cfg.dat \
+    $(LOCAL_PATH)/wifi/WCNSS_qcom_cfg.ini:system/etc/firmware/wlan/prima/WCNSS_qcom_cfg.ini \
+    $(LOCAL_PATH)/wifi/WCNSS_qcom_wlan_nv.bin:system/etc/firmware/wlan/prima/WCNSS_qcom_wlan_nv.bin
+
+PRODUCT_COPY_FILES += \
+		    $(LOCAL_PATH)/prebuilt/boot_matisse3g.img:install/kernel/boot_matisse3g.img \
+		    $(LOCAL_PATH)/prebuilt/boot_matisselte.img:install/kernel/boot_matisselte.img
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 
 # Inherit from qcom-common
 $(call inherit-product, device/samsung/msm8226-common/msm8226.mk)
