@@ -1,0 +1,56 @@
+From 66296c4e99da5f2dd0a3dbf048be0d6ffc49a559 Mon Sep 17 00:00:00 2001
+From: Chien-Yu Chen <cychen@google.com>
+Date: Tue, 1 Sep 2015 14:16:44 -0700
+Subject: [PATCH 1/8] Camera: Fix flashlight deadlock
+
+Use a dedicated mutex for torch UID map so it won't cause a deadlock
+after flashlight app gets killed while the torch is on.
+
+Bug: 23722318
+Change-Id: I228377aa0412052d56b6b948361d9abaecbbc686
+---
+ services/camera/libcameraservice/CameraService.cpp | 4 ++--
+ services/camera/libcameraservice/CameraService.h   | 4 +++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/services/camera/libcameraservice/CameraService.cpp b/services/camera/libcameraservice/CameraService.cpp
+index 43a8ec4..9a1101a 100644
+--- a/services/camera/libcameraservice/CameraService.cpp
++++ b/services/camera/libcameraservice/CameraService.cpp
+@@ -363,7 +363,7 @@ void CameraService::onTorchStatusChangedLocked(const String8& cameraId,
+ 
+     {
+         // Update battery life logging for flashlight
+-        Mutex::Autolock al(mTorchClientMapMutex);
++        Mutex::Autolock al(mTorchUidMapMutex);
+         auto iter = mTorchUidMap.find(cameraId);
+         if (iter != mTorchUidMap.end()) {
+             int oldUid = iter->second.second;
+@@ -1262,7 +1262,7 @@ status_t CameraService::setTorchMode(const String16& cameraId, bool enabled,
+     {
+         // Update UID map - this is used in the torch status changed callbacks, so must be done
+         // before setTorchMode
+-        Mutex::Autolock al(mTorchClientMapMutex);
++        Mutex::Autolock al(mTorchUidMapMutex);
+         if (mTorchUidMap.find(id) == mTorchUidMap.end()) {
+             mTorchUidMap[id].first = uid;
+             mTorchUidMap[id].second = uid;
+diff --git a/services/camera/libcameraservice/CameraService.h b/services/camera/libcameraservice/CameraService.h
+index 7f4d43f..b56c161 100644
+--- a/services/camera/libcameraservice/CameraService.h
++++ b/services/camera/libcameraservice/CameraService.h
+@@ -648,8 +648,10 @@ private:
+     sp<CameraFlashlight> mFlashlight;
+     // guard mTorchStatusMap
+     Mutex                mTorchStatusMutex;
+-    // guard mTorchClientMap, mTorchUidMap
++    // guard mTorchClientMap
+     Mutex                mTorchClientMapMutex;
++    // guard mTorchUidMap
++    Mutex                mTorchUidMapMutex;
+     // camera id -> torch status
+     KeyedVector<String8, ICameraServiceListener::TorchStatus> mTorchStatusMap;
+     // camera id -> torch client binder
+-- 
+2.5.0
+

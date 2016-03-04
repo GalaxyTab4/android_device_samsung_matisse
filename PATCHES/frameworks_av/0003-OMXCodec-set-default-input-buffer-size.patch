@@ -1,0 +1,65 @@
+From 34538228b946e606e0d2d0ae7104c57f17a7a09c Mon Sep 17 00:00:00 2001
+From: Pawit Pornkitprasan <p.pawit@gmail.com>
+Date: Tue, 17 Dec 2013 13:15:52 +0700
+Subject: [PATCH 3/8] OMXCodec: set default input buffer size
+
+Broadcom OMX only set the buffer size to 65536 by default which
+is not enough for higher bitrate video
+
+(This patch has been adapted for Lollipop)
+
+Change-Id: I74372f3d821e41feb38b9bc0cca4ef56aa019493
+---
+ media/libstagefright/ACodec.cpp   | 12 ++++++++++++
+ media/libstagefright/OMXCodec.cpp | 12 ++++++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 8d9bd21..3450f90 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -1671,6 +1671,18 @@ status_t ACodec::configureCodec(
+                     "using-sw-read-often", !!(usageBits & GRALLOC_USAGE_SW_READ_OFTEN));
+         }
+     }
++// Capri's OMX fail to set a reasonable default size from width and height
++#ifdef CAPRI_HWC
++    else if (!strncmp(mComponentName.c_str(), "OMX.BRCM.vc4.decoder.", 21)) {
++        int32_t width;
++        int32_t height;
++        if (msg->findInt32("width", &width) && msg->findInt32("height", &height)) {
++            setMinBufferSize(kPortIndexInput, (width * height * 3) / 2);
++        } else {
++            ALOGE("Failed to set min buffer size");
++        }
++    }
++#endif
+ 
+     int32_t prependSPSPPS = 0;
+     if (encoder
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index 8c1c962..fa2999a 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -672,6 +672,18 @@ status_t OMXCodec::configureCodec(const sp<MetaData> &meta) {
+     if (meta->findInt32(kKeyMaxInputSize, &maxInputSize)) {
+         setMinBufferSize(kPortIndexInput, (OMX_U32)maxInputSize);
+     }
++// Capri's OMX fail to set a reasonable default size from width and height
++#ifdef CAPRI_HWC
++    else if (!strncmp(mComponentName, "OMX.BRCM.vc4.decoder.", 21)) {
++        int32_t width;
++        int32_t height;
++        if (meta->findInt32(kKeyWidth, &width) && meta->findInt32(kKeyHeight, &height)) {
++            setMinBufferSize(kPortIndexInput, (width * height * 3) / 2);
++        } else {
++            ALOGE("Failed to set min buffer size");
++        }
++    }
++#endif
+ 
+     initOutputFormat(meta);
+ 
+-- 
+2.5.0
+

@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+add_lunch_combo aosp_matisse-userdebug
+=======
 #
 # Copyright (C) 2008 The Android Open Source Project
 #
@@ -20,5 +24,10 @@
 # In particular, you can add lunch options with the add_lunch_combo
 # function: add_lunch_combo generic-eng
 
-add_lunch_combo omni_matisse-userdebug
-add_lunch_combo omni_matisse-eng
+add_lunch_combo omni_millet3gxx-userdebug
+add_lunch_combo omni_millet3g-eng
+>>>>>>> refs/remotes/origin/android-6.0
+=======
+add_lunch_combo cm_matisse-eng
+add_lunch_combo cm_matisse-userdebug
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0

@@ -1,0 +1,399 @@
+From f22463e471f8fae77566f7070e67940e8e23fde8 Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <github@cerqueira.org>
+Date: Wed, 11 Apr 2012 11:21:23 +0100
+Subject: [PATCH 05/18] build: Inline kernel building as a buildtime task
+
+Kernel image integration is now done in the build system. The
+"one true way" of doing this is to download the kernel source
+into kernel/TARGET_BOOTLOADER_NAME (by usage of the cm.dependencies
+mechanism or otherwise), and defining the TARGET_KERNEL_CONFIG
+variable in the device's BoardConfig makefile
+
+If the kernel's location doesn't match the automagic location
+(multi-device kernel source, for instance), TARGET_KERNEL_SOURCE
+can be used to specify a kernel path (i.e.,
+"TARGET_KERNEL_SOURCE := kernel/shared-whatever")
+
+If the device requires out-of-kernel-tree modules to be built,
+the TARGET_KERNEL_MODULES variable can be used, pointing to a
+_make target_ that will build and install such modules. Definition
+of such a target is the device author's responsibility, the only
+restriction is that it is a normal makefile recipe (example
+below)
+
+Optionally (or as an alternative), a prebuilt binary can also be
+defined at BoardConfig, by usage of the TARGET_PREBUILT_KERNEL
+variable. This binary will be used if the kernel source is absent
+(or undefined).
+
+A minimal BoardConfig.mk should look something like this:
+
+TARGET_KERNEL_CONFIG := cyanogenmod_<device>_defconfig
+TARGET_PREBUILT_KERNEL := device/<vendor>/<device>/kernel
+
+To include, for example, the TI WLAN modules, this can be used:
+
+-----------------------------
+TIWLAN_MODULES:
+       make -C hardware/ti/wlan/wl1283/platforms/os/linux/ KERNEL_DIR=$(KERNEL_OUT) ARCH="arm" CROSS_COMPILE="arm-eabi-" TNETW=1273 RANDOM_MAC=n REPORT_LOG=n
+       mv hardware/ti/wlan/wl1283/platforms/os/linux/tiwlan_drv.ko $(KERNEL_MODULES_OUT)
+       make -C hardware/ti/wlan/wl1283_softAP/platforms/os/linux/ KERNEL_DIR=$(KERNEL_OUT) ARCH="arm" CROSS_COMPILE="arm-eabi-" TNETW=1273 REPORT_LOG=n
+       mv hardware/ti/wlan/wl1283_softAP/platforms/os/linux/tiap_drv.ko $(KERNEL_MODULES_OUT)
+
+TARGET_KERNEL_MODULES := TIWLAN_MODULES
+---------------------------
+
+Change-Id: I8634fa4c788a42dc6f62e62ca170825b66db126a
+
+build: Fix kernel module building on Darwin/OSX
+
+Darwin/OSX build host does not have module-init-tools which is
+required to generated modules.dep file. Switch to modules.order
+file marker which is always generated instead.
+
+Change-Id: I20c0fccd905fa668202c3e7284a8778db3728a65
+
+kernel: Change path to kernel/<vendor>/<device>
+
+Derive the kernel path from the device's own path (just replace "device"
+with "kernel")
+
+Change-Id: Idd44a0489e1ce280adf5ec4d9cfe2385c75dd115
+
+kernel: Improve support for non-arm architectures
+
+Remove hardwired references to the ARM arch and toolchains, and replace
+them with the respective android build variables
+
+Change-Id: Iae3eb548ca1d58ac808b5fa430d415283a809106
+
+kernel: Fix ARM building
+
+The default android ARM compiler, arm-androideabi-, does NOT work
+for the Linux kernel. Special-case the ARM architecture to target
+the ARM_EABI_TOOLCHAIN path directly
+
+Change-Id: Ib672c99f114cb89d5fda3343d4dc68810d042d35
+
+kernel: allow TARGET_KERNEL_MODULES to overwrite kernel modules
+
+This is necessary to use compat-wireless since it needs to build a newer
+version of cfg80211 (and sometimes mac80211) than the kernel sources version.
+There are probably other instances of this type of need.
+
+Change-Id: Ib5bf818286bc20987d8b9f9480a43f3e7690e239
+
+kernel.mk: make use of ccache when requested
+
+Change-Id: I9b6e28711bd5f590a76ac2b62a50b1d2de014e3e
+
+kernel: Fix ccache inclusion logic
+
+Builds were broken when CCACHE was missing from the environment
+Change-Id: Ie8d6048f4600f1dc9c298593a50e37af04b96438
+
+build: show accurate information on inline kernel warnings/errors
+
+Having the variables on AndroidBoard as suggested causes errors
+with mm/mmm, whereas having them on BoardConfig doesn't. Adjust
+the warnings to reflect this.
+
+Change-Id: I554c1f1073df678d36521f73bc236a1f4b02212e
+
+This is causing generic_armv5-userdebug builds to fail. Commenting out for now to fix recovery build servers. Will fix properly later.
+
+Change-Id: Ibe1cda8cd2b4c1914dfa3b8a29724c9069e047a6
+
+kernel.mk: Also search PRODUCT_COPY_FILES for the kernel copy, as that is how AOSP does it now.
+
+Change-Id: Id2d1cf079694d1996d4a85d8435c2e4562e5d444
+
+kernel.mk: fix compiled kernel copy
+
+Change-Id: Ifb2a3d4968e56eed236eaa2db9258cd0b8865fda
+
+kernel.mk: workaround to fix kernel builds on darwin until the prebuilts/gcc is checked in by upstream.
+
+Change-Id: I6321fb7f6814b207c821d974766d945351b3f546
+
+build: fix ccache usage when building kernels
+
+Change-Id: Id4edd4d85d9ba3ef42575f5fdebf22ed14957a99
+
+kernel.mk: set KERNEL_OUT properly
+
+It was hardcoded to $(ANDROID_BUILD_TOP)/$(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ
+which wouldn't exist if OUT_DIR_COMMON_BASE was set to use another dir
+(e.g. ramdisk)
+
+Fix it so that it now points to $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ
+if OUT_DIR is not out
+
+Change-Id: I1bf767d86548e41270d9cbb8f0c00512708501c5
+
+build: add support for uncompressed kernels
+
+build: kernel: remove hard coded darwin toolchain.
+
+* Use latest kernel toolchain from $(ARM_EABI_TOOLCHAIN) variable.
+
+Change-Id: I3b43408937dd5f193fcba19c034f868272de8963
+
+envsetup: set OUT_DIR to an absolute path always
+
+OUT_DIR was set to $(TOPDIR)out previously,
+but $(TOPDIR) was null, so it was a relative path.
+This broke releasetools, inline kernel building, etc
+since they require absolute paths.
+Fix it so that it is set to $(shell readlink -f .)/out
+if $(TOPDIR) is null.
+
+Also remove hacks which checked if (OUT_DIR) was out
+and changed it to $(ANDROID_BUILD_TOP)/out to workaround
+the aforementioned problem.
+
+Change-Id: I459a3b1325a1bbea0565cd73f6acf160d4ed9b39
+
+build: add strip on kernel modules
+
+kernel modules are huge for prima wlan and we need to strip them
+unstriped size 40mb
+striped size 2mb
+
+Change-Id: Iefd572732cad0a6f608439618673068a3586fcd5
+
+kernel: Ignore errors with module building
+
+Let kernel fully disable loadable modules
+
+Change-Id: Ia37ec927b092c041ee4c68bf9fd0f28b7339c8ca
+
+build: Add support for extra kernel build variables
+
+ * This allows specifying a variant defconfig, and an selinux defconfig
+   which are simply configuration fragments.
+
+Change-Id: I97882ae3b8c2e16ff6a7dce8dd3a70d70f8aa866
+
+s/cyanogenmod.com/cyanogenmod.org/
+
+* And fixup a wiki link while I'm at it.
+
+Change-Id: I0355b9a47eac1becc07e81659fbb2d11b14ece36
+
+Fixes for Xcode 5 and OSX 10.9.
+kernel.mk: Put elf.h into the include path on Darwin builds.
+
+Change-Id: I7069b956965d27caac3b2e4c3cc2e8b4c1da7a82
+
+Make the kernel image format parametric instead of a chain of if/elses
+
+Change-Id: I54bfcdecb8647f7bcf744e72b2de19fcf4e4e7ac
+
+build: Add "dtbs" target when building the kernel
+
+ * This is needed for 3.10
+
+Change-Id: I4044ea9e67017452efc25097a3327141a6627c24
+---
+ core/tasks/kernel.mk | 188 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 188 insertions(+)
+ create mode 100644 core/tasks/kernel.mk
+
+diff --git a/core/tasks/kernel.mk b/core/tasks/kernel.mk
+new file mode 100644
+index 0000000..4d519a0
+--- /dev/null
++++ b/core/tasks/kernel.mk
+@@ -0,0 +1,188 @@
++# Copyright (C) 2012 The CyanogenMod Project
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#      http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++# Android makefile to build kernel as a part of Android Build
++
++TARGET_AUTO_KDIR := $(shell echo $(TARGET_DEVICE_DIR) | sed -e 's/^device/kernel/g')
++
++## Externally influenced variables
++# kernel location - optional, defaults to kernel/<vendor>/<device>
++TARGET_KERNEL_SOURCE ?= $(TARGET_AUTO_KDIR)
++KERNEL_SRC := $(TARGET_KERNEL_SOURCE)
++# kernel configuration - mandatory
++KERNEL_DEFCONFIG := $(TARGET_KERNEL_CONFIG)
++VARIANT_DEFCONFIG := $(TARGET_KERNEL_VARIANT_CONFIG)
++SELINUX_DEFCONFIG := $(TARGET_KERNEL_SELINUX_CONFIG)
++
++## Internal variables
++KERNEL_OUT := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ
++KERNEL_CONFIG := $(KERNEL_OUT)/.config
++
++ifneq ($(BOARD_KERNEL_IMAGE_NAME),)
++	TARGET_PREBUILT_INT_KERNEL_TYPE := $(BOARD_KERNEL_IMAGE_NAME)
++	TARGET_PREBUILT_INT_KERNEL := $(KERNEL_OUT)/arch/$(TARGET_ARCH)/boot/$(TARGET_PREBUILT_INT_KERNEL_TYPE)
++else
++	TARGET_PREBUILT_INT_KERNEL := $(KERNEL_OUT)/arch/$(TARGET_ARCH)/boot/zImage
++	TARGET_PREBUILT_INT_KERNEL_TYPE := zImage
++endif
++
++## Do be discontinued in a future version. Notify builder about target
++## kernel format requirement
++ifeq ($(BOARD_KERNEL_IMAGE_NAME),)
++ifeq ($(BOARD_USES_UBOOT),true)
++        $(error "Please set BOARD_KERNEL_IMAGE_NAME to uImage")
++else ifeq ($(BOARD_USES_UNCOMPRESSED_BOOT),true)
++        $(error "Please set BOARD_KERNEL_IMAGE_NAME to Image")
++endif
++endif
++
++ifeq "$(wildcard $(KERNEL_SRC) )" ""
++    ifneq ($(TARGET_PREBUILT_KERNEL),)
++        HAS_PREBUILT_KERNEL := true
++        NEEDS_KERNEL_COPY := true
++    else
++        $(foreach cf,$(PRODUCT_COPY_FILES), \
++            $(eval _src := $(call word-colon,1,$(cf))) \
++            $(eval _dest := $(call word-colon,2,$(cf))) \
++            $(ifeq kernel,$(_dest), \
++                $(eval HAS_PREBUILT_KERNEL := true)))
++    endif
++
++    ifneq ($(HAS_PREBUILT_KERNEL),)
++        $(warning ***************************************************************)
++        $(warning * Using prebuilt kernel binary instead of source              *)
++        $(warning * THIS IS DEPRECATED, AND WILL BE DISCONTINUED                *)
++        $(warning * Please configure your device to download the kernel         *)
++        $(warning * source repository to $(KERNEL_SRC))
++        $(warning * See http://wiki.cyanogenmod.org/w/Doc:_integrated_kernel_building)
++        $(warning * for more information                                        *)
++        $(warning ***************************************************************)
++        FULL_KERNEL_BUILD := false
++        KERNEL_BIN := $(TARGET_PREBUILT_KERNEL)
++    else
++        $(warning ***************************************************************)
++        $(warning *                                                             *)
++        $(warning * No kernel source found, and no fallback prebuilt defined.   *)
++        $(warning * Please make sure your device is properly configured to      *)
++        $(warning * download the kernel repository to $(KERNEL_SRC))
++        $(warning * and add the TARGET_KERNEL_CONFIG variable to BoardConfig.mk *)
++        $(warning *                                                             *)
++        $(warning * As an alternative, define the TARGET_PREBUILT_KERNEL        *)
++        $(warning * variable with the path to the prebuilt binary kernel image  *)
++        $(warning * in your BoardConfig.mk file                                 *)
++        $(warning *                                                             *)
++        $(warning ***************************************************************)
++        $(error "NO KERNEL")
++    endif
++else
++    NEEDS_KERNEL_COPY := true
++    ifeq ($(TARGET_KERNEL_CONFIG),)
++        $(warning **********************************************************)
++        $(warning * Kernel source found, but no configuration was defined  *)
++        $(warning * Please add the TARGET_KERNEL_CONFIG variable to your   *)
++        $(warning * BoardConfig.mk file                                    *)
++        $(warning **********************************************************)
++        # $(error "NO KERNEL CONFIG")
++    else
++        #$(info Kernel source found, building it)
++        FULL_KERNEL_BUILD := true
++        ifeq ($(TARGET_USES_UNCOMPRESSED_KERNEL),true)
++        $(info Using uncompressed kernel)
++            KERNEL_BIN := $(KERNEL_OUT)/piggy
++        else
++            KERNEL_BIN := $(TARGET_PREBUILT_INT_KERNEL)
++        endif
++    endif
++endif
++
++ifeq ($(FULL_KERNEL_BUILD),true)
++
++KERNEL_HEADERS_INSTALL := $(KERNEL_OUT)/usr
++KERNEL_MODULES_INSTALL := system
++KERNEL_MODULES_OUT := $(TARGET_OUT)/lib/modules
++
++define mv-modules
++    mdpath=`find $(KERNEL_MODULES_OUT) -type f -name modules.order`;\
++    if [ "$$mdpath" != "" ];then\
++        mpath=`dirname $$mdpath`;\
++        ko=`find $$mpath/kernel -type f -name *.ko`;\
++        for i in $$ko; do $(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $$i;\
++        mv $$i $(KERNEL_MODULES_OUT)/; done;\
++    fi
++endef
++
++define clean-module-folder
++    mdpath=`find $(KERNEL_MODULES_OUT) -type f -name modules.order`;\
++    if [ "$$mdpath" != "" ];then\
++        mpath=`dirname $$mdpath`; rm -rf $$mpath;\
++    fi
++endef
++
++ifeq ($(TARGET_ARCH),arm)
++    ifneq ($(USE_CCACHE),)
++      ccache := $(ANDROID_BUILD_TOP)/prebuilts/misc/$(HOST_PREBUILT_TAG)/ccache/ccache
++      # Check that the executable is here.
++      ccache := $(strip $(wildcard $(ccache)))
++    endif
++    ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ARM_EABI_TOOLCHAIN)/arm-eabi-"
++    ccache = 
++endif
++
++ifeq ($(HOST_OS),darwin)
++  MAKE_FLAGS := C_INCLUDE_PATH=$(ANDROID_BUILD_TOP)/external/elfutils/libelf
++endif
++
++ifeq ($(TARGET_KERNEL_MODULES),)
++    TARGET_KERNEL_MODULES := no-external-modules
++endif
++
++$(KERNEL_OUT):
++	mkdir -p $(KERNEL_OUT)
++	mkdir -p $(KERNEL_MODULES_OUT)
++
++$(KERNEL_CONFIG): $(KERNEL_OUT)
++	$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) VARIANT_DEFCONFIG=$(VARIANT_DEFCONFIG) SELINUX_DEFCONFIG=$(SELINUX_DEFCONFIG) $(KERNEL_DEFCONFIG)
++
++$(KERNEL_OUT)/piggy : $(TARGET_PREBUILT_INT_KERNEL)
++	$(hide) gunzip -c $(KERNEL_OUT)/arch/$(TARGET_ARCH)/boot/compressed/piggy.gzip > $(KERNEL_OUT)/piggy
++
++TARGET_KERNEL_BINARIES: $(KERNEL_OUT) $(KERNEL_CONFIG) $(KERNEL_HEADERS_INSTALL)
++	$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) $(TARGET_PREBUILT_INT_KERNEL_TYPE)
++	-$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) dtbs
++	-$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) modules
++	-$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) INSTALL_MOD_PATH=../../$(KERNEL_MODULES_INSTALL) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) modules_install
++	$(mv-modules)
++	$(clean-module-folder)
++
++$(TARGET_KERNEL_MODULES): TARGET_KERNEL_BINARIES
++
++$(TARGET_PREBUILT_INT_KERNEL): $(TARGET_KERNEL_MODULES)
++	$(mv-modules)
++	$(clean-module-folder)
++
++$(KERNEL_HEADERS_INSTALL): $(KERNEL_OUT) $(KERNEL_CONFIG)
++	$(MAKE) $(MAKE_FLAGS) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(TARGET_ARCH) $(ARM_CROSS_COMPILE) headers_install
++
++endif # FULL_KERNEL_BUILD
++
++## Install it
++
++ifeq ($(NEEDS_KERNEL_COPY),true)
++file := $(INSTALLED_KERNEL_TARGET)
++ALL_PREBUILT += $(file)
++$(file) : $(KERNEL_BIN) | $(ACP)
++	$(transform-prebuilt-to-target)
++
++ALL_PREBUILT += $(INSTALLED_KERNEL_TARGET)
++endif
+-- 
+2.5.0
+
