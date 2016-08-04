@@ -1,0 +1,34 @@
+From f9bba076e21409452eac8a4ff9f8d651735f2622 Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <github@cerqueira.org>
+Date: Wed, 16 Nov 2011 23:14:27 +0000
+Subject: [PATCH 12/18] ota: Remove cruft we don't care about
+
+Skip the date check (downgrade to your content), and don't include
+recovery in otapackages.
+5.0.0 update: We want the recovery patchstuff back
+---
+ tools/releasetools/ota_from_target_files.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index 9951b39..3587b35 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -521,10 +521,10 @@ def WriteFullOTAPackage(input_zip, output_zip):
+   has_recovery_patch = HasRecoveryPatch(input_zip)
+   block_based = OPTIONS.block_based and has_recovery_patch
+ 
+-  if not OPTIONS.omit_prereq:
+-    ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
+-    ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
+-    script.AssertOlderBuild(ts, ts_text)
++  #if not OPTIONS.omit_prereq:
++  #  ts = GetBuildProp("ro.build.date.utc", OPTIONS.info_dict)
++  #  ts_text = GetBuildProp("ro.build.date", OPTIONS.info_dict)
++  #  script.AssertOlderBuild(ts, ts_text)
+ 
+   AppendAssertions(script, OPTIONS.info_dict, oem_dict)
+   device_specific.FullOTA_Assertions()
+-- 
+2.5.0
+

@@ -2,7 +2,11 @@
 
 set -e
 
+<<<<<<< HEAD
+export DEVICE=millet3g
+=======
 export DEVICE=matisse
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
 export VENDOR=samsung
 
 function extract() {
@@ -56,4 +60,8 @@ rm -rf $DEVBASE/*
 
 extract ../../$VENDOR/$DEVICE/proprietary-files.txt $DEVBASE
 
+<<<<<<< HEAD
+bash setup-makefiles.sh
+=======
 ./setup-makefiles.sh
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0

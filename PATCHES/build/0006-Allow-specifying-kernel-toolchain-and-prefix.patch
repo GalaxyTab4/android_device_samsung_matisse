@@ -1,0 +1,47 @@
+From ee4293e338e5f5a4603ac40649e70540602c9e28 Mon Sep 17 00:00:00 2001
+From: Chirayu Desai <chirayudesai1@gmail.com>
+Date: Sun, 9 Nov 2014 17:27:51 +0530
+Subject: [PATCH 06/18] Allow specifying kernel toolchain and prefix
+
+Change-Id: Ib75cfe772e073f2196455f3e3dfba247f6b3feff
+---
+ core/tasks/kernel.mk | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/core/tasks/kernel.mk b/core/tasks/kernel.mk
+index 4d519a0..b0ab1de 100644
+--- a/core/tasks/kernel.mk
++++ b/core/tasks/kernel.mk
+@@ -112,12 +112,19 @@ KERNEL_HEADERS_INSTALL := $(KERNEL_OUT)/usr
+ KERNEL_MODULES_INSTALL := system
+ KERNEL_MODULES_OUT := $(TARGET_OUT)/lib/modules
+ 
++ifeq ($(KERNEL_TOOLCHAIN),)
++KERNEL_TOOLCHAIN := $(ARM_EABI_TOOLCHAIN)
++endif
++ifeq ($(KERNEL_TOOLCHAIN_PREFIX),)
++KERNEL_TOOLCHAIN_PREFIX := arm-eabi-
++endif
++
+ define mv-modules
+     mdpath=`find $(KERNEL_MODULES_OUT) -type f -name modules.order`;\
+     if [ "$$mdpath" != "" ];then\
+         mpath=`dirname $$mdpath`;\
+         ko=`find $$mpath/kernel -type f -name *.ko`;\
+-        for i in $$ko; do $(ARM_EABI_TOOLCHAIN)/arm-eabi-strip --strip-unneeded $$i;\
++        for i in $$ko; do $(KERNEL_TOOLCHAIN)/$(KERNEL_TOOLCHAIN_PREFIX)strip --strip-unneeded $$i;\
+         mv $$i $(KERNEL_MODULES_OUT)/; done;\
+     fi
+ endef
+@@ -135,7 +142,7 @@ ifeq ($(TARGET_ARCH),arm)
+       # Check that the executable is here.
+       ccache := $(strip $(wildcard $(ccache)))
+     endif
+-    ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(ARM_EABI_TOOLCHAIN)/arm-eabi-"
++    ARM_CROSS_COMPILE:=CROSS_COMPILE="$(ccache) $(KERNEL_TOOLCHAIN)/$(KERNEL_TOOLCHAIN_PREFIX)"
+     ccache = 
+ endif
+ 
+-- 
+2.5.0
+

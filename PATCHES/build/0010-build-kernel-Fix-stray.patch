@@ -1,0 +1,36 @@
+From 322274889a5e89f4f31b21d1a49baef243490e66 Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <ricardo@cyngn.com>
+Date: Tue, 20 Jan 2015 01:41:19 +0000
+Subject: [PATCH 10/18] build: kernel: Fix stray "@"
+
+Nested "$(hide)"s (makefile @) don't work. There was one at the
+beginning of the script, remove the inner one to prevent it from
+being interpreted as a shell command
+
+Change-Id: I08a829ee56b212366a0f5a3812f7a614667a9c2b
+---
+ core/tasks/kernel.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/core/tasks/kernel.mk b/core/tasks/kernel.mk
+index a2eb21e..2c49271 100644
+--- a/core/tasks/kernel.mk
++++ b/core/tasks/kernel.mk
+@@ -221,12 +221,12 @@ $(TARGET_PREBUILT_INT_KERNEL): $(TARGET_KERNEL_MODULES)
+ 
+ $(KERNEL_HEADERS_INSTALL): $(KERNEL_OUT) $(KERNEL_CONFIG)
+ 	$(hide) if [ ! -z "$(KERNEL_HEADER_DEFCONFIG)" ]; then \
+-			$(hide) rm -f ../$(KERNEL_CONFIG); \
++			rm -f ../$(KERNEL_CONFIG); \
+ 			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_HEADER_ARCH) $(KERNEL_CROSS_COMPILE) VARIANT_DEFCONFIG=$(VARIANT_DEFCONFIG) SELINUX_DEFCONFIG=$(SELINUX_DEFCONFIG) $(KERNEL_HEADER_DEFCONFIG); \
+ 			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_HEADER_ARCH) $(KERNEL_CROSS_COMPILE) headers_install; fi
+ 	$(hide) if [ "$(KERNEL_HEADER_DEFCONFIG)" != "$(KERNEL_DEFCONFIG)" ]; then \
+ 			echo "Used a different defconfig for header generation"; \
+-			$(hide) rm -f ../$(KERNEL_CONFIG); \
++			rm -f ../$(KERNEL_CONFIG); \
+ 			$(MAKE) -C $(KERNEL_SRC) O=$(KERNEL_OUT) ARCH=$(KERNEL_ARCH) $(KERNEL_CROSS_COMPILE) VARIANT_DEFCONFIG=$(VARIANT_DEFCONFIG) SELINUX_DEFCONFIG=$(SELINUX_DEFCONFIG) $(KERNEL_DEFCONFIG); fi
+ 	$(hide) if [ ! -z "$(KERNEL_CONFIG_OVERRIDE)" ]; then \
+ 			echo "Overriding kernel config with '$(KERNEL_CONFIG_OVERRIDE)'"; \
+-- 
+2.5.0
+

@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+PRODUCT_MAKEFILES := \
+<<<<<<< HEAD
+    $(LOCAL_DIR)/device_matisse.mk \
+    $(LOCAL_DIR)/aosp_matisse.mk
+=======
+    $(LOCAL_DIR)/device.mk \
+    $(LOCAL_DIR)/omni_matisse.mk
+>>>>>>> refs/remotes/origin/android-6.0
+=======
 # Copyright (C) 2014 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,3 +24,4 @@
 
 PRODUCT_MAKEFILES := \
     $(LOCAL_DIR)/full_matisse.mk
+>>>>>>> refs/remotes/GalaxyTab4/cm-13.0
